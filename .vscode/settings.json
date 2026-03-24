@@ -1,0 +1,17 @@
+{
+  "[latex]": {
+    "editor.defaultFormatter": "James-Yu.latex-workshop",
+    "editor.formatOnSave": true
+  },
+  "latex-workshop.formatting.latex": "latexindent",
+  "latex-workshop.formatting.latexindent.path": "/Users/akeles/Documents/Thesis/tools/latexindent-wrapper.sh",
+  "latex-workshop.formatting.latexindent.args": [
+    "-c",
+    "%DIR%/",
+    "%TMPFILE%",
+    "-m",
+    "-l",
+    ".latexindent.yaml",
+    "-y=defaultIndent: '%INDENT%'"
+  ]
+}
