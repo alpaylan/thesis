@@ -19,8 +19,30 @@
 \documentclass[12pt]{thesis}  %12pt is larger than 11pt
 \usepackage[margin=1cm]{caption}
 \usepackage{titlesec}
-   \titleformat{\chapter}
-      {\normalfont\large}{Chapter \thechapter:}{1em}{}
+\usepackage{xcolor}
+\definecolor{thesisheading}{HTML}{123B66}
+\definecolor{thesissubheading}{HTML}{2F2F2F}
+\newcommand{\chapterlabelname}{Chapter}
+\newcommand{\setchapterlabel}[1]{\renewcommand{\chapterlabelname}{#1}}
+\titleformat{\chapter}[display]
+  {\normalfont}
+  {\color{thesisheading}\Large\bfseries\chapterlabelname\ \thechapter}
+  {0.5ex}
+  {\Huge\bfseries}
+  [\vspace{0.5ex}\color{thesisheading}\titlerule]
+\titlespacing*{\chapter}{0pt}{0pt}{1.5em}
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{thesissubheading}}
+  {\thesection}{0.8em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{thesissubheading}}
+  {\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{thesissubheading}}
+  {\thesubsubsection}{0.8em}{}
+\titlespacing*{\section}{0pt}{1.4em}{0.6em}
+\titlespacing*{\subsection}{0pt}{1.2em}{0.5em}
+\titlespacing*{\subsubsection}{0pt}{1em}{0.4em}
 \usepackage{tikz}
 \usepackage{times}
 \usepackage[english]{babel}
@@ -145,8 +167,7 @@
 \pagenumbering{arabic}
 \input{Chapter1}
 \clearpage
-\titleformat{\chapter}
-{\normalfont\large}{Appendix \thechapter:}{1em}{}
+\setchapterlabel{Appendix}
 \input{AppendixA}
 \clearpage
 
