@@ -11,3 +11,65 @@ bridge between the intent and the produced program; it is the process of tinkeri
 measuring, understanding what the program does, separating it from how the program is
 implemented.
 
+%% Source for arguments and vocabulary:
+%% https://alperenkeles.com/posts/vocab-for-testing/
+
+Different methods of software testing force the programmer to express the intent in
+different forms. In the simplest scenario, the programmers \emph{tinker} with the
+program at hand. They interact with the produced artifact, pressing buttons in a user
+interface, exploring different options in a command-line interface, testing a variety
+of inputs for a function interacting through REPL... Going forward, these interactions
+are typically \emph{codified}, written as concrete steps of testing instructions to be
+run alongside the program development, run as part of an automated test suite of
+hundreds or thousands of such interactions. The simplest form of codification is
+\emph{example-based testing}, in which the specification relates concrete user written
+input-output pairs together. A sorting function is tested through several assertions
+such as \code{sort([]) == []}, \code{sort([1, 0]) == [0, 1]}, \code{sort(3,2,-1) ==
+[-1, 2, 3]}... Another form of specification, the one that will be of focus to this
+whole thesis, is \emph{properties}.
+
+A property is a universally quantified predicate function. A fact about the program
+under test that must hold for any possible input. The universality of properties allows
+for relieving the user of the responsibility of supplying inputs. Once a property is
+written as specification of a particular program behavior, there are different
+strategies for producing inputs, systematic exhaustive search, random sampling, perhaps
+even user-supplied inputs. The combination of these methods are typically gathered
+under the umbrella of \emph{Property-Based Testing}.
+
+Property-Based Testing (PBT) was pioneered by Claessen and Hughes in ``QuickCheck: a
+lightweight tool for random testing of Haskell program''~\cite{ClaessenH00}. The
+initial steps of random software testing is typically attributed to the CS736 class of
+University of Wisconsin Madison Computer Science Department in which Bart Miller coins
+the term "fuzz" testing, fuzzing UNIX utilities with random inputs to produce
+breakages, triggering faults, finding bugs in programs\cn. While the fuzz testing
+literature evolved with a focus on finding more and more faults via smarter, guided,
+targeted input generation techniques\cn, QuickCheck has chosen the specifications as
+its main focus. The paper introduces a language as well as an implementation as a
+library, for expressing properties, and writing random data generators; the design of
+which has been replicated in virtually all programming languages in the last 26 years.
+Table~\ref{tab:pbt-frameworks} gives a glimps of the reach in which QuickCheck has made
+into the random testing world, the table presents the community-maintained
+\code{jmid/pbt-frameworks} survey~\cite{jmid-pbt-frameworks}.
+\input{tables/pbt-frameworks-full}
+
+The simplest form of a Property-Based Testing runner is as follows: A \generator{}
+produces some values a \checker{} tests and produces one of three possible results,
+either a \passed{}, indicating that the predicate executed with the input did not
+reveal any bugs, \discarded{}, indicating that the input is not a valid input for the
+property, hence was promptly discarded, or \failed{}, indicating that the input
+constitutes a bug, a violation of the property. After reaching a failing input, the
+second stage of the property runner is initiated, the bug is minimized through
+\shrinker{shrinking} with the application of delta-debugging. A \shrinker{} produces
+multiple candidate shrunk values, sometimes by shrinking an internal value such as keys
+in a tree, or removing parts of the structure such as removing part of a computation.
+If a candidate reproduces the failure, the shrinking is recursively applied to the
+smaller candidate until there are no more failing candidates, at which point the
+minimal value is printed. An abstract form of this process is depicted in
+Figure~\ref{fig:quickcheck-property-runner-intro}:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/quickcheck-dbas-runner.png}
+    \caption{An abstract representation of QuickCheck's property runner.}
+    \label{fig:quickcheck-property-runner-intro}
+\end{figure}

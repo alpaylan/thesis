@@ -1,0 +1,121 @@
+@article{DBLP:journals/pacmpl/XiaZHHMPZ20,
+  author       = {Li{-}yao Xia and
+                  Yannick Zakowski and
+                  Paul He and
+                  Chung{-}Kil Hur and
+                  Gregory Malecha and
+                  Benjamin C. Pierce and
+                  Steve Zdancewic},
+  title        = {Interaction trees: representing recursive and impure programs in Coq},
+  journal      = {Proc. {ACM} Program. Lang.},
+  volume       = {4},
+  number       = {{POPL}},
+  pages        = {51:1--51:32},
+  year         = {2020},
+  url          = {https://doi.org/10.1145/3371119},
+  doi          = {10.1145/3371119},
+  timestamp    = {Sun, 12 Nov 2023 02:17:41 +0100},
+  biburl       = {https://dblp.org/rec/journals/pacmpl/XiaZHHMPZ20.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{goldsteinPropertyBasedTestingPractice2024,
+  address   = {Lisbon, Portugal},
+  series    = {{ICSE} '24},
+  title     = {Property-{Based} {Testing} in {Practice}},
+  volume    = {187},
+  copyright = {All rights reserved},
+  isbn      = {9798400702174},
+  url       = {https://doi.org/10.1145/3597503.3639581},
+  doi       = {10.1145/3597503.3639581},
+  abstract  = {Property-based testing (PBT) is a testing methodology where users write executable formal specifications of software components and an automated harness checks these specifications against many automatically generated inputs. From its roots in the QuickCheck library in Haskell, PBT has made significant inroads in mainstream languages and industrial practice at companies such as Amazon, Volvo, and Stripe. As PBT extends its reach, it is important to understand how developers are using it in practice, where they see its strengths and weaknesses, and what innovations are needed to make it more effective.
+               
+               We address these questions using data from 30 in-depth interviews with experienced users of PBT at Jane Street, a financial technology company making heavy and sophisticated use of PBT. These interviews provide empirical evidence that PBT's main strengths lie in testing complex code and in increasing confidence beyond what is available through conventional testing methodologies, and, moreover, that most uses fall into a relatively small number of high-leverage idioms. Its main weaknesses, on the other hand, lie in the relative complexity of writing properties and random data generators and in the difficulty of evaluating their effectiveness. From these observations, we identify a number of potentially high-impact areas for future exploration, including performance improvements, differential testing, additional high-leverage testing scenarios, better techniques for generating random input data, test-case reduction, and methods for evaluating the effectiveness of tests.},
+  language  = {en},
+  booktitle = {Proceedings of the {IEEE}/{ACM} 46th {International} {Conference} on {Software} {Engineering}},
+  publisher = {Association for Computing Machinery},
+  author    = {Goldstein, Harrison and Cutler, Joseph W. and Dickstein, Daniel and Pierce, Benjamin C. and Head, Andrew},
+  year      = {2024},
+  pages     = {1--13},
+  file      = {Goldstein - 2023 - Property-Based Testing in Practice Codebook.pdf:/Users/harrison/Zotero/storage/XRH6XD6C/Goldstein - 2023 - Property-Based Testing in Practice Codebook.pdf:application/pdf}
+}
+
+@misc{goldsteinTycheSituExploration2023,
+  address      = {San Francisco, CA, USA},
+  type         = {Demo},
+  title        = {Tyche: {In} {Situ} {Exploration} of {Random} {Testing} {Effectiveness} ({Demo})},
+  copyright    = {All rights reserved},
+  url          = {https://harrisongoldste.in/papers/uist23.pdf},
+  author       = {Goldstein, Harrison},
+  collaborator = {Pierce, Benjamin C and Head, Andrew},
+  month        = oct,
+  year         = {2023}
+}
+
+@article{FuzzFactory,
+  title      = {{FuzzFactory}: domain-specific fuzzing with waypoints},
+  volume     = {3},
+  shorttitle = {{FuzzFactory}},
+  url        = {https://dl.acm.org/doi/10.1145/3360600},
+  doi        = {10.1145/3360600},
+  number     = {OOPSLA},
+  urldate    = {2024-11-13},
+  journal    = {Replication Package for "FuzzFactory: Domain-Specific Fuzzing with Waypoints"},
+  author     = {Padhye, Rohan and Lemieux, Caroline and Sen, Koushik and Simon, Laurent and Vijayakumar, Hayawardh},
+  month      = oct,
+  year       = {2019},
+  pages      = {174:1--174:29},
+  file       = {Full Text PDF:/Users/harrison/Zotero/storage/P2CLX2ZP/Padhye et al. - 2019 - FuzzFactory domain-specific fuzzing with waypoint.pdf:application/pdf}
+}
+
+@article{hudakBuildingDomainspecificEmbedded1996,
+  title    = {Building domain-specific embedded languages},
+  volume   = {28},
+  issn     = {0360-0300, 1557-7341},
+  url      = {https://dl.acm.org/doi/10.1145/242224.242477},
+  doi      = {10.1145/242224.242477},
+  language = {en},
+  number   = {4es},
+  urldate  = {2024-11-13},
+  journal  = {ACM Computing Surveys},
+  author   = {Hudak, Paul},
+  month    = dec,
+  year     = {1996},
+  pages    = {196}
+}
+
+@article{goldsteinParsingRandomness2022,
+  title     = {Parsing {Randomness}},
+  volume    = {6},
+  copyright = {All rights reserved},
+  url       = {https://doi.org/10.1145/3563291},
+  doi       = {10.1145/3563291},
+  abstract  = {Random data generators can be thought of as parsers of streams of randomness. This perspective on generators for random data structures is established folklore in the programming languages community, but it has never been formalized, nor have its consequences been deeply explored. We build on the idea of freer monads to develop free generators, which unify parsing and generation using a common structure that makes the relationship between the two concepts precise. Free generators lead naturally to a proof that a monadic generator can be factored into a parser plus a distribution over choice sequences. Free generators also support a notion of derivative, analogous to the familiar Brzozowski derivatives of formal languages, allowing analysis tools to "preview" the effect of a particular generator choice. This gives rise to a novel algorithm for generating data structures satisfying user-specified preconditions.},
+  number    = {OOPSLA2},
+  urldate   = {2022-11-21},
+  journal   = {Proceedings of the ACM on Programming Languages},
+  author    = {Goldstein, Harrison and Pierce, Benjamin C.},
+  month     = oct,
+  year      = {2022},
+  pages     = {128:89--128:113},
+  file      = {Full Text PDF:/Users/harrison/Zotero/storage/7DHQCBVA/Goldstein and Pierce - 2022 - Parsing randomness.pdf:application/pdf}
+}
+
+@article{weirichRoleDependentTypes2019,
+  title    = {A role for dependent types in {Haskell}},
+  volume   = {3},
+  issn     = {2475-1421},
+  url      = {https://dl.acm.org/doi/10.1145/3341705},
+  doi      = {10.1145/3341705},
+  abstract = {STEPHANIE WEIRICH, University of Pennsylvania, USA PRITAM CHOUDHURY, University of Pennsylvania, USA ANTOINE VOIZARD, University of Pennsylvania, USA RICHARD A. EISENBERG, Bryn Mawr College, USA Modern Haskell supports zero-cost coercions, a mechanism where types that share the same run-time representation may be freely converted between. To make sure such conversions are safe and desirable, this feature relies on a mechanism of roles to prohibit invalid coercions. In this work, we show how to incorporate roles into dependent types systems and prove, using the Coq proof assistant, that the resulting system is sound. We have designed this work as a foundation for the addition of dependent types to the Glasgow Haskell Compiler, but we also expect that it will be of use to designers of other dependently-typed languages who might want to adopt Haskell’s safe coercions feature. CCS Concepts: • Software and its engineering → Functional languages; Polymorphism; • Theory of computation → Type theory.},
+  language = {en},
+  number   = {ICFP},
+  urldate  = {2024-11-15},
+  journal  = {Proceedings of the ACM on Programming Languages},
+  author   = {Weirich, Stephanie and Choudhury, Pritam and Voizard, Antoine and Eisenberg, Richard A.},
+  month    = jul,
+  year     = {2019},
+  pages    = {1--29},
+  file     = {Weirich et al. - 2019 - A role for dependent types in Haskell.pdf:/Users/harrison/Zotero/storage/XILQQ2VY/Weirich et al. - 2019 - A role for dependent types in Haskell.pdf:application/pdf}
+}
+

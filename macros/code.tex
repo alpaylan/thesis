@@ -1,0 +1,36 @@
+% Syntax highlighting definitions for inline code snippets.
+\definecolor{codekeyword}{HTML}{0B5394}
+\definecolor{codecomment}{HTML}{3D7A3A}
+\definecolor{codestring}{HTML}{7A1E76}
+\definecolor{codeidentifier}{HTML}{8A4B08}
+
+\lstdefinelanguage{Rust}{
+  morekeywords={
+      as,async,await,break,const,continue,crate,dyn,else,enum,extern,false,fn,for,
+      if,impl,in,let,loop,match,mod,move,mut,pub,ref,return,self,Self,static,
+      struct,super,trait,true,type,unsafe,use,where,while
+    },
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]"
+}
+
+\lstdefinestyle{thesiscode}{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{codekeyword}\bfseries,
+  identifierstyle=\color{codeidentifier},
+  commentstyle=\color{codecomment}\itshape,
+  stringstyle=\color{codestring},
+  showstringspaces=false,
+  keepspaces=true,
+  columns=fullflexible
+}
+
+% Usage:
+%   \code{let x = 1;}
+%   \code[language=Python]{print("hello")}
+%
+% Optional argument accepts listings options; default language is Rust.
+% Backtick is used as delimiter to avoid conflicts with Rust's common `!` syntax.
+\newcommand{\code}[2][language=Rust]{\lstinline[style=thesiscode,#1]`#2`}

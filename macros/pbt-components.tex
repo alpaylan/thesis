@@ -1,0 +1,74 @@
+% PBT component colors and helper terms (from proplang-paper palette).
+\definecolor{generator}{RGB}{75,161,241}
+\colorlet{ltgenerator}{generator}
+\colorlet{dkgenerator}{generator}
+
+\definecolor{mutator}{RGB}{174,62,201}
+\colorlet{ltmutator}{mutator}
+\colorlet{dkmutator}{mutator}
+
+\definecolor{shrinker}{RGB}{241,172,75}
+\colorlet{ltshrinker}{shrinker}
+\colorlet{dkshrinker}{shrinker}
+
+\definecolor{checker}{RGB}{224,49,49}
+\colorlet{ltchecker}{checker}
+\colorlet{dkchecker}{checker}
+
+\definecolor{printer}{RGB}{159,168,178}
+\colorlet{ltprinter}{printer}
+\colorlet{dkprinter}{printer}
+
+\definecolor{feedback}{RGB}{76,176,94}
+\colorlet{ltfeedback}{feedback}
+\colorlet{dkfeedback}{feedback}
+
+\definecolor{seedpool}{RGB}{248,119,119}
+\colorlet{ltseedpool}{seedpool}
+\colorlet{dkseedpool}{seedpool}
+
+% Result-status palette (separate from component colors), rendered as inverse text.
+\definecolor{statuspassed}{RGB}{24,121,78}
+\definecolor{statusdiscarded}{RGB}{153,99,0}
+\definecolor{statusfailed}{RGB}{163,33,40}
+
+% Proplang uses checker color for run/instrumented-runner roles.
+\colorlet{runner}{checker}
+\colorlet{ltrunner}{runner}
+\colorlet{dkrunner}{runner}
+
+% Usage:
+%   \generator{}      -> "generator" in generator color
+%   \generator{gen}   -> custom text in generator color
+% Same pattern for: \mutator, \shrinker, \checker, \runner,
+%   \printer, \feedback, \seedpool, \passed, \discarded, \failed
+\newcommand{\pbtcomponentcustom}[3]{%
+  \if\relax\detokenize{#3}\relax
+    \textcolor{#1}{#2}%
+  \else
+    \textcolor{#1}{#3}%
+  \fi
+}
+
+\newcommand{\pbtstatuscustom}[3]{%
+  \begingroup
+  \setlength{\fboxsep}{5pt}%
+  \if\relax\detokenize{#3}\relax
+    \colorbox{#1}{\textcolor{white}{\texttt{#2}}}%
+  \else
+    \colorbox{#1}{\textcolor{white}{\texttt{#3}}}%
+  \fi
+  \endgroup
+}
+
+\newcommand{\generator}[1]{\pbtcomponentcustom{generator}{generator}{#1}}
+\newcommand{\mutator}[1]{\pbtcomponentcustom{mutator}{mutator}{#1}}
+\newcommand{\shrinker}[1]{\pbtcomponentcustom{shrinker}{shrinker}{#1}}
+\newcommand{\checker}[1]{\pbtcomponentcustom{checker}{checker}{#1}}
+\newcommand{\runner}[1]{\pbtcomponentcustom{runner}{runner}{#1}}
+\newcommand{\printer}[1]{\pbtcomponentcustom{printer}{printer}{#1}}
+\newcommand{\feedback}[1]{\pbtcomponentcustom{feedback}{feedback}{#1}}
+\newcommand{\seedpool}[1]{\pbtcomponentcustom{seedpool}{seed pool}{#1}}
+\newcommand{\passed}[1]{\pbtstatuscustom{statuspassed}{PASSED}{#1}}
+\newcommand{\discarded}[1]{\pbtstatuscustom{statusdiscarded}{DISCARDED}{#1}}
+\newcommand{\failed}[1]{\pbtstatuscustom{statusfailed}{FAILED}{#1}}

@@ -1,0 +1,154 @@
+% Auto-generated from jmid/pbt-frameworks README table.
+\begin{table}[p]
+    \centering
+    \tiny
+    \setlength{\tabcolsep}{1.0pt}
+    \renewcommand{\arraystretch}{0.82}
+    \caption{PBT framework landscape table adapted from \code{jmid/pbt-frameworks}~\cite{jmid-pbt-frameworks}.}
+    \label{tab:pbt-frameworks}
+    \begin{minipage}[t]{0.495\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{%
+            \begin{tabular}{|l|l|c|c|c|c|}
+                \hline
+                Framework        & Language     & Gen. EDSL & Shrinking            & Int. Shr.            & Cov. Guidance          \\
+                \hline
+                theft            & C            & (Y)       & Y                    & (Y)                  & (Y)                    \\
+                \hline
+                DeepState        & C / C++      & (Y)       & Y                    & Y                    & Y                      \\
+                \hline
+                RapidCheck       & C++          & Y         & Y                    & -                    & -                      \\
+                \hline
+                CsCheck          & C\# / .Net   & Y         & Y                    & Y                    & -                      \\
+                \hline
+                test.check       & Clojure      & Y         & Y                    & Y                    & -                      \\
+                \hline
+                check-it         & Common Lisp  & Y         & Y                    & -                    & -                      \\
+                \hline
+                cl-quickcheck    & Common Lisp  & Y         & -                    & -                    & -                      \\
+                \hline
+                QuickChick       & Coq / Rocq   & Y         & Y                    & -                    & Y                      \\
+                \hline
+                PropCheck        & Elixir       & Y         & Y                    & Y                    & -                      \\
+                \hline
+                StreamData       & Elixir       & Y         & Y                    & Y                    & -                      \\
+                \hline
+                elm test         & Elm          & Y         & Y                    & Y                    & -                      \\
+                \hline
+                propcheck        & Emacs Lisp   & Y         & Y                    & Y                    & -                      \\
+                \hline
+                QuickCheck       & Erlang       & Y         & Y                    & Y                    & -                      \\
+                \hline
+                PropEr           & Erlang       & Y         & Y                    & Y                    & -                      \\
+                \hline
+                FsCheck          & F\# / .Net   & Y         & Y                    & -                    & -                      \\
+                \hline
+                FSharp-Hedgehog  & F\# / .Net   & Y         & Y                    & Y                    & -                      \\
+                \hline
+                gopter           & Go           & Y         & Y                    & -                    & -                      \\
+                \hline
+                Rapid            & Go           & Y         & Y                    & Y                    & -                      \\
+                \hline
+                QuickCheck       & Haskell      & Y         & Y                    & -                    & -                      \\
+                \hline
+                SmallCheck       & Haskell      & Y         & -\textsuperscript{1} & -\textsuperscript{1} & -                      \\
+                \hline
+                Hedgehog         & Haskell      & Y         & Y                    & Y                    & -                      \\
+                \hline
+                Americium        & Java / Scala & Y         & Y                    & Y                    & -                      \\
+                \hline
+                junit-quickcheck & Java         & Y         & Y                    & -                    & (Y)\textsuperscript{2} \\
+                \hline
+                QuickTheories    & Java         & Y         & Y                    & Y                    & Y                      \\
+                \hline
+                jqwik            & Java         & Y         & Y                    & Y                    & -                      \\
+                \hline
+            \end{tabular}%
+        }
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.495\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{%
+            \begin{tabular}{|l|l|c|c|c|c|}
+                \hline
+                Framework         & Language       & Gen. EDSL            & Shrinking              & Int. Shr.            & Cov. Guidance \\
+                \hline
+                fast-check        & JS / TS        & Y                    & Y                      & Y                    & -             \\
+                \hline
+                propCheck         & Kotlin         & Y                    & Y                      & Y                    & -             \\
+                \hline
+                Lua-QuickCheck    & Lua            & Y                    & Y                      & Y                    & -             \\
+                \hline
+                Fox               & Obj.C / Swift  & Y                    & Y                      & Y                    & -             \\
+                \hline
+                QCheck            & OCaml          & Y                    & Y                      & Y\textsuperscript{4} & -             \\
+                \hline
+                Crowbar           & OCaml          & Y                    & (Y)\textsuperscript{5} & -                    & Y             \\
+                \hline
+                Monolith          & OCaml          & Y                    & (Y)\textsuperscript{5} & -                    & Y             \\
+                \hline
+                Base\_quickcheck  & OCaml          & Y                    & Y                      & -                    & -             \\
+                \hline
+                Popper            & OCaml          & Y                    & Y                      & Y                    & -             \\
+                \hline
+                quickcheck        & Prolog         & Y                    & Y                      & -                    & -             \\
+                \hline
+                Hypothesis        & Python         & Y                    & Y                      & Y                    & (Y)           \\
+                \hline
+                TSTL              & Python         & -\textsuperscript{6} & Y                      & Y                    & Y             \\
+                \hline
+                R-Hedgehog        & R              & Y                    & Y                      & Y                    & -             \\
+                \hline
+                racket-quickcheck & Racket         & Y                    & -                      & -                    & -             \\
+                \hline
+                PropCheck         & Ruby           & Y                    & Y                      & Y                    & -             \\
+                \hline
+                PBT               & Ruby           & Y                    & Y                      & -                    & -             \\
+                \hline
+                Rantly            & Ruby           & Y                    & Y                      & -                    & -             \\
+                \hline
+                quickcheck        & Rust           & Y                    & Y                      & -                    & -             \\
+                \hline
+                proptest          & Rust           & Y                    & Y                      & Y                    & -             \\
+                \hline
+                Scala-Hedgehog    & Scala / JVM    & Y                    & Y                      & Y                    & -             \\
+                \hline
+                ScalaCheck        & Scala / JVM    & Y                    & Y                      & -                    & -             \\
+                \hline
+                scalaprops        & Scala / JVM    & Y                    & Y                      & -                    & -             \\
+                \hline
+                Echidna           & Solidity / EVM & -                    & Y                      & Y                    & Y             \\
+                \hline
+                qcheck            & Standard ML    & Y                    & Y                      & -                    & -             \\
+                \hline
+                SwiftCheck        & Swift          & Y                    & Y                      & -                    & -             \\
+                \hline
+            \end{tabular}%
+        }
+    \end{minipage}
+
+    \vspace{1.5em}
+
+    \begin{minipage}{0.97\textwidth}
+        \footnotesize
+        \raggedright
+        \textbf{Column notes.}\\[0.2em]
+        Gen.\ EDSL = support for a generator DSL;\\[0.2em]
+        Shrinking = automatic reduction of failing inputs;\\[0.2em]
+        Int.\ Shr. = shrinking integrated with generation;\\[0.2em]
+        Cov.\ Guidance = coverage-guided exploration.
+
+        \textbf{Source notes.}\\[0.2em]
+        \textsuperscript{1} Contrary to QuickCheck and descendants, SmallCheck's generators enumerate values
+        starting from the smallest ones (up to some bound). SmallCheck therefore encounters a minimal
+        counterexample first and does not require shrinking.\\[0.2em]
+        \textsuperscript{2} JQF and its underlying Zest engine support multiple forms of feedback guidance
+        beyond code coverage.\\[0.2em]
+        \textsuperscript{4} QCheck supports integrated shrinking in generators from the QCheck2 module;
+        the original QCheck module does not.\\[0.2em]
+        \textsuperscript{5} Crowbar and Monolith both use AFL, which trims each test input as part of
+        its core genetic algorithm. In addition, they support test-case reduction via \code{afl-tmin},
+        which is unaware of (and may break) OCaml typing.\\[0.2em]
+        \textsuperscript{6} TSTL uses an external DSL.
+    \end{minipage}
+\end{table}

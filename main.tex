@@ -20,6 +20,8 @@
 \usepackage[margin=1cm]{caption}
 \usepackage{titlesec}
 \usepackage{xcolor}
+\usepackage{listings}
+\usepackage[scaled=0.95]{inconsolata}
 \definecolor{thesisheading}{HTML}{123B66}
 \definecolor{thesissubheading}{HTML}{2F2F2F}
 \newcommand{\chapterlabelname}{Chapter}
@@ -45,6 +47,7 @@
 \titlespacing*{\subsubsection}{0pt}{1em}{0.4em}
 \usepackage{tikz}
 \usepackage{times}
+\renewcommand{\ttdefault}{zi4}
 \usepackage[english]{babel}
 \usepackage{subcaption}
 \usepackage{graphicx}
@@ -80,6 +83,10 @@
 
 %hyperref
 \usepackage[colorlinks=true,urlcolor=black,linkcolor=blue,citecolor=blue]{hyperref}
+
+\input{macros/code}
+\input{macros/writing}
+\input{macros/pbt-components}
 
 \newcommand{\tbsp}{\rule{0pt}{18pt}} %used to get a vertical distance after \hline
 \renewcommand{\baselinestretch}{2}
@@ -176,7 +183,7 @@
 
 \vspace*{-2in}
  \addcontentsline{toc}{chapter}{Bibliography}
-\input{Bibliography} %To be used when typing your own bibliography
 \bibliographystyle{unsrt}
+\bibliography{Bibliography,bib/pbtbenchmark/pbtbenchmark-merged}
 
 \end{document}

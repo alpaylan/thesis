@@ -6,4 +6,4 @@ latexmk -pdf -interaction=nonstopmode main.tex
 latexmk -c main.tex
 find build -type f ! -name 'main.pdf' -delete
 # Remove any LaTeX artifacts that some packages/tools may emit in project root.
-rm -f ./*.aux ./main.fdb_latexmk ./main.fls ./main.lof ./main.log ./main.lot ./main.out ./main.pdf ./main.synctex.gz ./main.toc
+rm -f ./*.aux ./main.bbl ./main.blg ./main.fdb_latexmk ./main.fls ./main.lof ./main.log ./main.lot ./main.out ./main.pdf ./main.synctex.gz ./main.toc

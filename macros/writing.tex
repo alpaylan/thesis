@@ -1,0 +1,12 @@
+% Writing helper macros
+\definecolor{todocolor}{HTML}{C21807}
+\definecolor{cncolor}{HTML}{B26A00}
+
+\newcommand{\todo}[1]{\textcolor{todocolor}{\textbf{TODO:} #1}}
+
+% Usage:
+%   \cn
+%   \cn[add source for this claim]
+\newcommand{\cn}[1][]{%
+  \textcolor{cncolor}{\textbf{[citation needed\if\relax\detokenize{#1}\relax\else: #1\fi]}}%
+}

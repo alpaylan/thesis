@@ -1,0 +1,14 @@
+\begin{thebibliography}{1}
+
+\bibitem{jmid-pbt-frameworks}
+jmid.
+\newblock pbt-frameworks.
+\newblock \url{https://github.com/jmid/pbt-frameworks}.
+\newblock Accessed: 2026-03-30.
+
+\bibitem{ClaessenH00}
+Koen Claessen and John Hughes.
+\newblock {QuickCheck}: a lightweight tool for random testing of {Haskell} programs.
+\newblock In {\em 5th ACM SIGPLAN International Conference on Functional Programming (ICFP)}, pages 268--279. ACM, 2000.
+
+\end{thebibliography}
