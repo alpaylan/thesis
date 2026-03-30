@@ -1,0 +1,80 @@
+% TikZ styles for loop diagrams
+% Shared styles for all interaction loop figures
+
+% Component box base style
+\tikzset{
+  component/.style={
+    minimum size=0.9cm,
+    draw,
+    line width=1.5pt,
+    font=\Large\sffamily\bfseries,
+    inner sep=0pt
+  },
+  % Individual component styles using paper's colors
+  generator box/.style={component, draw=generator, text=generator},
+  checker box/.style={component, draw=checker, text=checker},
+  shrinker box/.style={component, draw=shrinker, text=shrinker},
+  printer box/.style={component, draw=printer, text=printer, line width=1pt},
+  mutator box/.style={component, draw=mutator, text=mutator},
+  feedback box/.style={component, draw=feedback, text=feedback},
+  combfeedback box/.style={component, draw=feedback, text=feedback, minimum size=0.7cm},
+  size box/.style={component, draw=shrinker, text=shrinker, fill=shrinker!15, minimum size=0.8cm, font=\normalsize\bfseries},
+  % Loop region style
+  loop box/.style={
+    draw=gray!70,
+    dashed,
+    line width=1pt,
+    rounded corners=6pt,
+    inner sep=8pt
+  },
+  loop region/.style={
+    draw=gray!70,
+    dashed,
+    line width=1pt,
+    rounded corners=6pt,
+    fill=gray!8,
+    inner sep=8pt
+  },
+  % Seed pool style
+  seed pool/.style={
+    draw=seedpool,
+    dashed,
+    line width=1pt,
+    rounded corners=4pt,
+    inner sep=5pt
+  },
+  % Arrow style
+  loop arrow/.style={
+    ->,
+    >={Stealth[length=2.5mm]},
+    line width=0.7pt
+  },
+  % Label style for arrows
+  arrow label/.style={
+    font=\tiny\sffamily,
+    inner sep=1pt
+  },
+  % Loop title style
+  loop title/.style={
+    font=\scriptsize\sffamily,
+    text=gray!70
+  }
+}
+
+% Helper command for creating a standard G-C pair with bidirectional arrows
+\newcommand{\gcpair}[3]{%
+  % #1 = name prefix, #2 = x position, #3 = y position
+  \node[generator box] (#1-G) at (#2, #3) {G};
+  \node[checker box] (#1-C) at (#2+1.5, #3) {C};
+  \draw[loop arrow] (#1-G.north) to[bend left=20] node[arrow label, above] {\texttt{check e}} (#1-C.north);
+  \draw[loop arrow] (#1-C.south) to[bend left=20] node[arrow label, below] {\texttt{gen}} (#1-G.south);
+}
+
+% Helper command for shrinking loop (S-C pair)
+\newcommand{\scpair}[3]{%
+  % #1 = name prefix, #2 = x position, #3 = y position
+  \node[shrinker box] (#1-S) at (#2, #3) {S};
+  \node[checker box] (#1-C) at (#2+1.5, #3) {C};
+  \draw[loop arrow] (#1-S.north) to[bend left=20] node[arrow label, above] {\texttt{check e'}} (#1-C.north);
+  \draw[loop arrow] (#1-C.south) to[bend left=20] node[arrow label, below] {\texttt{shrink e | e'}} (#1-S.south);
+}
