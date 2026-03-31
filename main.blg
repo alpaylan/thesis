@@ -4,44 +4,44 @@ The top-level auxiliary file: main.aux
 The style file: unsrt.bst
 Database file #1: Bibliography.bib
 Database file #2: bib/pbtbenchmark/pbtbenchmark-merged.bib
-You've used 2 entries,
+You've used 6 entries,
             1791 wiz_defined-function locations,
-            659 strings with 7857 characters,
-and the built_in function-call counts, 516 in all, are:
-= -- 50
-> -- 12
-< -- 1
-+ -- 5
-- -- 3
-* -- 19
-:= -- 75
-add.period$ -- 8
-call.type$ -- 2
-change.case$ -- 2
+            690 strings with 8560 characters,
+and the built_in function-call counts, 1514 in all, are:
+= -- 150
+> -- 45
+< -- 2
++ -- 18
+- -- 12
+* -- 68
+:= -- 212
+add.period$ -- 21
+call.type$ -- 6
+change.case$ -- 6
 chr.to.int$ -- 0
-cite$ -- 2
-duplicate$ -- 26
-empty$ -- 57
-format.name$ -- 3
-if$ -- 128
+cite$ -- 6
+duplicate$ -- 76
+empty$ -- 157
+format.name$ -- 12
+if$ -- 370
 int.to.chr$ -- 0
-int.to.str$ -- 2
-missing$ -- 1
-newline$ -- 14
-num.names$ -- 2
-pop$ -- 12
+int.to.str$ -- 6
+missing$ -- 3
+newline$ -- 34
+num.names$ -- 6
+pop$ -- 29
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 18
+skip$ -- 57
 stack$ -- 0
-substring$ -- 28
-swap$ -- 12
-text.length$ -- 1
+substring$ -- 92
+swap$ -- 35
+text.length$ -- 2
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 0
-while$ -- 4
-width$ -- 3
-write$ -- 25
+while$ -- 11
+width$ -- 7
+write$ -- 70

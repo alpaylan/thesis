@@ -52,6 +52,10 @@ into the random testing world, the table presents the community-maintained
 \code{jmid/pbt-frameworks} survey~\cite{jmid-pbt-frameworks}.
 \input{tables/pbt-frameworks-full}
 
+%% Source:
+%% Programmable Property-Based Testing
+%% https://arxiv.org/pdf/2602.18545
+
 The simplest form of a Property-Based Testing runner is as follows: A \generator{}
 produces some values a \checker{} tests and produces one of three possible results,
 either a \passed{}, indicating that the predicate executed with the input did not
@@ -64,7 +68,7 @@ multiple candidate shrunk values, sometimes by shrinking an internal value such 
 in a tree, or removing parts of the structure such as removing part of a computation.
 If a candidate reproduces the failure, the shrinking is recursively applied to the
 smaller candidate until there are no more failing candidates, at which point the
-minimal value is printed. An abstract form of this process is depicted in
+minimal value is \printer{printed}. An abstract form of this process is depicted in
 Figure~\ref{fig:quickcheck-property-runner-intro}:
 
 \begin{figure}[h]
@@ -74,3 +78,14 @@ Figure~\ref{fig:quickcheck-property-runner-intro}:
     \caption{An abstract representation of QuickCheck's property runner.}
     \label{fig:quickcheck-property-runner-intro}
 \end{figure}
+
+The implementations presented in the framework table (Table~\ref{tab:pbt-frameworks})
+all implement different versions of this same core algorithm with changes to the
+internal parameters to the generators and shrinkers, the APIs for expressing the
+properties, the generators, the shrinkers as well as the underlying source of
+randomness. While Hypothesis~\cite{Hypothesis}, Zest~\cite{Zest},
+Crowbar~\cite{Crowbar} parse randomness~\cite{goldsteinParsingRandomness2022} into
+structures in their respective programming language, many frameworks use QuickCheck
+style RNG splitting\cn{} that starts from an initial random seed and splits it at every
+decision point.
+

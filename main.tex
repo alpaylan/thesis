@@ -119,7 +119,7 @@
 \phantomsection %create the correct anchor for the bookmark
 \input{Preface}  %(if present, start at lower-case Roman number ii)
 \clearpage
- \addcontentsline{toc}{chapter}{Preface}
+\addcontentsline{toc}{chapter}{Preface}
 
 %\phantomsection %create the correct anchor for the bookmark
 %\addcontentsline{toc}{chapter}{Foreword}
@@ -134,40 +134,36 @@
 \addcontentsline{toc}{chapter}{Acknowledgements}
 \input{Acknowledgements} %(if present, lower-case Roman)
 \clearpage
-    \cleardoublepage
+\cleardoublepage
 
 \phantomsection %create the correct anchor for the bookmark
-\vspace*{-2.5cm}   %raising the Table of Contents to 1 inch top margin
-    \addcontentsline{toc}{chapter}{Table of Contents}
-    \renewcommand{\contentsname}{Table of Contents}
+\addcontentsline{toc}{chapter}{Table of Contents}
+\renewcommand{\contentsname}{Table of Contents}
 \renewcommand{\baselinestretch}{1}
 \small\normalsize
 \tableofcontents %(required, lower-case Roman)
 \newpage
 
 \phantomsection %create the correct anchor for the bookmark
-\vspace*{-2.5cm} \addcontentsline{toc}{chapter}{List of Tables}
-    \renewcommand{\contentsname}{List of Tables}
+\addcontentsline{toc}{chapter}{List of Tables}
+\renewcommand{\contentsname}{List of Tables}
 \listoftables %(if present, lower-case Roman)
 \newpage
 
 \phantomsection %create the correct anchor for the bookmark
-\vspace*{-2.5cm}
- \addcontentsline{toc}{chapter}{List of Figures}
-    \renewcommand{\contentsname}{List of Figures}
+\addcontentsline{toc}{chapter}{List of Figures}
+\renewcommand{\contentsname}{List of Figures}
 \listoffigures %(if present, lower-case Roman)
 
 % LIST OF ABBREVIATIONS
 \phantomsection %create the correct anchor for the bookmark
-\vspace*{-1.5in} \addcontentsline{toc}{chapter}{Abbreviations}
-   \renewcommand{\contentsname}{List of Abbreviations}
+\vspace*{1.5in} \addcontentsline{toc}{chapter}{Abbreviations}
+\renewcommand{\contentsname}{List of Abbreviations}
 \input{Abbreviations-supertabular}  %If the list is more than one page, use this file
 \clearpage
 
 \newpage
-\setlength{\parskip}{0em}
-\renewcommand{\baselinestretch}{2}
-\small\normalsize
+\setlength{\parskip}{0em} \renewcommand{\baselinestretch}{2} \small\normalsize
 
 %Pages from this point start at Arabic numeral 1
 \hypersetup{pageanchor=true}
@@ -183,7 +179,8 @@
 \small\normalsize
 
 \vspace*{-2in}
- \addcontentsline{toc}{chapter}{Bibliography}
+\addcontentsline{toc}{chapter}{Bibliography}
+
 \bibliographystyle{unsrt}
 \bibliography{Bibliography,bib/pbtbenchmark/pbtbenchmark-merged}
 

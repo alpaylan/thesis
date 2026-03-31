@@ -11,4 +11,24 @@ Koen Claessen and John Hughes.
 \newblock {QuickCheck}: a lightweight tool for random testing of {Haskell} programs.
 \newblock In {\em 5th ACM SIGPLAN International Conference on Functional Programming (ICFP)}, pages 268--279. ACM, 2000.
 
+\bibitem{Hypothesis}
+David~R. MacIver.
+\newblock Hypothesis: Property-based testing for python.
+\newblock \url{https://hypothesis.works/}, 2016.
+
+\bibitem{Zest}
+Rohan Padhye, Caroline Lemieux, Koushik Sen, Mike Papadakis, and Yves Le~Traon.
+\newblock Semantic fuzzing with zest.
+\newblock In {\em Proceedings of the 28th ACM SIGSOFT International Symposium on Software Testing and Analysis}, ISSTA 2019, page 329–340, New York, NY, USA, 2019. Association for Computing Machinery.
+
+\bibitem{Crowbar}
+Stephen Dolan.
+\newblock Property fuzzing for ocaml.
+\newblock \url{https://github.com/stedolan/crowbar}, 2017.
+
+\bibitem{goldsteinParsingRandomness2022}
+Harrison Goldstein and Benjamin~C. Pierce.
+\newblock Parsing {Randomness}.
+\newblock {\em Proceedings of the ACM on Programming Languages}, 6(OOPSLA2):128:89--128:113, October 2022.
+
 \end{thebibliography}
