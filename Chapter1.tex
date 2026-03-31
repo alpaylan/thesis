@@ -2,7 +2,7 @@
 
 \renewcommand{\thechapter}{1}
 
-\chapter{Introduction}
+\chapter{Introduction}\label{chap:intro}
 
 Software is written with intent, an intent to make a computer do something. Software
 engineering, in essence, is the process of taking such intent, refining, reshaping,
@@ -89,3 +89,26 @@ structures in their respective programming language, many frameworks use QuickCh
 style RNG splitting\cn{} that starts from an initial random seed and splits it at every
 decision point.
 
+While many of these decisions are defaults that can be overridden as users require
+custom configurations for their domains, many of them \emph{leak} outside the
+abstraction and may require significant reengineering of the library internals to
+accommodate alternative behaviors. For instance, the decision to use randomness parsing
+vs. RNG splitting affects one of the columns in the framework table
+(Table~\ref{tab:pbt-frameworks}), \emph{integrated shrinking}. In integrated
+shrinking~\cite{HypothesisShrinking}, in-comparison to the classic structural shrinking
+approach we mentioned, the source of randomness that is parsed to the generated
+structure is shrunk instead of the structure itself. As such, a library using RNG
+splitting cannot accommodate integrated shrinking without reengineering of its
+internals.
+
+Chapter~\ref{chap:ppbt} on Programmable Property-Based Testing~\cn{} focuses on this
+exact problem and its many variants that cause fragmentation of the PBT landscape.
+Table~\ref{tab:pbt-frameworks} presents 50 frameworks in 31 languages, with up to 5
+libraries in OCaml. We trace a precise design decision, the design of the property
+language in QuickCheck, as the predominant source of inflexibility of a PBT framework,
+and the primary cause of ecosystem fragmentation as the initial design, a shallow
+embedded domain-specific language, forces the implementation of the property runner to
+reside in the "library-space" as opposed to "user-space". We present an alternative
+property-language, a mixed-embedding, that enables flexible user-space property
+runners, allowing us to combine many features and advances dispersed throughout the
+ecosystem under a single library that users can keep on extending.

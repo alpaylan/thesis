@@ -31,4 +31,9 @@ Harrison Goldstein and Benjamin~C. Pierce.
 \newblock Parsing {Randomness}.
 \newblock {\em Proceedings of the ACM on Programming Languages}, 6(OOPSLA2):128:89--128:113, October 2022.
 
+\bibitem{HypothesisShrinking}
+David Maciver and Alastair~F. Donaldson.
+\newblock Test-case reduction via test-case generation: Insights from the hypothesis reducer (tool insights paper).
+\newblock In Robert Hirschfeld and Tobias Pape, editors, {\em 34th European Conference on Object-Oriented Programming, {ECOOP} 2020, November 15-17, 2020, Berlin, Germany (Virtual Conference)}, volume 166 of {\em LIPIcs}, pages 13:1--13:27. Schloss Dagstuhl - Leibniz-Zentrum f{\"{u}}r Informatik, 2020.
+
 \end{thebibliography}
