@@ -36,20 +36,20 @@ strategies for producing inputs, systematic exhaustive search, random sampling, 
 even user-supplied inputs. The combination of these methods are typically gathered
 under the umbrella of \emph{Property-Based Testing}.
 
-Property-Based Testing (PBT) was pioneered by Claessen and Hughes in ``QuickCheck: a
-lightweight tool for random testing of Haskell program''~\cite{ClaessenH00}. The
-initial steps of random software testing is typically attributed to the CS736 class of
-University of Wisconsin Madison Computer Science Department in which Bart Miller coins
-the term "fuzz" testing, fuzzing UNIX utilities with random inputs to produce
-breakages, triggering faults, finding bugs in programs\cn. While the fuzz testing
-literature evolved with a focus on finding more and more faults via smarter, guided,
-targeted input generation techniques\cn, QuickCheck has chosen the specifications as
-its main focus. The paper introduces a language as well as an implementation as a
-library, for expressing properties, and writing random data generators; the design of
-which has been replicated in virtually all programming languages in the last 26 years.
-Table~\ref{tab:pbt-frameworks} gives a glimps of the reach in which QuickCheck has made
-into the random testing world, the table presents the community-maintained
-\code{jmid/pbt-frameworks} survey~\cite{jmid-pbt-frameworks}.
+Property-Based Testing (PBT) was pioneered by Koen Claessen and John Hughes in their
+ICFP 2000 paper ``QuickCheck: a lightweight tool for random testing of Haskell
+program''~\cite{ClaessenH00}. The initial steps of random software testing is typically
+attributed to the CS736 class of University of Wisconsin Madison Computer Science
+Department in which Bart Miller coins the term "fuzz" testing, fuzzing UNIX utilities
+with random inputs to produce breakages, triggering faults, finding bugs in
+programs\cn. While the fuzz testing literature evolved with a focus on finding more and
+more faults via smarter, guided, targeted input generation techniques\cn, QuickCheck
+has chosen the specifications as its main focus. The paper introduces a language as
+well as an implementation as a library, for expressing properties, and writing random
+data generators; the design of which has been replicated in virtually all programming
+languages in the last 26 years. Table~\ref{tab:pbt-frameworks} gives a glimps of the
+reach in which QuickCheck has made into the random testing world, the table presents
+the community-maintained \code{jmid/pbt-frameworks} survey~\cite{jmid-pbt-frameworks}.
 \input{tables/pbt-frameworks-full}
 
 %% Source:
@@ -79,11 +79,11 @@ Figure~\ref{fig:quickcheck-property-runner-intro}:
     \label{fig:quickcheck-property-runner-intro}
 \end{figure}
 
-The implementations presented in the framework table (Table~\ref{tab:pbt-frameworks})
-all implement different versions of this same core algorithm with changes to the
-internal parameters to the generators and shrinkers, the APIs for expressing the
-properties, the generators, the shrinkers as well as the underlying source of
-randomness. While Hypothesis~\cite{Hypothesis}, Zest~\cite{Zest},
+The implementations presented in the PBT frameworks table
+(Table~\ref{tab:pbt-frameworks}) all implement different versions of this same core
+algorithm with changes to the internal parameters to the generators and shrinkers, the
+APIs for expressing the properties, the generators, the shrinkers as well as the
+underlying source of randomness. While Hypothesis~\cite{Hypothesis}, Zest~\cite{Zest},
 Crowbar~\cite{Crowbar} parse randomness~\cite{goldsteinParsingRandomness2022} into
 structures in their respective programming language, many frameworks use QuickCheck
 style RNG splitting\cn{} that starts from an initial random seed and splits it at every
@@ -112,3 +112,27 @@ reside in the "library-space" as opposed to "user-space". We present an alternat
 property-language, a mixed-embedding, that enables flexible user-space property
 runners, allowing us to combine many features and advances dispersed throughout the
 ecosystem under a single library that users can keep on extending.
+
+Programmable PBT addresses a huge challenge, the ability to consolidate algorithmic
+advances easily within a single framework instead of significant reengineering of
+internals, forking the original library into a new path, or even further so, writing a
+new library from scratch. It lowers the cost of experimentation, speeding up scientific
+experimentations, enabling diffusion of newer advances throughout the ecosystem.
+However, fragmentation isn't just in-language frameworks competing with each other,
+it's more so an information dissemination problem. A brief study of \todo{K} PBT papers
+taken from the PBT bibliography\cn{} reveals the issue, quantitative evaluation of PBT
+has been dispersed through bespoke, purpose-specific benchmarks implemented for the
+evaluation sections of those papers, to be forgotten once they are accepted.
+
+In Chapter~\ref{chap:etna}, I introduce ETNA~\cite{ETNA}, the first large-scale
+evaluation platform for PBT. We designed ETNA to be easily extensible in terms of
+adding new testing strategies for evaluation, new workloads as novel benchmarks, and
+new languages with entirely separate ecosystems from the existing ones. The purpose of
+ETNA is to consolidate knowledge through a common interface on quantitative evaluation,
+same benchmarks through various languages to compare across-language performance
+trade-offs, sampling based evaluation modes for abstracting away language-specificness
+of the frameworks and further focus on the quality of the generated tests, reproducible
+experiments for easily sharing, verifying and replicating existing results. Similar to
+Programmable PBT, ETNA is a step towards accelarating scientific development of PBT.
+
+General purpose PBT frameworks 

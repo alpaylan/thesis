@@ -36,4 +36,9 @@ David Maciver and Alastair~F. Donaldson.
 \newblock Test-case reduction via test-case generation: Insights from the hypothesis reducer (tool insights paper).
 \newblock In Robert Hirschfeld and Tobias Pape, editors, {\em 34th European Conference on Object-Oriented Programming, {ECOOP} 2020, November 15-17, 2020, Berlin, Germany (Virtual Conference)}, volume 166 of {\em LIPIcs}, pages 13:1--13:27. Schloss Dagstuhl - Leibniz-Zentrum f{\"{u}}r Informatik, 2020.
 
+\bibitem{ETNA}
+Jessica Shi, Alperen Keles, Harrison Goldstein, Benjamin~C. Pierce, and Leonidas Lampropoulos.
+\newblock Etna: An evaluation platform for property-based testing (experience report).
+\newblock {\em Proc. ACM Program. Lang.}, 7(ICFP), aug 2023.
+
 \end{thebibliography}
