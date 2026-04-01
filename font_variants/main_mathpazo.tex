@@ -1,0 +1,198 @@
+%Use this template when typing your own Bibliography.tex file
+
+%This template was prepared by Dorothea F. Brosius of the
+%Institute for Electronics and Applied Physics, University of Maryland, College Park, MD
+%The template was last updated in September 2023
+%Thesis Main Page used with thesis.sty based on the
+%University of Maryland Electronic Thesis and Dissertation (ETD) Style Guide, 2021 Edition
+
+% Select the version that fits how you are making this LaTeX document (its driver).
+% The first two are the most likely ones to be needed.
+
+ \newcommand{\mydriver}{pdflatex} %Making a PDF directly using pdflatex.
+%\newcommand{\mydriver}{dvipdfmx} %Making a DVI and converting that to PDF using dvipdfmx.
+%\newcommand{\mydriver}{dvipdfm} %Making a DVI and converting that to PDF using dvipdfm.
+%\newcommand{\mydriver}{dvips} %Making a DVI and converting that to PS using dvips (may later be converted to PDF).
+%\newcommand{\mydriver}{dvipsone} %Making a DVI and converting that to PS using dvipsone (may later be converted to PDF).
+%\newcommand{\mydriver}{ps2pdf} %Same as the one for dvips except it is compatible with Ghostscript's PDF writer.
+
+\documentclass[12pt]{thesis}  %12pt is larger than 11pt
+\usepackage[margin=1cm]{caption}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[scaled=0.95]{inconsolata}
+\definecolor{thesisheading}{HTML}{123B66}
+\definecolor{thesissubheading}{HTML}{2F2F2F}
+\newcommand{\chapterlabelname}{Chapter}
+\newcommand{\setchapterlabel}[1]{\renewcommand{\chapterlabelname}{#1}}
+\titleformat{\chapter}[display]
+  {\normalfont}
+  {\color{thesisheading}\Large\bfseries\chapterlabelname\ \thechapter}
+  {0.5ex}
+  {\Huge\bfseries}
+  [\vspace{0.5ex}\color{thesisheading}\titlerule]
+\titlespacing*{\chapter}{0pt}{0pt}{1.5em}
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{thesissubheading}}
+  {\thesection}{0.8em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{thesissubheading}}
+  {\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{thesissubheading}}
+  {\thesubsubsection}{0.8em}{}
+\titlespacing*{\section}{0pt}{1.4em}{0.6em}
+\titlespacing*{\subsection}{0pt}{1.2em}{0.5em}
+\titlespacing*{\subsubsection}{0pt}{1em}{0.4em}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, fit, backgrounds, calc, shapes.geometric}
+\usepackage[T1]{fontenc}
+\usepackage{mathpazo}
+\renewcommand{\ttdefault}{zi4}
+\usepackage[english]{babel}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{lscape}
+\usepackage{indentfirst}
+\usepackage{latexsym}
+\usepackage{multirow}
+\usepackage{epstopdf}
+\usepackage{tabls}
+\usepackage{wrapfig}
+\usepackage{slashbox}
+\usepackage{subeqn}
+\usepackage{float}
+\usepackage{supertabular}
+\usepackage[onehalfspacing]{setspace} %used for footnote spacing
+
+\usepackage{tocloft,calc}
+\renewcommand{\cftlottitlefont}{\hspace*{\fill}\large}
+\renewcommand{\cftafterlottitle}{\hspace*{\fill}}
+\renewcommand{\cftloftitlefont}{\hspace*{\fill}\large}
+\renewcommand{\cftafterloftitle}{\hspace*{\fill}}
+\renewcommand{\cftchapaftersnum}{:\ }
+\renewcommand{\cftchappresnum}{\chaptername\space}
+\setlength{\cftchapnumwidth}{\widthof{\textbf{Appendix\ }}}
+\makeatletter
+\g@addto@macro\appendix{%
+  \addtocontents{toc}{%
+    \protect\renewcommand{\protect\cftchappresnum}{\appendixname\space}%
+  }%
+}
+\setlength{\cftchapnumwidth}{6em} %adds space between chapter/appendix and title in toc
+
+%hyperref
+\usepackage[colorlinks=true,urlcolor=black,linkcolor=blue,citecolor=blue]{hyperref}
+
+\input{macros/code}
+\input{macros/writing}
+\input{macros/pbt-components}
+
+\newcommand{\tbsp}{\rule{0pt}{18pt}} %used to get a vertical distance after \hline
+\renewcommand{\baselinestretch}{2}
+\setlength{\textwidth}{6.75in}
+\setlength{\textheight}{9in}
+\setlength{\topmargin}{-.55in}
+%\setlength{\topmargin}{-.7in}
+%\setlength{\topmargin}{0in}    % use this setting if the printer makes
+%the top margin 1/2 inch instead of 1 inch
+\setlength{\oddsidemargin}{-.1in}   % sets left margin to 1 inch
+\setlength{\parindent}{.4in}
+\pagestyle{empty}
+
+\hyphenation{tem-po-ral-ly}
+
+\begin{document}
+\pagestyle{empty}
+\hypersetup{pageanchor=false}
+\input{Abstract} %(must be first, required, non-numbered)
+\clearpage
+\input{Titlepage} %(must follow Abstract, required, non-numbered)
+\clearpage
+\input{Copyright} %(highly recommended, non-numbered)
+\clearpage
+
+%Pages from this point start at lower-case Roman number ii)
+\pagestyle{plain} \pagenumbering{roman} \setcounter{page}{2}
+
+\phantomsection %create the correct anchor for the bookmark
+\input{Preface}  %(if present, start at lower-case Roman number ii)
+\clearpage
+\addcontentsline{toc}{chapter}{Preface}
+
+%\phantomsection %create the correct anchor for the bookmark
+%\addcontentsline{toc}{chapter}{Foreword}
+%\include{Foreword} %(if present, lower-case Roman)
+
+\phantomsection %create the correct anchor for the bookmark
+\addcontentsline{toc}{chapter}{Dedication}
+\input{Dedication} %(if present, lower-case Roman)
+\clearpage
+
+\phantomsection %create the correct anchor for the bookmark
+\addcontentsline{toc}{chapter}{Acknowledgements}
+\input{Acknowledgements} %(if present, lower-case Roman)
+\clearpage
+\cleardoublepage
+
+\phantomsection %create the correct anchor for the bookmark
+\addcontentsline{toc}{chapter}{Table of Contents}
+\renewcommand{\contentsname}{Table of Contents}
+\renewcommand{\baselinestretch}{1}
+\small\normalsize
+\tableofcontents %(required, lower-case Roman)
+\newpage
+
+\phantomsection %create the correct anchor for the bookmark
+\addcontentsline{toc}{chapter}{List of Tables}
+\renewcommand{\contentsname}{List of Tables}
+\listoftables %(if present, lower-case Roman)
+\newpage
+
+\phantomsection %create the correct anchor for the bookmark
+\addcontentsline{toc}{chapter}{List of Figures}
+\renewcommand{\contentsname}{List of Figures}
+\listoffigures %(if present, lower-case Roman)
+
+% LIST OF ABBREVIATIONS
+\phantomsection %create the correct anchor for the bookmark
+\vspace*{1.5in} \addcontentsline{toc}{chapter}{Abbreviations}
+\renewcommand{\contentsname}{List of Abbreviations}
+\input{Abbreviations-supertabular}  %If the list is more than one page, use this file
+\clearpage
+
+\newpage
+\setlength{\parskip}{0em} \renewcommand{\baselinestretch}{2} \small\normalsize
+
+%Pages from this point start at Arabic numeral 1
+\hypersetup{pageanchor=true}
+\setcounter{page}{1}
+\pagenumbering{arabic}
+\input{Chapter1}
+
+\clearpage
+\input{Chapter2}
+
+\clearpage
+\input{Chapter3}
+
+\clearpage
+\input{Chapter4}
+
+\clearpage
+\input{Chapter5}
+
+\clearpage
+\setchapterlabel{Appendix}
+\input{AppendixA}
+\clearpage
+
+\renewcommand{\baselinestretch}{1}
+\small\normalsize
+
+\bibliographystyle{unsrt}
+\bibliography{Bibliography,bib/pbtbenchmark/pbtbenchmark-merged}
+
+\end{document}

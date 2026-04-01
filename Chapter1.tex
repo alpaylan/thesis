@@ -38,13 +38,13 @@ under the umbrella of \emph{Property-Based Testing}.
 
 Property-Based Testing (PBT) was pioneered by Koen Claessen and John Hughes in their
 ICFP 2000 paper ``QuickCheck: a lightweight tool for random testing of Haskell
-program''~\cite{ClaessenH00}. The initial steps of random software testing is typically
-attributed to the CS736 class of University of Wisconsin Madison Computer Science
-Department in which Bart Miller coins the term "fuzz" testing, fuzzing UNIX utilities
-with random inputs to produce breakages, triggering faults, finding bugs in
+programs''~\cite{ClaessenH00}. The initial steps of random software testing is
+typically attributed to the CS736 class of University of Wisconsin Madison Computer
+Science Department in which Bart Miller coins the term ``fuzz'' testing, fuzzing UNIX
+utilities with random inputs to produce breakages, triggering faults, finding bugs in
 programs\cn. While the fuzz testing literature evolved with a focus on finding more and
 more faults via smarter, guided, targeted input generation techniques\cn, QuickCheck
-has chosen the specifications as its main focus. The paper introduces a language as
+has chosen the specifications as its main focus. The paper introduces a language, as
 well as an implementation as a library, for expressing properties, and writing random
 data generators; the design of which has been replicated in virtually all programming
 languages in the last 26 years. Table~\ref{tab:pbt-frameworks} gives a glimps of the
@@ -108,7 +108,7 @@ libraries in OCaml. We trace a precise design decision, the design of the proper
 language in QuickCheck, as the predominant source of inflexibility of a PBT framework,
 and the primary cause of ecosystem fragmentation as the initial design, a shallow
 embedded domain-specific language, forces the implementation of the property runner to
-reside in the "library-space" as opposed to "user-space". We present an alternative
+reside in the ``library-space'' as opposed to ``user-space''. We present an alternative
 property-language, a mixed-embedding, that enables flexible user-space property
 runners, allowing us to combine many features and advances dispersed throughout the
 ecosystem under a single library that users can keep on extending.
@@ -119,10 +119,12 @@ internals, forking the original library into a new path, or even further so, wri
 new library from scratch. It lowers the cost of experimentation, speeding up scientific
 experimentations, enabling diffusion of newer advances throughout the ecosystem.
 However, fragmentation isn't just in-language frameworks competing with each other,
-it's more so an information dissemination problem. A brief study of \todo{K} PBT papers
-taken from the PBT bibliography\cn{} reveals the issue, quantitative evaluation of PBT
-has been dispersed through bespoke, purpose-specific benchmarks implemented for the
-evaluation sections of those papers, to be forgotten once they are accepted.
+it's more so an information dissemination problem. How would frameworks include a novel
+approach without concrete empirical understanding of its effects within their context?
+A brief study of \todo{K} PBT papers taken from the PBT bibliography\cn{} reveals a
+core issue, quantitative evaluation of PBT has been dispersed through bespoke,
+purpose-specific benchmarks implemented for the evaluation sections of those papers, to
+be forgotten once they are accepted.
 
 In Chapter~\ref{chap:etna}, I introduce ETNA~\cite{ETNA}, the first large-scale
 evaluation platform for PBT. We designed ETNA to be easily extensible in terms of
@@ -138,15 +140,16 @@ Programmable PBT, ETNA is a step towards accelarating scientific development of 
 Much of the contemporary discussion of features, generalization, performance,
 interface, and usage of Property-Based Testing is based on general purpose frameworks
 we have outlined in Table~\ref{tab:pbt-frameworks}. However, the world is full of
-oddities, special-purpose tools, requirements that pushes outside the boxes we draw.
+oddities, special-purpose tools, requirements that push outside the boxes we draw.
 General purpose tools grow as they redraw the lines of their approach to accommodate
 for such extensions. In a thesis focusing on consolidation, it is only natural that I
 take the time to focus on what we can not, at least for the moment, consolidate. In
 Chapter~\ref{chap:dirt}, I present and discuss a domain-specific property-based testing
-paradigm for databases, "DIRT: Database-Integrated Random Testing"~\cn. Modern
+paradigm for databases, ``DIRT: Database-Integrated Random Testing''~\cn. Modern
 databases have enjoyed the results of fuzzing, at times with property-based testing
 flavored approaches, in strenghtening their reliability and correctness. However, a
 major challenge that is yet to be solved is the ability to evolve a property-based
 testing suite alongside the database, which we attempted to solve in our \todo{DBTest}
 paper. The chapter discusses various other domain-specific tools and techniques as well
 as their potential inclusion to general purpose PBT frameworks.
+
