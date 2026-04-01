@@ -135,4 +135,18 @@ of the frameworks and further focus on the quality of the generated tests, repro
 experiments for easily sharing, verifying and replicating existing results. Similar to
 Programmable PBT, ETNA is a step towards accelarating scientific development of PBT.
 
-General purpose PBT frameworks 
+Much of the contemporary discussion of features, generalization, performance,
+interface, and usage of Property-Based Testing is based on general purpose frameworks
+we have outlined in Table~\ref{tab:pbt-frameworks}. However, the world is full of
+oddities, special-purpose tools, requirements that pushes outside the boxes we draw.
+General purpose tools grow as they redraw the lines of their approach to accommodate
+for such extensions. In a thesis focusing on consolidation, it is only natural that I
+take the time to focus on what we can not, at least for the moment, consolidate. In
+Chapter~\ref{chap:dirt}, I present and discuss a domain-specific property-based testing
+paradigm for databases, "DIRT: Database-Integrated Random Testing"~\cn. Modern
+databases have enjoyed the results of fuzzing, at times with property-based testing
+flavored approaches, in strenghtening their reliability and correctness. However, a
+major challenge that is yet to be solved is the ability to evolve a property-based
+testing suite alongside the database, which we attempted to solve in our \todo{DBTest}
+paper. The chapter discusses various other domain-specific tools and techniques as well
+as their potential inclusion to general purpose PBT frameworks.
