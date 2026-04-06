@@ -1,8 +1,11 @@
 % Syntax highlighting definitions for inline code snippets.
 \definecolor{codekeyword}{HTML}{0B5394}
+\definecolor{codetype}{HTML}{0E6B6E}
 \definecolor{codecomment}{HTML}{3D7A3A}
 \definecolor{codestring}{HTML}{7A1E76}
-\definecolor{codeidentifier}{HTML}{8A4B08}
+\definecolor{codeoperator}{HTML}{4A5568}
+\definecolor{codefunction}{HTML}{8A4B08}
+\definecolor{codeargument}{HTML}{1F4E79}
 
 \lstdefinelanguage{Rust}{
   morekeywords={
@@ -16,10 +19,40 @@
   morestring=[b]"
 }
 
+\lstdefinelanguage{Haskell}{
+  sensitive=true,
+  alsoletter={'},
+  morekeywords={
+      case,class,data,default,deriving,do,else,if,import,in,infix,infixl,infixr,
+      instance,let,module,newtype,of,then,type,where,qualified,hiding,as,forall
+    },
+  morekeywords=[2]{
+      Int,Integer,Bool,Char,String,Float,Double,Maybe,Either,IO,Ordering,
+      Eq,Ord,Enum,Show,Read,Functor,Applicative,Monad,Semigroup,Monoid,
+      Num,Integral,Fractional,Real,RealFrac,RealFloat,Bounded,Arbitrary,Property
+    },
+  morecomment=[l]{--},
+  morecomment=[n]{\{-}{-\}},
+  morestring=[b]",
+  literate=
+      {::}{{{\color{codeoperator}\bfseries::}}}2
+      {->}{{{\color{codeoperator}\bfseries->}}}2
+      {=>}{{{\color{codeoperator}\bfseries=>}}}2
+      {<-}{{{\color{codeoperator}\bfseries<-}}}2
+      {=}{{{\color{codeoperator}\bfseries=}}}1
+      {|}{{{\color{codeoperator}\bfseries|}}}1
+      {\$}{{{\color{codeoperator}\bfseries\$}}}1
+}
+
 \lstdefinestyle{thesiscode}{
-  basicstyle=\ttfamily\small,
+  basicstyle=\ttfamily\small\linespread{1}\selectfont,
+  aboveskip=\baselineskip,
+  belowskip=\baselineskip,
   keywordstyle=\color{codekeyword}\bfseries,
-  identifierstyle=\color{codeidentifier},
+  keywordstyle=[2]\color{codetype}\bfseries,
+  identifierstyle=\color{black},
+  emphstyle=\color{codefunction}\bfseries,
+  emphstyle=[2]\color{codeargument}\itshape,
   commentstyle=\color{codecomment}\itshape,
   stringstyle=\color{codestring},
   showstringspaces=false,
@@ -30,7 +63,39 @@
 % Usage:
 %   \code{let x = 1;}
 %   \code[language=Python]{print("hello")}
+%   \begin{code}
+%   fn main() {
+%     println!("hello");
+%   }
+%   \end{code}
+%   \begin{code}[language=Python]
+%   print("hello")
+%   \end{code}
 %
 % Optional argument accepts listings options; default language is Rust.
 % Backtick is used as delimiter to avoid conflicts with Rust's common `!` syntax.
-\newcommand{\code}[2][language=Rust]{\lstinline[style=thesiscode,#1]`#2`}
+\newcommand{\codeinline}[2][language=Rust]{\lstinline[style=thesiscode,#1]`#2`}
+\lstnewenvironment{code}[1][language=Rust]{\lstset{style=thesiscode,#1}}{}
+
+% \begin{code}...\end{code} and \code{...} share the \code control sequence.
+% Dispatch rule:
+%   - when entered via \begin{code}, run the listing environment backend
+%   - otherwise, treat it as inline code
+\makeatletter
+\let\code@envbegin\code
+\newcommand{\code@inline}{%
+  \@ifnextchar[{\code@inline@opts}{\code@inline@opts[language=Rust]}%
+}
+\def\code@inline@opts[#1]#2{%
+  \codeinline[#1]{#2}%
+}
+\DeclareRobustCommand{\code}{%
+  \def\code@envname{code}%
+  \ifx\@currenvir\code@envname
+    \let\code@next\code@envbegin
+  \else
+    \let\code@next\code@inline
+  \fi
+  \code@next
+}
+\makeatother

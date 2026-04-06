@@ -1,3 +1,6 @@
 modifyLineBreaks:
   textWrapOptions:
     columns: 88
+
+verbatimEnvironments:
+  code: 1

@@ -44,9 +44,9 @@
 %   \printer, \feedback, \seedpool, \passed, \discarded, \failed
 \newcommand{\pbtcomponentcustom}[3]{%
   \if\relax\detokenize{#3}\relax
-    \textcolor{#1}{#2}%
+    \textcolor{#1}{\texttt{#2}}%
   \else
-    \textcolor{#1}{#3}%
+    \textcolor{#1}{\texttt{#3}}%
   \fi
 }
 

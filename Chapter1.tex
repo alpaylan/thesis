@@ -52,24 +52,66 @@ Table~\ref{tab:pbt-frameworks} gives a glimps of the reach in which QuickCheck h
 into the random testing world, the table presents the community-maintained
 \code{jmid/pbt-frameworks} survey~\cite{jmid-pbt-frameworks}.
 
+The ubiquity of the approach stems from its simplicity. The user starts with a simple
+universal predicate denoting the correctness of their program:
+
+\begin{code}[language=Haskell,emph={sort_correct,is_sorted,sort,is_permutation},emph={[2]l}]
+sort_correct :: Ord a => [a] -> Bool
+sort_correct l = is_sorted (sort l) && is_permutation l (sort l)
+\end{code}
+
+The \code{sort_correct} predicate denotes the correctness of a sorting function, the
+elements of the list must not change, and the output must obey an ordering relation.
+The user then writes a random data generator for the input type, as \code{sort_correct}
+is defined over arbitrary lists of orderable elements, we definitely need a \code{List}
+generator, and we can pick any orderable type for our purposes, which I picked
+\code{Int}s in this case. QuickCheck provides a library of combinators for writing
+generators such as \code{choose} and \code{listOf}, and the \code{Arbitrary} typeclass
+for denoting generators of certain types.
+
+\begin{code}[language=Haskell,emph={arbitrary,choose,listOf},emph={[2]a}]
+instance Arbitrary Int where
+    arbitrary = choose (0, 100)
+
+-- listOf is a combinator that takes a generator for a
+-- type and produces a generator for lists of that type.
+instance Arbitrary a => Arbitrary [a] where
+    arbitrary = listOf arbitrary
+\end{code}
+
+Once the universally quantified predicate and the corresponding random data generators
+are in place, we can use QuickCheck's \code{forall} combinator for combining them into
+properties to be tested.
+
+\begin{code}[language=Haskell,emph={prop_sort_correct,forAll,arbitrary,sort_correct,quickCheck},emph={[2]xs}]
+prop_sort_correct :: Property
+prop_sort_correct = forAll arbitrary $ \xs -> sort_correct xs
+
+quickCheck prop_sort_correct
+{-
+Stdout:
++++ OK, passed 100 tests.
+-}
+\end{code}
 
 %% Source:
 %% Programmable Property-Based Testing
 %% https://arxiv.org/pdf/2602.18545
 
-The simplest form of a Property-Based Testing runner is as follows: A \generator{}
-produces some values a \checker{} tests and produces one of three possible results,
-either a \passed{}, indicating that the predicate executed with the input did not
-reveal any bugs, \discarded{}, indicating that the input is not a valid input for the
-property, hence was promptly discarded, or \failed{}, indicating that the input
-constitutes a bug, a violation of the property. After reaching a failing input, the
-second stage of the property runner is initiated, the bug is minimized through
-\shrinker{shrinking} with the application of delta-debugging\cn. A \shrinker{} produces
-multiple candidate shrunk values, sometimes by shrinking an internal value such as keys
-in a tree, or removing parts of the structure such as removing part of a computation.
-If a candidate reproduces the failure, the shrinking is recursively applied to the
-smaller candidate until there are no more failing candidates, at which point the
-minimal value is \printer{printed}. An abstract form of this process is depicted in
+What happens in the background after the \code{quickCheck} call? Well, the simplest
+form of a Property-Based Testing runner is as follows: A \generator{} produces some
+values a \checker{} tests and produces one of three possible results, either a
+\passed{}, indicating that the predicate executed with the input did not reveal any
+bugs, \discarded{}, indicating that the input is not a valid input for the property,
+hence was promptly discarded, or \failed{}, indicating that the input constitutes a
+bug, a violation of the property. After reaching a failing input, the second stage of
+the property runner is initiated, the bug is minimized through shrinking with the
+application of delta-debugging\cn. A \shrinker{} produces multiple candidate shrunk
+values, sometimes by shrinking an internal value such as keys in a tree, or removing
+parts of the structure such as removing part of a computation. If a candidate
+reproduces the failure, the shrinking is recursively applied to the smaller candidate
+until there are no more failing candidates, at which point the minimal value is
+\printer{printed}. An abstract form of this process is depicted in
 Figure~\ref{fig:quickcheck-property-runner-intro}:
 
 \begin{figure}[h]
@@ -153,4 +195,3 @@ major challenge that is yet to be solved is the ability to evolve a property-bas
 testing suite alongside the database, which we attempted to solve in our \todo{DBTest}
 paper. The chapter discusses various other domain-specific tools and techniques as well
 as their potential inclusion to general purpose PBT frameworks.
-
