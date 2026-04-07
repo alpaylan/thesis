@@ -44,6 +44,45 @@
       {\$}{{{\color{codeoperator}\bfseries\$}}}1
 }
 
+\lstdefinelanguage{Rocq}{
+  sensitive=true,
+  morekeywords={
+      Definition,Fixpoint,CoFixpoint,Inductive,CoInductive,Record,Structure,
+      Class,Instance,Lemma,Theorem,Proposition,Corollary,Remark,Fact,Goal,
+      Proof,Qed,Defined,Admitted,Abort,Axiom,Hypothesis,Variable,Variables,
+      Parameter,Parameters,Section,End,Module,Import,Export,Require,From,Set,
+      Unset,Ltac,Tactic,Hint,forall,exists,fun,let,in,match,with,end,if,then,
+      else,as,return,Type,Prop,Set,where,by,using,try,repeat
+    },
+  morecomment=[s]{(*}{*)},
+  morestring=[b]",
+  literate=
+      {:=}{{{\color{codeoperator}\bfseries:=}}}2
+      {=>}{{{\color{codeoperator}\bfseries=>}}}2
+      {->}{{{\color{codeoperator}\bfseries->}}}2
+      {<-}{{{\color{codeoperator}\bfseries<-}}}2
+      {|}{{{\color{codeoperator}\bfseries|}}}1
+}
+
+\lstdefinelanguage{Racket}{
+  sensitive=true,
+  alsoletter={-!?*+:/<>=},
+  morekeywords={
+      define,define-values,define-syntax,define-syntax-rule,lambda,let,let*,
+      letrec,let-values,let*-values,if,cond,else,when,unless,begin,set!,quote,
+      quasiquote,unquote,unquote-splicing,require,provide,module,module+,struct,
+      match,case,and,or,for,for/list,for/fold,for/hash,parameterize,syntax-rules
+    },
+  morecomment=[l]{;},
+  morestring=[b]",
+  literate=
+      {->}{{{\color{codeoperator}\bfseries->}}}2
+      {=>}{{{\color{codeoperator}\bfseries=>}}}2
+      {<=}{{{\color{codeoperator}\bfseries<=}}}2
+      {>=}{{{\color{codeoperator}\bfseries>=}}}2
+      {=}{{{\color{codeoperator}\bfseries=}}}1
+}
+
 \lstdefinestyle{thesiscode}{
   basicstyle=\ttfamily\small\linespread{1}\selectfont,
   aboveskip=\baselineskip,

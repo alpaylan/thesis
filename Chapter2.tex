@@ -3,6 +3,108 @@
 
 \chapter{Programmable Property-Based Testing}\label{chap:ppbt}
 
+In the introduction, I introduced a simple API for writing property-based tests. Define
+your predicate, write your generator, put them together into a \code{Property} to be
+tested by the testing framework. In this chapter, I will walk the reader through an
+exposition of the rough edges of the existing APIs for writing properties, followed by
+an identification of a core problem in the design of existing PBT libraries. I will
+present the ramifications of the problem followed by a solution from our paper with the
+same title as the chapter, ``Programmable Property-Based Testing''~\cn.
+
+\section{How to write properties?}
+
+The introduction had a deliberately simple property, single input, no preconditions, no
+need for any configuration changes or augmentations. From here on, I will use
+Binary-Search Tree properties taken from How to Specify It!~\cite{Hughes2019HowTS} and
+have been integrated into ETNA~\cite{ETNA} as case studies. I will also start using
+Rocq for the exposition as it is the language I will eventually present the solution
+in. Rocq hosts QuickChick~\cite{Pierce:SF4}, one of the most faithful ports of
+QuickCheck, keeping much of the original machinery, the types and algorithms of
+QuickCheck in place.
+
+\begin{code}[language=Rocq]
+Definition insert_correct (t: Tree) (k: nat) (k': nat) (v: nat) : option bool :=
+    isBST t
+    -=> find k' (insert k v t) = if k =? k' then Some v
+                                 else find k' t.
+\end{code}
+
+The property \code{InsertPost} states that for a binary-search tree, inserting an
+element should, if the keys are equal (which should happen rarely but sometimes), let
+us find the newly inserted element (which checks if any immediate insertion can fail);
+if the keys aren't equal, it shouldn't change the resulting value we get for any of the
+other possible keys. This property fails with \todo{K} different bugs we will go into
+detail in the next chapter. For now, we will focus on how to test it rather than what
+those tests would reveal.
+
+Let us initially consider how we would write the property to be tested by QuickChick:
+
+\begin{code}[language=Rocq]
+Definition prop_insert_correct :=
+  forAll arbitrary (fun (t: Tree) =>
+  forAll arbitrary (fun (k: nat)  =>
+  forAll arbitrary (fun (k': nat) =>
+  forAll arbitrary (fun (v: nat)  =>
+  prop_InsertPost t k k' v)))).
+\end{code}
+
+There's a small caveat to the using \code{Arbitrary} typeclass, which is that each type
+can have at most one typeclass instance, so we cannot really specialize for a specific
+scenario. We can switch \code{arbitrary} in the property definition with specialized
+generators, we can even define the \shrinker{shrinkers} and \printer{printers}
+ourselves if we would like using \code{forAllShrinkShow}:
+
+\begin{code}[language=Rocq]
+Definition prop_insert_correct :=
+  forAllShrinkShow gen shr pri (fun (t: Tree) =>
+  forAll (choose -100 100)     (fun (k: nat)  =>
+  forAll (choose -100 100)     (fun (k': nat) =>
+  forAll (choose -100 100)     (fun (v: nat)  =>
+  prop_InsertPost t k k' v)))).
+\end{code}
+
+Well, that seems fine, but ideally we would not even generate the \code{k}, \code{k'},
+and \code{v} if the tree \code{t} doesn't pass the precondition \code{isBST}, however
+right now we generate everything before starting to check. We could solve this by
+turning to \code{forAllShrinkShowMaybe} (this is starting to look awfully like
+\code{AbstractPropertyFactory} at this point):
+
+\begin{code}[language=Rocq]
+Definition prop_insert_correct :=
+  forAllShrinkShowMaybe (
+    fun _ =>
+        <todo>
+  ) shr pri (fun (t: Tree) =>
+  forAll (choose -100 100)   (fun (k: nat)  =>
+  forAll (choose -100 100)   (fun (k': nat) =>
+  forAll (choose -100 100)   (fun (v: nat)  =>
+    find k' (insert k v t) = if k =? k' then Some v
+                             else find k' t)))).
+\end{code}
+
+There are a couple more changes we can do, such as adding callbacks to \code{collect}
+statistics from the tests, and we can configure some other aspects of the testing by
+the configuration options QuickChick gives us, but otherwise, this is all the
+flexibility we get from the testing library. The more pressing question is, \emph{is
+    this enough?}
+
+Property-Based Testing literature tells us it is not. Looking at
+Table~\ref{tab:pbt-frameworks}, we see significant fragmentation within languages;
+Haskell hosts QuickCheck, SmallCheck~\cite{RuncimanNL08}, Hedgehog~\cite{Hedgehog} as
+well as LeanCheck\cn, and falsify~\cite{falsify} that is not mentioned in the table.
+These new frameworks emerge as a response to the limits of flexibility in the existing
+ones\cn. These limitations arise at points that surpass the prescience of the library
+authors in the requirements of the users, because the dominant design paradigm of the
+property languages for PBT libraries fundamentally \emph{fixes} the underlying property
+runner, albeit with a wide range of configurations for the user. All possible behaviors
+and configuration options must be programmed into the library internals with no ability
+to change or extend them in the user space. In the next section, I will introduce a
+variety of property runners from the literature that diverges from the original
+property runner of QuickCheck illustrated in
+Figure~\ref{fig:quickcheck-property-runner-intro}.
+
+\section{Property Runners in Literature}
 
 
-\input{tables/pbt-frameworks-full}git 
+
+\input{tables/pbt-frameworks-full}
