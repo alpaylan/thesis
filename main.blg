@@ -4,44 +4,50 @@ The top-level auxiliary file: main.aux
 The style file: unsrt.bst
 Database file #1: Bibliography.bib
 Database file #2: bib/pbtbenchmark/pbtbenchmark-merged.bib
-You've used 13 entries,
+Warning--entry type for "sqlancer" isn't style-file defined
+--line 4851 of file bib/pbtbenchmark/pbtbenchmark-merged.bib
+Warning--entry type for "HypoFuzz" isn't style-file defined
+--line 4859 of file bib/pbtbenchmark/pbtbenchmark-merged.bib
+Warning--empty booktitle in Tlon
+You've used 38 entries,
             1791 wiz_defined-function locations,
-            739 strings with 10003 characters,
-and the built_in function-call counts, 3355 in all, are:
-= -- 327
-> -- 109
-< -- 6
-+ -- 42
-- -- 29
-* -- 160
-:= -- 470
-add.period$ -- 46
-call.type$ -- 13
-change.case$ -- 12
+            890 strings with 15306 characters,
+and the built_in function-call counts, 10859 in all, are:
+= -- 1046
+> -- 402
+< -- 21
++ -- 149
+- -- 111
+* -- 541
+:= -- 1471
+add.period$ -- 130
+call.type$ -- 38
+change.case$ -- 37
 chr.to.int$ -- 0
-cite$ -- 13
-duplicate$ -- 183
-empty$ -- 345
-format.name$ -- 29
-if$ -- 825
+cite$ -- 39
+duplicate$ -- 639
+empty$ -- 1072
+format.name$ -- 111
+if$ -- 2693
 int.to.chr$ -- 0
-int.to.str$ -- 13
-missing$ -- 10
-newline$ -- 69
-num.names$ -- 15
-pop$ -- 61
+int.to.str$ -- 38
+missing$ -- 32
+newline$ -- 191
+num.names$ -- 40
+pop$ -- 181
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 127
+skip$ -- 467
 stack$ -- 0
-substring$ -- 171
-swap$ -- 82
-text.length$ -- 6
+substring$ -- 527
+swap$ -- 302
+text.length$ -- 21
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
-warning$ -- 0
-while$ -- 25
-width$ -- 15
-write$ -- 151
+warning$ -- 1
+while$ -- 77
+width$ -- 40
+write$ -- 441
+(There were 3 warnings)

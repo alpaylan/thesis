@@ -1,0 +1,59 @@
+% Parallel testing interaction loop diagram
+\begin{tikzpicture}[node distance=0.6cm]
+  % Size box
+  \node[size box] (Size) {Size};
+
+  % Multiple G-C pairs (4 rows)
+  \foreach \i/\yoff in {1/1.5, 2/0.0, 3/-1.5} {
+    
+    \node[generator box, minimum size=0.7cm, font=\normalsize\bfseries, right=2.2cm of Size, yshift=\yoff cm] (G\i) {G};
+    \node[checker box, minimum size=0.7cm, font=\normalsize\bfseries, right=1.5cm of G\i] (C\i) {C};
+    
+    % Box around G-C pair (on main layer, above the outer background region)
+    \node[loop box, fit=(G\i)(C\i), inner sep=6pt] (GCpair\i) {};
+
+    % Small arrows between G and C
+    \draw[loop arrow, line width=0.5pt] ([yshift=2pt]G\i.east) to[] node[arrow label, above, font=\tiny] {\texttt{check e}} ([yshift=2pt]C\i.west);
+    \draw[loop arrow, line width=0.5pt] ([yshift=-2pt]C\i.west) to[] node[arrow label, below, font=\tiny] {\texttt{gen}} ([yshift=-2pt]G\i.east);
+  }
+
+
+% Arrows from Size
+  % Arrows for GC1
+  \draw[loop arrow, line width=0.5pt] ([xshift=3pt]Size.north) to[bend left=20] node[arrow label, xshift=0.5cm, font=\tiny, pos=0.3] {size} ([yshift=-3pt]GCpair1.west);
+  \draw[loop arrow, line width=0.5pt] ([yshift=3pt]GCpair1.west) to[bend right=20] node[arrow label, xshift=-1cm, font=\tiny, pos=0.3] {increase size} ([xshift=-3pt]Size.north);
+  % Arrows for GC2
+  \draw[loop arrow, line width=0.5pt] ([yshift=-3pt]Size.east) to[] node[arrow label, yshift=-2mm, font=\tiny] {size} ([yshift=-3pt]GCpair2.west);
+  \draw[loop arrow, line width=0.5pt] ([yshift=3pt]GCpair2.west) to[] node[arrow label, yshift=2mm, font=\tiny] {increase size} ([yshift=3pt]Size.east);
+  % Arrows for GC3
+  \draw[loop arrow, line width=0.5pt] ([xshift=3pt]Size.south) to[bend right=20] node[arrow label, xshift=0.5cm, font=\tiny, pos=0.3] {size} ([yshift=3pt]GCpair3.west);
+  \draw[loop arrow, line width=0.5pt] ([yshift=-3pt]GCpair3.west) to[bend left=20] node[arrow label, xshift=-1cm, font=\tiny, pos=0.3] {increase size} ([xshift=-3pt]Size.south);
+
+
+  % Parallel testing loop region
+  \begin{scope}[on background layer]
+    \node[loop region, fit=(Size)(G1)(C1)(G3)(C3), inner ysep=12pt, inner xsep=8pt, label={[loop title]above:Parallel Testing Loop}] (parloop) {};
+  \end{scope}
+
+  % Shrinking Loop
+  \node[shrinker box, right=2cm of C2] (S) {S};
+  \node[checker box, right=1.5cm of S] (C5) {C};
+
+  % Arrows in shrinking loop
+  \draw[loop arrow] ([yshift=3pt]S.east) to[] node[arrow label, above, font=\scriptsize] {\texttt{check e'}} ([yshift=3pt]C5.west);
+  \draw[loop arrow] ([yshift=-3pt]C5.west) to[] node[arrow label, below, font=\scriptsize] {\texttt{shrink e | e'}} ([yshift=-3pt]S.east);
+
+  % Shrinking loop region
+  \begin{scope}[on background layer]
+    \node[loop region, fit=(S)(C5), inner ysep=14pt, inner xsep=8pt, label={[loop title]above:Shrinking Loop}] (shrinkloop) {};
+  \end{scope}
+
+  % Arrow from parallel to shrinking
+  \draw[loop arrow] (parloop.east) -- node[arrow label, above, font=\scriptsize] {\texttt{shrink e}} (S.west);
+
+  % Printer
+  \node[printer box, right=1.5cm of C5] (P) {P};
+
+  % Arrow to printer
+  \draw[loop arrow] (C5.east) -- node[arrow label, above, font=\scriptsize] {\texttt{print e/e'}} (P.west);
+\end{tikzpicture}

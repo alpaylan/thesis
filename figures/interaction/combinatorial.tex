@@ -1,0 +1,51 @@
+% Combinatorial Property Runner interaction loop diagram
+\begin{tikzpicture}[node distance=0.8cm]
+  % Generation Loop
+  \node[generator box] (G) {G};
+  \node[checker box, right=1.5cm of G] (C1) {C};
+
+  % Combinatorial Feedback box below G
+  \node[combfeedback box, below=2cm of G] (CF) {CF};
+
+  % Arrows in generation loop
+  \draw[loop arrow] (C1.west) to[] node[arrow label, above] {\texttt{gen}} (G.east);
+
+  % Arrows involving CF
+  \draw[loop arrow] ([xshift=-10pt]G.south) -- node[font=\scriptsize] {} ([xshift=-10pt]CF.north);
+  \draw[loop arrow] ([xshift=-5pt]G.south) -- node[font=\scriptsize] {} ([xshift=-5pt]CF.north);
+  \draw[loop arrow] ([xshift=-0pt]G.south) -- node[font=\scriptsize] {} ([xshift=-0pt]CF.north);
+  \draw[loop arrow] ([xshift=5pt]G.south) -- node[font=\scriptsize] {} ([xshift=5pt]CF.north);
+  \draw[loop arrow] ([xshift=10pt]G.south) -- node[arrow label, right, font=\scriptsize] {\texttt{pick e1..e5}} ([xshift=10pt]CF.north);
+  
+  % \draw[loop arrow] (CF.east) to[] node[arrow label, right, font=\scriptsize, pos=0.4] {\texttt{check e}} (C1.south);
+  \draw[loop arrow] 
+      (CF.east)
+      -| node[arrow label, xshift=-6mm, yshift=2mm, font=\scriptsize] {\texttt{check e}} (C1.south);
+
+  % Generation loop region
+  \begin{scope}[on background layer]
+    \node[loop region, fit=(G)(C1)(CF), inner ysep=10pt, inner xsep=6pt, label={[loop title]above:Generation Loop}] (genloop) {};
+  \end{scope}
+
+  % Shrinking Loop
+  \node[shrinker box, right=1.5cm of C1] (S) {S};
+  \node[checker box, right=1.5cm of S] (C2) {C};
+
+  % Arrows in shrinking loop
+  \draw[loop arrow] ([yshift=3pt]S.east) to[] node[arrow label, above] {\texttt{check e'}} ([yshift=3pt]C2.west);
+  \draw[loop arrow] ([yshift=-3pt]C2.west) to[] node[arrow label, below] {\texttt{shrink e | e'}} ([yshift=-3pt]S.east);
+
+  % Shrinking loop region
+  \begin{scope}[on background layer]
+    \node[loop region, fit=(S)(C2), inner ysep=10pt, inner xsep=6pt, label={[loop title]above:Shrinking Loop}] (shrinkloop) {};
+  \end{scope}
+
+  % Arrow from generation to shrinking
+  \draw[loop arrow] (C1.east) -- node[arrow label, above] {\texttt{shrink e}} (S.west);
+
+  % Printer
+  \node[printer box, right=1.5cm of C2] (P) {P};
+
+  % Arrow to printer
+  \draw[loop arrow] (C2.east) -- node[arrow label, above] {\texttt{print e/e'}} (P.west);
+\end{tikzpicture}

@@ -86,7 +86,9 @@ There are a couple more changes we can do, such as adding callbacks to \code{col
 statistics from the tests, and we can configure some other aspects of the testing by
 the configuration options QuickChick gives us, but otherwise, this is all the
 flexibility we get from the testing library. The more pressing question is, \emph{is
-    this enough?}
+  this enough?}
+
+\input{tables/pbt-frameworks-full}
 
 Property-Based Testing literature tells us it is not. Looking at
 Table~\ref{tab:pbt-frameworks}, we see significant fragmentation within languages;
@@ -101,10 +103,463 @@ and configuration options must be programmed into the library internals with no 
 to change or extend them in the user space. In the next section, I will introduce a
 variety of property runners from the literature that diverges from the original
 property runner of QuickCheck illustrated in
-Figure~\ref{fig:quickcheck-property-runner-intro}.
+Figure~\ref{fig:quickcheck-property-runner-intro} that demonstrates the motivation for
+a programmable PBT framework.
 
-\section{Property Runners in Literature}
+\section{Property Runners in Literature}\label{sec:runners}
 
+Property-Based Testing literature is filled with changes to the underlying property
+runners in an attempt to increase the performance of the tools. In this section, I
+explore a wide variety of property runners from the literature, highlighting their
+similarities and differences. I depict the runners using abstract representations of
+the dataflow between different \emph{components} of the runners, such as
+\generator{generators}, \shrinker{shrinkers}, or \printer{printers}.
+%
+Crucially, existing implementations of the runners I discuss are distinct, spread
+across different libraries in different languages. This section presents our attempt at
+putting them within a single conceptual framework.
 
+\input{figures/interaction/tikz-loops}
 
-\input{tables/pbt-frameworks-full}
+\subsection{Simple Generational Property Runner}\label{sec:loops:sgpr}
+
+\begin{figure}[h]
+  \centering
+  \resizebox{0.95\linewidth}{!}{\input{figures/interaction/quickchick.tex}}
+  \caption{An abstract representation of QuickCheck's property runner.}
+  \label{fig:quickchick-property-runner-loops}
+\end{figure}
+
+I briefly discussed the quintessential property runner of
+Figure~\ref{fig:quickchick-property-runner-loops} in the introduction as proposed by
+QuickCheck~\cite{ClaessenH00}. Looking a bit more closely, the runner consists of two
+stages: the first is a generate-and-check stage that repeatedly generates random inputs
+and tests them against the stated property until a maximum limit on the number of tests
+is reached, or until an input falsifying the property---i.e., a bug---is found. If such
+a bug is found, the second stage of the runner is a shrink-and-check stage that
+repeatedly tries smaller inputs (produced by a user-provided shrinking function) until
+a local minimum---an input that can no longer be shrunk---is reached.
+
+In principle, such a runner could be implemented using two straightforward modular
+loops that could be composed together in sequence. However, QuickCheck's design has the
+shrinking behavior built into the way properties are executed: when a test input is
+generated, a tree of potentially smaller counterexamples is lazily generated along the
+way, and is used for minimization. As such, changing the shrinking behavior of
+QuickCheck, for example to introduce integrated shrinking as we discuss next,
+necessitates deep changes to the property representation and the property runner, and
+as a consequence often a new framework.
+
+\subsection{Integrated Shrinking Property Runner}\label{sec:loops:ispr}
+
+Integrated shrinking emerges as a solution to a prevailing problem of type-based
+shrinking: generators are usually tuned to only produce inputs that satisfy implicit or
+explicit validity constraints, and type-based shrinking most of the time will not take
+such constraints into account, leading to minimized but invalid counterexamples. A
+well-known instance of this issue manifested in the line of work on CSmith and
+CReduce~\cite{YangCER11,RegehrCCEEY12}, where C programs were generated as to not
+exhibit undefined behavior, but shrinking based on C program grammar has no hope of
+avoiding such behavior during minimization leading to uninteresting counterexamples.
+
+Integrated shrinking solves this problem by removing the shrinker from the equation
+altogether, instead reusing the generators themselves to carry out the minimization.
+Generation can be thought of as a process where random bytes are parsed into structured
+test cases~\cite{goldsteinParsingRandomness2022}; in integrated shrinking, rather than
+minimizing the structured output of generators, frameworks minimize the randomness that
+goes into them. As a result, any validity constraints that are built into a generator
+are preserved by construction during shrinking.
+
+This method of integrated shrinking, depicted in
+Figure~\ref{fig:rackcheck-property-runner}, can be found in many frameworks such as
+Python's Hypothesis~\cite{HypothesisShrinking} and Haskell's Hedgehog~\cite{Hedgehog}
+and Falsify~\cite{falsifyLeo2023}.
+
+\begin{figure}[h!]
+  \centering
+  \resizebox{0.95\linewidth}{!}{\input{figures/interaction/rackcheck.tex}}
+  \caption{An abstract representation of the integrated shrinking property runner.}
+  \label{fig:rackcheck-property-runner}
+\end{figure}
+
+Traditional and integrated shrinking offer an interesting trade-off. Integrated
+shrinking removes the burden of writing shrinkers (and especially ones that preserve
+any input invariants) altogether, while QuickCheck's traditional approach can often
+lead to substantially smaller inputs. In other words, different situations call for
+different approaches. Unfortunately, baking in the way inputs are minimized to the way
+properties are represented and executed means that to take advantage of a different
+approach users might have to switch frameworks, or even languages entirely.
+
+\subsection{Coverage-Guided (Fuzzing) Property Runner}\label{sec:loops:cgpr}
+
+Coverage-guided fuzzing, popularized by AFL~\cite{aflplusplus}, is an effective random
+testing technique that has been independent of the PBT literature until recently. The
+effectiveness of fuzzing has led to multiple attempts to incorporate it into
+property-based testing: from early ones like OCaml's Crowbar~\cite{Crowbar}, Rocq's
+FuzzChick~\cite{FuzzChick}, and Java's JQF~\cite{Padye2019}, to more recent ones like
+HypoFuzz~\cite{HypoFuzz}. Crucially, each such attempt was, by necessity, either a
+completely new framework (Crowbar, JQF), or a major redesign of an existing one
+(QuickChick for FuzzChick, Hypothesis for HypoFuzz) that required significant changes
+to internals in order to even offer an alternative to its existing testing strategy.
+
+The coverage-guided fuzzing property runner significantly differs from the two loops I
+introduced, as shown in Figure~\ref{fig:fuzzing-property-runner}. First,
+coverage-guidance requires coverage-instrumentation, so the checker must be
+instrumented, allowing the runner to keep track of the branches that were covered
+during execution. This information is used for guiding the testing process, which
+brings us to the second major difference, \mutator{mutations}. Historically,
+property-based testing has overwhelmingly focused on generating data from scratch
+instead of the AFL style byte mutations; with an accompanying focus of writing
+correct-by-construction generators instead of mutators that slowly find their way into
+valid inputs. However, such guidance requires a biasing that naive generation from
+scratch cannot accommodate, which the coverage-guided fuzzing solves by choosing the
+inputs to mutate based on their contributions to the overall coverage with a genetic
+algorithm for maximizing the overall coverage.
+
+The runner keeps track of a \emph{seed pool}: a corpus of inputs that led execution
+down interesting, previously unseen paths. Inputs are then selected from this pool,
+mutated randomly, until a bug (or, more commonly simply a crash) is found.
+
+\begin{figure}[h!]
+  \centering
+  \resizebox{0.95\linewidth}{!}{\input{figures/interaction/fuzzing.tex}}
+  \caption{An abstract representation of the FuzzChick property runner.}
+  \label{fig:fuzzing-property-runner}
+\end{figure}
+
+There is an additional artifact of the rigidity of the existing frameworks in changing
+the property runner, the inflexibility makes it difficult to experiment with new ideas.
+For example, the search strategy of a fuzzing loop (how seeds are selected for
+mutation) has seen significant research
+interest~\cite{DBLP:journals/tse/BohmePR19,FairFuzz,DirectedGreybox}. However, when
+adapting property-based testing to incorporate fuzzing, FuzzChick reused AFL's
+choices~\cite{FuzzChick} instead of experimenting with new options in the higher-level
+setting; in part, because each option in such an experimentation would effectively
+require a new framework.
+
+%% HERE HERE HERE %%
+
+\subsection{Custom-Feedback Guided (Targeted) Property Runner}\label{sec:loops:tpr}
+
+There are other forms of feedback than coverage information that can be used to guide
+input generation. The literature is ripe with domain-specific metrics that can be used
+to produce interesting inputs:
+%
+in SlowFuzz~\cite{SlowFuzz} and PerfFuzz~\cite{PerfFuzz}, the goal of the testing
+campaign is to discover algorithmic complexity vulnerabilities that could lead to
+Denial of Service attacks in systems, which is achieved by maximizing instruction
+counts and execution path lengths;
+%
+in SQLancer~\cite{SQLancer}, the goal is to find bugs in SQL engines, achieved by
+maximizing the diversity of the generated query plans~\cite{RiggerQPG23}.
+%
+It is also possible to consolidate such different feedback forms under a single
+compositional design, as demonstrated by FuzzFactory~\cite{FuzzFactory} and
+Target~\cite{TargetedPBT}, which allowed users to define and combine different feedback
+functions for guiding input generation.
+%
+Figure~\ref{fig:targeted-property-runner} depicts an abstract representation of this
+targeted property runner, where the feedback is a separate function that is computed
+over the input instead of a value obtained via instrumentation.
+%
+% Once again, however, implementing such runners almost always meant implementing an
+% entirely new framework. Using a programmable approach, implementing and experimenting
+% with different forms of feedback becomes significantly easier for users without needing
+% to dive into library internals.
+
+\begin{figure}[h!]
+  \centering
+  \resizebox{0.95\linewidth}{!}{\input{figures/interaction/targeted.tex}}
+  \caption{An abstract representation of the targeted property runner.}
+  \label{fig:targeted-property-runner}
+\end{figure}
+
+\subsection{Combinatorial Property Runner}\label{sec:loops:cpr}
+
+There are yet different forms of feedback that can be useful in testing, which do not
+rely on dynamic feedback obtained during execution of a test, but rather on static
+features of generated inputs. Combinatorial coverage offers one such
+alternative~\cite{CombinatorialPBT,CombinatorialEnum} by performing \emph{online
+  generator thinning}, generating several inputs at each iteration of the
+generate-and-check loop and only using the input that covers the maximum amount of
+constructor interactions.
+%
+Such an approach, depicted in Figure~\ref{fig:combinatorial-property-runner}, is
+especially useful when executing a test can be costly (e.g. when testing compilers),
+and does not rely on mutation.
+
+\begin{figure}[t]
+  \centering
+  \resizebox{0.95\linewidth}{!}{\input{figures/interaction/combinatorial.tex}}
+  \caption{An abstract representation of the combinatorial property runner.}
+  \label{fig:combinatorial-property-runner}
+\end{figure}
+
+\subsection{Parallel Property Runner}\label{sec:loops:ppr}
+
+The other runners explored so far have focused on obtaining a better distribution of
+inputs by guiding the generator towards interesting parts of the search space, in
+contrast, QuickerCheck~\cite{ParallelTesting} improved upon the standard loop by
+exploiting parallelism: letting users run more tests during the same time span.
+%
+In a parallel runner, depicted in Figure~\ref{fig:parallel-property-runner}, different
+threads share a common atomic size counter for ensuring parallel progress on each
+thread while keeping contention on shared resources to a minimum. The paper presents
+near-linear speed-up for up to 6 threads due to the ability of almost perfect
+responsibility sharing across threads without contention.
+
+\begin{figure}[h!]
+  \centering
+  \resizebox{0.95\linewidth}{!}{\input{figures/interaction/parallel.tex}}
+  \caption{An abstract representation of the QuickerCheck property runner.}
+  \label{fig:parallel-property-runner}
+\end{figure}
+
+\subsection{Stateful Property Runner}\label{sec:loops:spr}
+
+\todo{Add stateful property runner}
+
+\subsection{Discussion}
+
+The property runners discussed in this section have given rise to a wide variety of
+frameworks across languages. Unfortunately, while their abstract representations appear
+similar, their implementations are anything but: a tight coupling between property
+runners and property DSLs means that implementation details often render it very
+difficult, if not entirely impossible, to switch and experiment with different
+approaches without major changes to the underlying code.
+
+\section{Property Languages}\label{sec:property-languages}
+
+\providecommand*{\sprop}{\ensuremath{\mathit{prop}}}
+\providecommand*{\sforall}{\ensuremath{\mathit{forall}}}
+\providecommand*{\scheck}{\ensuremath{\mathit{check}}}
+\providecommand*{\srun}{\ensuremath{\mathit{run}}}
+\providecommand*{\tbool}{\ensuremath{\mathtt{Bool}}}
+\providecommand*{\trand}{\ensuremath{\mathtt{Rand}}}
+\providecommand*{\tfun}[2]{\ensuremath{#1 \rightarrow #2}}
+\providecommand*{\denv}[1]{\ensuremath{\left[\!\left[#1\right]\!\right]}}
+\providecommand{\HC}[1]{\code[language=Haskell]{#1}}
+
+Properties are simply \emph{universally quantified predicates}. We want to define a
+layer of such properties on top of some standard host language, equipped with at least
+booleans:
+\begin{spacing}{1}
+  \[
+    \begin{array}{rcl}
+      \tau & := & \tbool ~|~ \tfun{\tau}{\tau}                     \\
+      e    & := & x ~|~ \lambda x. e ~|~ e ~ e ~|~ T ~|~ F ~|~ ... \\
+    \end{array}
+  \]
+\end{spacing}
+\vspace{0.5\baselineskip}
+In practice, the host language needs to also support some kind of randomness for
+generation, lists for shrinking, strings for pretty printing, etc. For presentation
+purposes, we begin by formally describing the core boolean structure:
+\begin{spacing}{1}
+  \[
+    \begin{array}{rcl}
+      p & := & \forall x : \tau. ~p ~|~ e \\
+    \end{array}
+  \]
+\end{spacing}
+\vspace{0.5\baselineskip}
+That is, properties are either universal quantifiers or an injection of a host
+predicate.
+
+The core question in this chapter is: \emph{how should we represent this language?} I
+will start by reviewing existing embedding solutions from the literature, demonstrating
+why they are not flexible enough to allow users to customize or specify their runners,
+before proposing our solution.
+
+\todo{HERE}
+
+\subsection{Background Terminology: Deep and Shallow Embeddings}
+
+An \emph{embedding} involves two languages: an \emph{object language} that is being
+implemented, and a \emph{host language} that the object language is being implemented
+in. In a deep embedding, the terms of the object language are represented as inductive
+data in the host language. These representations allow arbitrarily manipulating and
+inspecting the terms of the object language via pattern matching. By contrast, shallow
+embeddings directly expand the constructs of the object language in terms of constructs
+of the host language, which allows straightforward implementation but no user-level
+term manipulation~\cite{boulton1992experience}. Naturally, multiple hybrid alternatives
+have been explored, trading off between the simplicity of shallow embeddings and the
+flexibility of deep ones~\cite{DeeperShallowEmbeddings,PHOAS,Tlon}.
+
+\subsection{Status Quo: A Shallow Property Language}\label{sec:shallow}
+
+Defining a property language requires a construct for defining its inputs via universal
+quantification ($\forall$), a construct for defining the boolean predicate validated
+through the property ($\scheck$), and finally a mechanism for running the property. In
+PBT libraries using a shallow embedding following QuickCheck's design, the mechanism is
+using host-language lambdas as binders for universal quantification.
+
+\begin{spacing}{1}
+  \[
+    \begin{array}{lcl}
+      \sforall & : & \forall \tau. ~ (\tfun{\tau}{\sprop}) \rightarrow \sprop \\
+      \scheck  & : & \tbool \rightarrow \sprop                                \\
+      \srun    & : & \sprop \rightarrow \mathtt{IO}~()
+    \end{array}
+  \]
+\end{spacing}
+\vspace{0.5\baselineskip}
+Concretely, the type of properties is some type $\sprop$ in the host language (often
+restricted via a typeclass-like mechanism), $\scheck$ injects a host boolean into this
+type, and $\sforall$ takes a host-level function and turns it into a property. Finally,
+frameworks also provide a $\srun$ function to test properties constructed using this
+API.
+
+The main advantage of this approach is that it is very convenient for users to write
+properties (using host-level binders), and easy to test them (simply invoking the
+framework-provided $\srun$).
+%
+Implementing such a framework as a developer is also straightforward. A minimal
+implementation of this shallow API in Haskell using splittable
+pseudorandomness~\cite{ClaessenP13} is shown in Fig.~\ref{fig:core-qc-impl}: the type
+of generators for some type \texttt{a} is simply a wrapper around a function from some
+source of randomness to \texttt{a}; properties are generators for \texttt{Result}s (a
+datatype that encodes at least whether testing succeeded); \texttt{forall} takes a
+generator and a predicate and binds them together taking care of the underlying
+randomness; and the \texttt{run} loop simply generates and checks a result up to some
+predefined limit on the number of tests, taking care again of the underlying
+randomness, and reporting success or failure in the end.
+
+\begin{figure}[t]
+  \begin{code}[language=Haskell]
+newtype Gen a = Gen (StdGen -> a)
+
+type Property = Gen Result
+data Result = OK | Failed
+
+forall :: Gen a -> (a -> Property) -> Property
+forall (Gen g) f = Gen (\r -> let (r1,r2) = split r
+                                      Gen h = f (g r1)
+                                  in h r2
+
+run :: Property -> IO ()
+run (Gen g) = do newStdGen >>= loop numTests
+  where loop 0 _ = ... -- report success
+        loop n r = let (r1, r2) = split r in case g r1 of
+          OK     -> loop (n-1) r2
+          Failed -> ... -- report counterexample
+\end{code}
+  \caption{An implementation of QuickCheck's core functionality.}
+  \label{fig:core-qc-impl}
+\end{figure}
+
+In practice, implementations of such frameworks are more involved to account for better
+reporting, minimizing counterexamples, etc. However, a key characteristic of this
+approach is that the \HC{Property} type is opaque to users: it is simply a wrapper
+around a function. As a result, users cannot inspect its structure or customize how
+properties are tested without modifying the definition of \HC{Property} and the
+internals of the framework.
+
+\subsection{Hypothetical: A Deep Property Language}
+
+The polar opposite of the current shallow embedded paradigm would be to use a deep
+embedding: define an inductive representation of both the host language and the
+language of properties and require users to program properties in that. That would mean
+users of the testing framework would have to learn \emph{yet another} language in which
+to write their specifications, foregoing all of the convenience that host-language
+binders provide. Unsurprisingly, no frameworks have taken this route: it is hard enough
+to convince users to write properties and specifications without additional burdens to
+adoption~\cite{goldsteinPropertyBasedTestingPractice2024}.
+
+\subsection{Proposal: A Mixed Property Language}\label{sec:dbas}
+
+With pure shallow and deep embeddings being unsatisfactory, we turn to hybrid
+approaches to attempt to regain some amount of inspection and manipulation capabilities
+while keeping the property-writing process as ergonomic as possible. Researchers have
+explored a wide range of \emph{mixed embeddings} that reify parts of the language being
+considered. For example, we could attempt a HOAS-style approach, where we define an
+inductive type of properties, with a constructor corresponding to $\sforall$ and
+$\scheck$, both indexed by the arguments of their shallow counterparts:
+
+\providecommand*{\Ind}{\ensuremath{\mathit{Inductive}}}
+\providecommand*{\mforall}{\ensuremath{\mathit{Forall}}}
+\providecommand*{\mcheck}{\ensuremath{\mathit{Check}}}
+\providecommand*{\mprop}{\ensuremath{\mathit{Prop}}}
+\begin{spacing}{1}
+  \[
+    \begin{array}{l}
+      \Ind ~ \mprop :=                                            \\
+      |~ \mforall : (\tau \rightarrow  \mprop) \rightarrow \mprop \\
+      |~ \mcheck  : \tbool \rightarrow \mprop                     \\
+    \end{array}
+  \]
+\end{spacing}
+\vspace{0.5\baselineskip}
+
+Such a representation still allows us to encode universal quantifiers using
+host-language binders, and also makes headway into the issue at hand: given a property,
+we can now pattern match against it. However, there is still a problem: to access the
+``rest'' of the property that follows a universal quantification, we need an element of
+the type being quantified over; since such elements are randomly generated, we cannot
+actually recurse down the structure of the property without restricting ourselves to
+something along the lines of QuickCheck's \HC{Gen}erator monad.
+
+The key issue is that we are hiding the definition of the ``rest'' of the property
+under a host-language binder: the $\mforall$ constructor takes a function as an
+argument, which we cannot pattern match on to go deeper. Could we use standard
+host-language constructs to define the predicates at the leaves of the property (the
+$\mcheck$s), while retaining the ability to pattern match on property structure?
+
+\paragraph*{Proposal: Deferred Binding Abstract Syntax}
+
+Our solution is what we call \emph{deferred binding abstract syntax} (DBAS): rather
+than binding a variable once at the site of its universal quantification, we instead
+bind it at every one of its use sites.
+
+\providecommand*{\menv}{\ensuremath{\mathit{env}}}
+\providecommand*{\mType}{\ensuremath{\mathit{Type}}}
+\begin{spacing}{1}
+  \[
+    \begin{array}{l}
+      \Ind ~ \mprop ~ (\menv : [\mType]) :=                                              \\
+      | ~ \mforall : \forall \tau. ~ \mprop ~ (\tau :: \menv) \rightarrow \mprop ~ \menv \\
+      | ~ \mcheck  : (\denv{\menv} \rightarrow \tbool) \rightarrow \mprop ~ \menv        \\
+    \end{array}
+  \]
+\end{spacing}
+\vspace{0.5\baselineskip}
+
+\noindent
+We still define an inductive type of properties, with one constructor for each combinator
+in our API. We also index our type of properties by an environment: a list of types that
+have already been quantified. The key change is that we move the host-level binder from
+the binding site ($\mforall$) to its use site (the $\mcheck$). That is, the argument to
+$\mforall$ is no longer a function, but simply a property with an extended environment;
+on the other hand, the argument to $\mcheck$ is no longer a simple boolean, but a
+function that binds \emph{everything} in the environment. In the code above, we denote
+that as $\denv{\menv}$.
+
+At first glance, this is a counter-intuitive trade-off: every time you want to use a
+variable, you have to bind \emph{everything} quantified before that point. That only
+makes sense in a scenario where there are many quantifications and few variable
+uses---which is precisely the case for the language of properties. Compared to the
+previous language representations, this DBAS-based one allows us to access the
+structure of the ``rest'' of the predicate without having access to a concrete value,
+which is necessary when such values are to be randomly generated.
+
+\paragraph{Adding Annotations}
+
+Generalizing the property language above to include annotations for generation,
+shrinking, or printing of individual elements is straightforward. We simply include an
+optional extensible list of annotations at the $\mforall$ constructor:
+
+\begin{spacing}{1}
+  \[
+    \begin{array}{l}
+      \Ind ~ \mprop ~ (\menv : [\mType]) :=                                                              \\
+      | ~ \mforall : \forall \tau. ~as \rightarrow ~ \mprop ~ (\tau :: \menv) \rightarrow \mprop ~ \menv \\
+      | ~ \mcheck  : (\denv{\menv} \rightarrow \tbool) \rightarrow \mprop ~ \menv                        \\
+      \\
+      as := \emptyset ~|~ (\mathit{k}, \forall \tau. ~ \denv{\menv} \rightarrow \tau) :: as              \\
+      k ~ := \mathit{gen} ~|~ \mathit{shr} ~|~ \ldots                                                    \\
+    \end{array}
+  \]
+\end{spacing}
+\vspace{0.5\baselineskip}
+
+At a high level, we can annotate each $\mforall$ constructor with a (possibly empty)
+sequence of host-level functions that quantify over the context so far (as in
+$\mcheck$) and return annotation-specific terms (e.g. a generator or a shrinker).

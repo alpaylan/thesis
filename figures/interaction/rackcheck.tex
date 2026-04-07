@@ -1,0 +1,37 @@
+% RackCheck interaction loop diagram
+\begin{tikzpicture}[node distance=0.8cm]
+  % Generation Loop
+  \node[generator box] (G1) {G};
+  \node[checker box, right=1.2cm of G1] (C1) {C};
+
+  % Arrows in generation loop
+  \draw[loop arrow] ([yshift=3pt]G1.east) to[] node[arrow label, above] {\texttt{check e}} ([yshift=3pt]C1.west);
+  \draw[loop arrow] ([yshift=-3pt]C1.west) to[] node[arrow label, below] {\texttt{gen\textsubscript{bytes}}} ([yshift=-3pt]G1.east);
+
+  % Generation loop region
+  \begin{scope}[on background layer]
+    \node[loop region, fit=(G1)(C1), inner ysep=16pt, inner xsep=6pt, label={[loop title]above:Generation Loop}] (genloop) {};
+  \end{scope}
+
+  % Integrated Shrinking Loop
+  \node[generator box, right=2cm of C1] (G2) {G};
+  \node[checker box, right=1.2cm of G2] (C2) {C};
+
+  % Arrows in integrated shrinking loop
+  \draw[loop arrow] ([yshift=3pt]G2.east) to[] node[arrow label, above] {\texttt{check e'}} ([yshift=3pt]C2.west);
+  \draw[loop arrow] ([yshift=-3pt]C2.west) to[] node[arrow label, below] {\texttt{gen\textsubscript{bytes'}}} ([yshift=-3pt]G2.east);
+
+  % Integrated shrinking loop region
+  \begin{scope}[on background layer]
+    \node[loop region, fit=(G2)(C2), inner ysep=16pt, inner xsep=6pt, label={[loop title]above:Integrated Shrinking Loop}] (shrinkloop) {};
+  \end{scope}
+
+  % Arrow from generation to shrinking
+  \draw[loop arrow] (C1.east) -- node[arrow label, above] {\texttt{gen\textsubscript{bytes}}} (G2.west);
+
+  % Printer
+  \node[printer box, right=1.5cm of C2] (P) {P};
+
+  % Arrow to printer
+  \draw[loop arrow] (C2.east) -- node[arrow label, above] {\texttt{print e/e'}} (P.west);
+\end{tikzpicture}

@@ -66,4 +66,126 @@ Edsko de~Vries.
 \newblock falsify: Internal shrinking reimagined for haskell.
 \newblock In {\em Proceedings of the 16th ACM SIGPLAN International Haskell Symposium}, Haskell 2023, page 97–109, New York, NY, USA, 2023. Association for Computing Machinery.
 
+\bibitem{YangCER11}
+Xuejun Yang, Yang Chen, Eric Eide, and John Regehr.
+\newblock Finding and understanding bugs in {C} compilers.
+\newblock In {\em Proceedings of the 32nd {ACM} {SIGPLAN} Conference on Programming Language Design and Implementation, {PLDI} 2011, San Jose, CA, USA, June 4-8, 2011}, pages 283--294, 2011.
+
+\bibitem{RegehrCCEEY12}
+John Regehr, Yang Chen, Pascal Cuoq, Eric Eide, Chucky Ellison, and Xuejun Yang.
+\newblock Test-case reduction for {C} compiler bugs.
+\newblock In {\em {ACM} {SIGPLAN} Conference on Programming Language Design and Implementation, {PLDI} '12, Beijing, China - June 11 - 16, 2012}, pages 335--346, 2012.
+
+\bibitem{falsifyLeo2023}
+Edsko de~Vries.
+\newblock falsify: Internal shrinking reimagined for haskell.
+\newblock In {\em Proceedings of the 16th ACM SIGPLAN International Haskell Symposium}, Haskell 2023, page 97–109, New York, NY, USA, 2023. Association for Computing Machinery.
+
+\bibitem{aflplusplus}
+Andrea Fioraldi, Dominik Maier, Heiko Ei\ss{}feldt, and Marc Heuse.
+\newblock Afl++: combining incremental steps of fuzzing research.
+\newblock In {\em Proceedings of the 14th USENIX Conference on Offensive Technologies}, WOOT'20, USA, 2020. USENIX Association.
+
+\bibitem{FuzzChick}
+Leonidas Lampropoulos, Michael Hicks, and Benjamin~C. Pierce.
+\newblock Coverage guided, property based testing.
+\newblock In {\em Proceedings of the ACM Conference on Object-Oriented Programming Languages, Systems, and Applications (OOPSLA)}, October 2019.
+
+\bibitem{Padye2019}
+Rohan Padhye, Caroline Lemieux, and Koushik Sen.
+\newblock Jqf: coverage-guided property-based testing in java.
+\newblock In {\em Proceedings of the 28th ACM SIGSOFT International Symposium on Software Testing and Analysis}, ISSTA 2019, page 398–401, New York, NY, USA, 2019. Association for Computing Machinery.
+
+\bibitem{HypoFuzz}
+Zac Hatfield-Dodds and contributors.
+\newblock Hypofuzz: Adaptive fuzzing of hypothesis tests.
+
+\bibitem{DBLP:journals/tse/BohmePR19}
+Marcel B{\"{o}}hme, Van{-}Thuan Pham, and Abhik Roychoudhury.
+\newblock Coverage-based greybox fuzzing as markov chain.
+\newblock {\em {IEEE} Trans. Software Eng.}, 45(5):489--506, 2019.
+
+\bibitem{FairFuzz}
+Caroline Lemieux and Koushik Sen.
+\newblock Fairfuzz: a targeted mutation strategy for increasing greybox fuzz testing coverage.
+\newblock In {\em Proceedings of the 33rd ACM/IEEE International Conference on Automated Software Engineering}, ASE '18, page 475–485, New York, NY, USA, 2018. Association for Computing Machinery.
+
+\bibitem{DirectedGreybox}
+Marcel B\"{o}hme, Van-Thuan Pham, Manh-Dung Nguyen, and Abhik Roychoudhury.
+\newblock Directed greybox fuzzing.
+\newblock In {\em Proceedings of the 2017 ACM SIGSAC Conference on Computer and Communications Security}, CCS '17, page 2329–2344, New York, NY, USA, 2017. Association for Computing Machinery.
+
+\bibitem{SlowFuzz}
+Theofilos Petsios, Jason Zhao, Angelos~D. Keromytis, and Suman Jana.
+\newblock Slowfuzz: Automated domain-independent detection of algorithmic complexity vulnerabilities.
+\newblock In {\em Proceedings of the 2017 ACM SIGSAC Conference on Computer and Communications Security}, CCS '17, page 2155–2168, New York, NY, USA, 2017. Association for Computing Machinery.
+
+\bibitem{PerfFuzz}
+Caroline Lemieux, Rohan Padhye, Koushik Sen, and Dawn Song.
+\newblock Perffuzz: automatically generating pathological inputs.
+\newblock In {\em Proceedings of the 27th ACM SIGSOFT International Symposium on Software Testing and Analysis}, ISSTA 2018, page 254–265, New York, NY, USA, 2018. Association for Computing Machinery.
+
+\bibitem{SQLancer}
+{SQLancer contributors}.
+\newblock {SQLancer}: Automated testing to find logic and performance bugs in database systems.
+
+\bibitem{RiggerQPG23}
+Jinsheng Ba and Manuel Rigger.
+\newblock Testing database engines via query plan guidance.
+\newblock In {\em The 45th International Conference on Software Engineering (ICSE'23)}, May 2023.
+
+\bibitem{FuzzFactory}
+Rohan Padhye, Caroline Lemieux, Koushik Sen, Laurent Simon, and Hayawardh Vijayakumar.
+\newblock {FuzzFactory}: domain-specific fuzzing with waypoints.
+\newblock {\em Replication Package for "FuzzFactory: Domain-Specific Fuzzing with Waypoints"}, 3(OOPSLA):174:1--174:29, October 2019.
+
+\bibitem{TargetedPBT}
+Andreas L\"{o}scher and Konstantinos Sagonas.
+\newblock Targeted property-based testing.
+\newblock In {\em Proceedings of the 26th ACM SIGSOFT International Symposium on Software Testing and Analysis}, ISSTA 2017, page 46–56, New York, NY, USA, 2017. Association for Computing Machinery.
+
+\bibitem{CombinatorialPBT}
+Harrison Goldstein, John Hughes, Leonidas Lampropoulos, and Benjamin~C. Pierce.
+\newblock Do judge a test by its cover: Combining combinatorial and property-based testing.
+\newblock In {\em Proceedings of the European Symposium on Programming (ESOP)}, 2021.
+
+\bibitem{CombinatorialEnum}
+Segev~Elazar Mittelman, Alvin Resnick, Ivan Perez, Alwyn Goodloe, and Leonidas Lampropoulos.
+\newblock Don’t go down the rabbit hole: Reprioritizing enumeration for property-based testing.
+\newblock In {\em Proceedings of the ACM SIGPLAN International Symposium on Haskell}, 2023.
+
+\bibitem{ParallelTesting}
+Robert Krook, Nicholas Smallbone, Bo~Joel Svensson, and Koen Claessen.
+\newblock Quickercheck: Implementing and evaluating a parallel run-time for quickcheck, 2024.
+
+\bibitem{boulton1992experience}
+Richard~J. Boulton, Andy Gordon, Michael J.~C. Gordon, John Harrison, John Herbert, and John~Van Tassel.
+\newblock Experience with embedding hardware description languages in hol.
+\newblock In {\em Proceedings of the IFIP TC10/WG 10.2 International Conference on Theorem Provers in Circuit Design: Theory, Practice and Experience}, pages 129--156. North-Holland Publishing Co., June 1992.
+
+\bibitem{DeeperShallowEmbeddings}
+Jacob Prinz, Alex Kavvos, and Leonidas Lampropoulos.
+\newblock Deeper shallow embeddings.
+\newblock In {\em 13th International Conference on Interactive Theorem Proving (ITP)}, Lecture Notes in Computer Science, 2022.
+
+\bibitem{PHOAS}
+Adam Chlipala.
+\newblock Parametric higher-order abstract syntax for mechanized semantics.
+\newblock In {\em Proceedings of the 13th ACM SIGPLAN International Conference on Functional Programming}, ICFP '08, pages 143--156, New York, NY, USA, 2008. ACM.
+
+\bibitem{Tlon}
+Yao Li and Stephanie Weirich.
+\newblock Program adverbs and tl\"on embeddings.
+\newblock volume~6, 07 2022.
+
+\bibitem{ClaessenP13}
+Koen Claessen and Micha{\l} Pa{\l}ka.
+\newblock Splittable pseudorandom number generators using cryptographic hashing.
+\newblock In {\em ACM SIGPLAN Symposium on Haskell}, pages 47--58. ACM, 2013.
+
+\bibitem{goldsteinPropertyBasedTestingPractice2024}
+Harrison Goldstein, Joseph~W. Cutler, Daniel Dickstein, Benjamin~C. Pierce, and Andrew Head.
+\newblock Property-{Based} {Testing} in {Practice}.
+\newblock In {\em Proceedings of the {IEEE}/{ACM} 46th {International} {Conference} on {Software} {Engineering}}, volume 187 of {\em {ICSE} '24}, pages 1--13, Lisbon, Portugal, 2024. Association for Computing Machinery.
+
 \end{thebibliography}

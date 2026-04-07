@@ -1,0 +1,50 @@
+% Fuzzing interaction loop diagram
+\begin{tikzpicture}[node distance=0.8cm]
+  % Seed Pool with G and M
+  \node[generator box] (G) {G};
+  \node[mutator box, below=0.4cm of G] (M) {M};
+
+  % Seed pool container
+  \begin{scope}
+    \node[seed pool, fit=(G)(M), inner sep=3pt, label={[font=\scriptsize, text=seedpool]above:Seed Pool}] (seedpool) {};
+  \end{scope}
+
+  % Checker
+  \node[checker box, right=1.5cm of seedpool] (C1) {C};
+
+
+  % Instrumentation container
+  \node[feedback box, fit=(C1), inner sep=1pt] (F) {};
+
+
+  % Arrows in fuzzing loop
+  \draw[loop arrow] ([yshift=3pt]seedpool.east) to[] node[arrow label, above] {\texttt{check e}} ([yshift=3pt]C1.west);
+  \draw[loop arrow] ([yshift=-3pt]C1.west) to[] node[arrow label, below] {\texttt{gen/mutate f}} ([yshift=-3pt]seedpool.east);
+
+  % Fuzzing loop region
+  \begin{scope}[on background layer]
+    \node[loop region, fit=(seedpool)(F), inner ysep=14pt, inner xsep=4pt, label={[loop title]above:Fuzzing Loop}] (fuzzloop) {};
+  \end{scope}
+
+  % Shrinking Loop
+  \node[shrinker box, right=1.3cm of C1] (S) {S};
+  \node[checker box, right=1.5cm of S] (C2) {C};
+
+  % Arrows in shrinking loop
+  \draw[loop arrow] ([yshift=3pt]S.east) to[] node[arrow label, above] {\texttt{check e'}} ([yshift=3pt]C2.west);
+  \draw[loop arrow] ([yshift=-3pt]C2.west) to[] node[arrow label, below] {\texttt{shrink e' | e}} ([yshift=-3pt]S.east);
+
+  % Shrinking loop region
+  \begin{scope}[on background layer]
+    \node[loop region, fit=(S)(C2), inner ysep=16pt, inner xsep=6pt, label={[loop title]above:Shrinking Loop}] (shrinkloop) {};
+  \end{scope}
+
+  % Arrow from fuzzing to shrinking
+  \draw[loop arrow] (C1.east) -- node[arrow label, above] {\texttt{shrink e}} (S.west);
+
+  % Printer
+  \node[printer box, right=1.2cm of C2] (P) {P};
+
+  % Arrow to printer
+  \draw[loop arrow] (C2.east) -- node[arrow label, above] {\texttt{print e/e'}} (P.west);
+\end{tikzpicture}
