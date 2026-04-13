@@ -338,9 +338,11 @@ approaches without major changes to the underlying code.
 \providecommand*{\denv}[1]{\ensuremath{\left[\!\left[#1\right]\!\right]}}
 \providecommand{\HC}[1]{\code[language=Haskell]{#1}}
 
-Properties are simply \emph{universally quantified predicates}. We want to define a
-layer of such properties on top of some standard host language, equipped with at least
-booleans:
+Properties are, at a fundamental level, \emph{universally quantified predicates}. In
+order to test properties, we need to model them in the programming languages we use.
+Simply, we want to define a layer of such properties on top of some standard host
+language, equipped with at least booleans:
+
 \begin{spacing}{1}
   \[
     \begin{array}{rcl}
@@ -350,6 +352,7 @@ booleans:
   \]
 \end{spacing}
 \vspace{0.5\baselineskip}
+
 In practice, the host language needs to also support some kind of randomness for
 generation, lists for shrinking, strings for pretty printing, etc. For presentation
 purposes, we begin by formally describing the core boolean structure:
@@ -364,14 +367,15 @@ purposes, we begin by formally describing the core boolean structure:
 That is, properties are either universal quantifiers or an injection of a host
 predicate.
 
-The core question in this chapter is: \emph{how should we represent this language?} I
-will start by reviewing existing embedding solutions from the literature, demonstrating
-why they are not flexible enough to allow users to customize or specify their runners,
-before proposing our solution.
+The core question of our \todo{ICFP} paper, ``Programmable Property-Based Testing'',
+is, \emph{how should we represent this language?} Each representation yields different
+trade-offs in terms of expressibility and ergonomics, and our exploration of the design
+space has led us to a mixed embedding that yields a significantly more flexible PBT
+library compared to the state of the art. In this section, I present a review of
+existing property-languages from the literature, followed by an introduction of
+\emph{Deferred Binding Abstract Syntax (DBAS)}, our proposed alternative.
 
-\todo{HERE}
-
-\subsection{Background Terminology: Deep and Shallow Embeddings}
+\subsection{Background: Deep and Shallow Embeddings}
 
 An \emph{embedding} involves two languages: an \emph{object language} that is being
 implemented, and a \emph{host language} that the object language is being implemented
@@ -384,7 +388,7 @@ term manipulation~\cite{boulton1992experience}. Naturally, multiple hybrid alter
 have been explored, trading off between the simplicity of shallow embeddings and the
 flexibility of deep ones~\cite{DeeperShallowEmbeddings,PHOAS,Tlon}.
 
-\subsection{Status Quo: A Shallow Property Language}\label{sec:shallow}
+\subsection{A Shallow Property Language}\label{sec:shallow}
 
 Defining a property language requires a construct for defining its inputs via universal
 quantification ($\forall$), a construct for defining the boolean predicate validated
@@ -453,26 +457,83 @@ around a function. As a result, users cannot inspect its structure or customize 
 properties are tested without modifying the definition of \HC{Property} and the
 internals of the framework.
 
-\subsection{Hypothetical: A Deep Property Language}
+\subsection{A Deep Property Language}
 
-The polar opposite of the current shallow embedded paradigm would be to use a deep
-embedding: define an inductive representation of both the host language and the
-language of properties and require users to program properties in that. That would mean
-users of the testing framework would have to learn \emph{yet another} language in which
-to write their specifications, foregoing all of the convenience that host-language
-binders provide. Unsurprisingly, no frameworks have taken this route: it is hard enough
-to convince users to write properties and specifications without additional burdens to
+If we were to imagine shallowness-deepness as a spectrum, the polar opposite of the
+shallow embedding paradigm would be a deep embedding where terms of the host language
+are expressible in the object language, so we can manipulate them however required. In
+a compiled setting, the boundary between the host and the object is very strict,
+leaving only the option of staged compilation for such an implementation. In
+interpreted settings, it is possible to manipulate the host language terms without
+explicit staging, however cumbersome. To my knowledge, there is only one tool
+experimenting with the deep approach, TSTL\cn, TSTL is ``the Template Scripting Testing
+Language'' that allows for writing templates in an EBNF-like syntax that can include
+arbitrary Python expressions which denotes a generative grammar. Below is a TSTL
+template for testing an AVL tree in Python:
+
+\begin{code}[language=TSTL]
+@import avl
+
+pool: <int> 2
+pool: <avl> 1
+
+<int> := <[0..10]>
+<avl> := avl.AVLTree()
+
+<avl>.insert(<int>)
+property: <avl>.check_balanced()
+\end{code}
+
+The advantage of such an embedding is that any consumer of this template can
+theoretically write another interpretation for the same property, its flexibility is
+unparallelled. However, it also means that the users of the testing framework have to
+learn \emph{yet another} language in which to write their specifications and
+generators, foregoing all of the convenience that host-language binders provide.
+Unsurprisingly, almost no frameworks have taken this route: it is hard enough to
+convince users to write properties and specifications without additional burdens to
 adoption~\cite{goldsteinPropertyBasedTestingPractice2024}.
 
-\subsection{Proposal: A Mixed Property Language}\label{sec:dbas}
+\subsection{A Mixed Property Language}\label{sec:dbas}
 
-With pure shallow and deep embeddings being unsatisfactory, we turn to hybrid
-approaches to attempt to regain some amount of inspection and manipulation capabilities
-while keeping the property-writing process as ergonomic as possible. Researchers have
-explored a wide range of \emph{mixed embeddings} that reify parts of the language being
-considered. For example, we could attempt a HOAS-style approach, where we define an
-inductive type of properties, with a constructor corresponding to $\sforall$ and
-$\scheck$, both indexed by the arguments of their shallow counterparts:
+I remember one of my undergraduate professors teaching Computer Networks class saying
+that the one thing computer scientists love more than anything is to find hybrids. We
+take two ends of a spectrum and find a middle ground that can work better than both. A
+pure shallow embedding results in a rigid, inflexible testing library that people
+cannot configure for their requirements. A pure deep embedding on the other hand,
+forgoes ergonomics in exchange for \emph{perceived flexibility}, however, the libraries
+we create must be ergonomic enough for people to use, otherwise the potential of
+flexibility is never realized. \emph{Mixed embeddings} emerge as optimal points in the
+spectrum where parts of the object language is reified as deeply embedded data
+structures while the rest is kept as shallowly embedded combinators. Perhaps the most
+famous of such embeddings is \emph{Higher-Order Abstract Syntax (HOAS)}\cn, a popular
+approach to defining languages where the variable bindings in lambdas reuse host
+language binders instead of redefining substitution at the object level.
+
+\begin{figure}[h]
+  \centering
+  \begin{minipage}[t]{0.48\linewidth}
+    \begin{code}[language=Haskell]
+data Exp
+  = Var String
+  | Lam String Type Exp
+  | App Exp Exp
+    \end{code}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.48\linewidth}
+    \begin{code}[language=Haskell]
+data Exp
+  = App Exp Exp
+  | Lam Type (Exp -> Exp)
+    \end{code}
+  \end{minipage}
+  \caption{STLC encodings with and without HOAS. Non-HOAS stores binders explicitly; HOAS reuses host-language binders.}
+  \label{fig:stlc-hoas-vs-non-hoas}
+\end{figure}
+
+In defining our property-language, we could attempt a HOAS-style approach, where we
+define an inductive type of properties, with a constructor corresponding to $\sforall$
+and $\scheck$, both indexed by the arguments of their shallow counterparts:
 
 \providecommand*{\Ind}{\ensuremath{\mathit{Inductive}}}
 \providecommand*{\mforall}{\ensuremath{\mathit{Forall}}}
@@ -503,7 +564,7 @@ argument, which we cannot pattern match on to go deeper. Could we use standard
 host-language constructs to define the predicates at the leaves of the property (the
 $\mcheck$s), while retaining the ability to pattern match on property structure?
 
-\paragraph*{Proposal: Deferred Binding Abstract Syntax}
+\subsubsection{Proposal: Deferred Binding Abstract Syntax}
 
 Our solution is what we call \emph{deferred binding abstract syntax} (DBAS): rather
 than binding a variable once at the site of its universal quantification, we instead
@@ -540,7 +601,7 @@ previous language representations, this DBAS-based one allows us to access the
 structure of the ``rest'' of the predicate without having access to a concrete value,
 which is necessary when such values are to be randomly generated.
 
-\paragraph{Adding Annotations}
+\paragraph*{Adding Annotations}
 
 Generalizing the property language above to include annotations for generation,
 shrinking, or printing of individual elements is straightforward. We simply include an

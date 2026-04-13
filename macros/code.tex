@@ -83,6 +83,18 @@
       {=}{{{\color{codeoperator}\bfseries=}}}1
 }
 
+\lstdefinelanguage{TSTL}{
+  sensitive=true,
+  alsoletter={@_},
+  morekeywords={pool,property,@import},
+  morecomment=[l]{\#},
+  morestring=[b]",
+  morestring=[b]',
+  moredelim=[s][\color{codetype}\bfseries]{<}{>},
+  literate=
+      {:=}{{{\color{codeoperator}\bfseries:=}}}2
+}
+
 \lstdefinestyle{thesiscode}{
   basicstyle=\ttfamily\small\linespread{1}\selectfont,
   aboveskip=\baselineskip,
