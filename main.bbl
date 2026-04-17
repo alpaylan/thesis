@@ -188,4 +188,14 @@ Harrison Goldstein, Joseph~W. Cutler, Daniel Dickstein, Benjamin~C. Pierce, and 
 \newblock Property-{Based} {Testing} in {Practice}.
 \newblock In {\em Proceedings of the {IEEE}/{ACM} 46th {International} {Conference} on {Software} {Engineering}}, volume 187 of {\em {ICSE} '24}, pages 1--13, Lisbon, Portugal, 2024. Association for Computing Machinery.
 
+\bibitem{rackcheck}
+Bogdan Popa.
+\newblock Rackcheck: Property-based testing for racket.
+\newblock \url{https://docs.racket-lang.org/rackcheck/index.html}, 2021.
+
+\bibitem{LeoThesis2018}
+Leonidas Lampropoulos.
+\newblock {\em Random Testing for Language Design}.
+\newblock PhD thesis, University of Pennsylvania, 2018.
+
 \end{thebibliography}

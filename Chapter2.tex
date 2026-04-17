@@ -527,7 +527,7 @@ data Exp
   | Lam Type (Exp -> Exp)
     \end{code}
   \end{minipage}
-  \caption{STLC encodings with and without HOAS. Non-HOAS stores binders explicitly; HOAS reuses host-language binders.}
+  \caption{STLC encodings with and without HOAS. Non-HOAS (on left) stores binders explicitly; HOAS (on right) reuses host-language binders.}
   \label{fig:stlc-hoas-vs-non-hoas}
 \end{figure}
 
@@ -624,3 +624,333 @@ optional extensible list of annotations at the $\mforall$ constructor:
 At a high level, we can annotate each $\mforall$ constructor with a (possibly empty)
 sequence of host-level functions that quantify over the context so far (as in
 $\mcheck$) and return annotation-specific terms (e.g. a generator or a shrinker).
+
+\section{A Dynamically-Typed Property Language}\label{sec:racket}
+
+There are multiple mechanisms for implementing a DBAS embedding. In this section, we go
+through an implementation of DBAS in Racket. Dynamically-typed runtimes for programming
+languages allow for creating \emph{arbitrary} data structures that we cannot express
+within static type checking boundaries. Sometimes our type system isn't expressive
+enough to model the underlying object, other times the objects we create are just not
+well-typed. The tension of a dynamically-typed setting is that the programmer is tasked
+with bookkeeping the well-typedness of the program as opposed to mathematical
+guarantees we get from static type checking.
+
+Specifically, the \code{env} in the definition of the inductive \code{Prop} which has
+the type \code{[Type]}, a list of types, is tricky to implement and manage in static
+type systems. Each layer of the property is parameterized by a context of the variables
+introduced in the upper layers, and therefore has access to them. In a
+dynamically-typed setitng, we can solve this by simply hijacking the variable bindings
+of the host language.
+
+We define a property as follows, almost verbatim equivalent to the existing
+combinator-based PBT library in Racket, RackCheck~\cite{rackcheck}, in its final form:
+
+\begin{code}[language=Racket]
+(define eval-opt
+  (property
+    (forall e #:contract expr? #:gen gen-expr)
+    (equal? (eval e) (eval (optimize e)))))
+\end{code}
+
+If we were to use RackCheck's property language, the \code{property} would evaluate the
+\code{forall}, produce the variable \code{e}, evaluate the following predicate with
+\code{e} in the context. We instead use the Racket macro system for turning any
+generated variable into an environment access.
+
+\begin{code}[language=Racket]
+(equal? (eval e) (eval (optimize e)))
+\end{code}
+
+is transformed into
+
+\begin{code}[language=Racket]
+(equal? (eval (get-env "e")) (eval (optimize (get-env "e"))))
+\end{code}
+
+The evaluator gets access to the environment, of which it enriches with the
+\code{augments} on the universally quantified varible introductions (\code{forall}).
+Let me now go through the details of the implementation. The public interface is as
+simple as follows:
+
+\begin{code}[language=Racket]
+(struct Forall (var augments body))
+(struct Implies (prop body))
+(struct Check (prop))
+\end{code}
+
+Each \code[language=Racket]{Forall} carries an augment dictionary. Augments map
+keywords like \code[language=Racket]{#:contract}, \code[language=Racket]{#:gen}, and
+\code[language=Racket]{#:shrink} to functions from the current environment to
+annotation-specific values. Without syntax support, this can be quite verbose:
+
+\begin{code}[language=Racket]
+(define eval-opt
+  (Forall 'e (hash '#:contract (lambda (env) expr?)
+                   '#:gen      (lambda (env) gen-expr))
+          (Check (lambda (env)
+                   (let ([e (dict-ref env 'e)])
+                     (equal? (eval e) (eval (optimize e))))))))
+\end{code}
+
+The ergonomics here, compared to the flat property definition at the beginning, is
+drastically different. The nestedness of the constructors aside, we must explicitly
+bind the expression \code{e} to the environment reference (via \code{(dict-ref env
+  'e)}) and enclose every expression with a lambda that has access to the environment. We
+can fortunately rely on the extensive macro capabilities of Racket in bringing
+ergonomics to our language.
+
+Concretely, \code{property} is implemented as a recursive \code{syntax-parse} macro
+with three cases: one for \code{forall}, one for \code{implies}, and a base case for
+\code{check}-style leaves. The \code{forall} clause expands into a \code{Forall} node
+and introduces a local identifier transformer for the bound variable using
+\code{make-variable-like-transformer}. Inside the remainder of the property, any use of
+that variable is rewritten to an environment lookup (\code{(dict-ref env 'x)}), rather
+than to a host-language binder.
+
+To make this rewriting compositional, the macro uses a syntax parameter
+(\code{property-env}) that is rebound at each generated lambda (\code{(lambda (env)
+  ...)}). This gives both predicate bodies and annotation expressions (\code{\#:gen},
+\code{\#:contract}, \code{\#:shrink}, \ldots) access to the current DBAS environment.
+
+\paragraph*{Writing Property Runners}
+
+The premise of our new property language is that it gives rise to flexible PBT
+libraries that allow for writing user-space property runners based on the conceptual
+architectures we introduced in Section~\ref{sec:runners}. In theory, of course, because
+the property is stored as a data structure that can be inspected and manipulated, one
+should be able to act as one wishes; in reality, however, we want to give the users of
+the library abstractions that will be convenient for them. Our abstraction layer over
+properties is \emph{components}. Remember the simple generational property runner from
+the introduction:
+
+\begin{figure}[h]
+  \centering
+  \resizebox{0.95\linewidth}{!}{\input{figures/interaction/quickchick.tex}}
+  \caption{An abstract representation of QuickCheck's property runner.}
+  \label{fig:quickchick-property-runner-loops}
+\end{figure}
+
+The loop relies on four components, a \generator{}, a \checker{}, a \shrinker{}, and a
+\printer{}. If we can construct all of these components out of a given property object,
+we can then use them to build the property runner. And that is exactly what we will do
+now. The \generator{} starts with an empty map of inputs, filling it as it interprets
+the property, and returns the environment enriched with the randomly generated inputs
+at the end. Each \generator{gen} arrow in the diagram depicts a call to the generator.
+
+\begin{code}[language=Racket]
+(define (generator p size)
+  (let loop ([p p]
+             [env (hash)])
+    (match p
+      [(Forall var augments body)
+       (unless (dict-has-key? augments '#:gen)
+         (error 'no-generator))
+       (define val
+         (run-rackcheck-generator
+          ((dict-ref augments '#:gen) env)
+          rng
+          size))
+       (when (dict-has-key? augments '#:contract)
+         (invariant-assertion ((dict-ref augments '#:contract) env) val))
+       (loop body (dict-set env var val))]
+      [(Implies _ body)
+       (loop body env)]
+      [(Check _) env])))
+\end{code}
+
+The \checker{} takes in the property alongside an environment of generated variables,
+and produces a result. The \code{check e} arrows in the diagram indicates a call to the
+checker.
+
+\begin{code}[language=Racket]
+(define (checker p env)
+  (match p
+    [(Forall var augments body)
+     (unless (dict-has-key? env var)
+       (error 'missing-variable))
+     (when (dict-has-key? augments '#:contract)
+       (invariant-assertion ((dict-ref augments '#:contract) env) (dict-ref env var)))
+     (checker body env)]
+    [(Implies prop body)
+     (if (prop env) (checker body env) 'discard)]
+    [(Check prop)
+     (if (prop env) 'pass 'fail)]))
+\end{code}
+
+The shrinker is a bit more involved, because in reality the \shrinker{} doesn't produce
+one shrunk value, it produces a list of possibly smaller values; for a list, a shrinker
+might remove an element from the beginning or the end of the list; for a tree, a
+shrinker might remove left or right subtree. Instead of going through these
+possibilities one by one, \shrinker{shrink} call produces a list of possible
+minimizations, goes through the list, \checker{checking} each possibility, and if one
+of the possibilities succeed in reproducing the failure, applying the shrinking process
+recursively further down the tree.
+
+\begin{code}[language=Racket]
+(define (shrink-eager prop env)
+  (define (shrink-var prop env x shrinker)
+    (let down ([v (dict-ref env x)])
+      (let across ([shrinks (shrinker v)])
+        (match shrinks
+          ['() v]
+          [(cons v vs)
+           (if (equal? (check-property prop (dict-set env x v)) 'fail)
+               (down v)
+               (across vs))]))))
+  (match prop
+    [(Forall x augments body)
+     (define contract ((dict-ref augments '#:contract (const any/c)) env))
+     (if (dict-has-key? augments '#:shrink)
+         (let* ([shrinker (invariant-assertion
+                           (-> contract (listof contract))
+                           ((dict-ref augments '#:shrink) env))]
+                [v (shrink-var body env x shrinker)])
+           (shrink-eager body (dict-set env x v)))
+         (shrink-eager body env))]
+    [(Implies _ body) (shrink-eager body env)]
+    [(Check _) env]))
+\end{code}
+
+Printer... \todo{HERE}
+
+\section{A Dependently Typed Property Language}\label{sec:rocq}
+
+Implementing the language of universally quantified properties using deferred binding
+abstract syntax is straightforward in a dependently typed language, but achieving good
+ergonomics can be a challenge. In this section, I focus on implementing such a language
+on top of QuickChick~\cite{LeoThesis2018} in Rocq.
+
+To that end, we explicitly encode contexts in our properties, capturing every input
+that \emph{will have been generated} by that point. We use a standard inductive
+definition of contexts, where \code[language=Rocq]{Emp} is the empty context and
+\code[language=Rocq]{Ext} extends a context by one type. Given a context, we calculate
+the host-level tuple type corresponding to that context.
+
+\begin{code}[language=Rocq]
+Inductive Ctx :=
+| Emp : Ctx
+| Ext : Type -> Ctx -> Ctx.
+\end{code}
+
+\begin{code}[language=Rocq]
+Fixpoint interp (C : Ctx) : Type :=
+  match C with
+  | Emp => unit
+  | Ext T C' => T * interp C'
+  end.
+\end{code}
+
+Now we can define a deeper property language with DBAS:
+
+\begin{code}[language=Rocq]
+Inductive Prop : Ctx -> Type :=
+| FORALL : forall {A : Type} {C : Ctx} (name : string)
+      (generator : interp C -> G A)
+      (mutator   : interp C -> A -> G A)
+      (shrinker  : interp C -> A -> list A)
+      (printer   : interp C -> A -> string),
+      Prop (Ext A C) -> Prop C
+| IMPLIES : forall C,
+      (interp C -> bool) -> Prop C -> Prop C
+| CHECK : forall C,
+      (interp C -> bool) -> Prop C.
+\end{code}
+
+Like shallow QuickCheck-style APIs, this representation still lets users write
+generators, mutators, shrinkers, and printers in the host language and still supports
+typeclass-based defaults. The key difference is that users can now pattern match on
+properties and define new interpreters without modifying framework internals.
+
+For example, the standard generate-and-check loop can be written as a structural
+interpreter over this property syntax:
+
+\begin{code}[language=Rocq]
+Inductive RunResult {C : Ctx} (prop : Prop C) :=
+| Normal : bool -> RunResult prop
+| Discard : RunResult prop.
+\end{code}
+
+\begin{code}[language=Rocq]
+Fixpoint genAndRun (C : Ctx) (prop : Prop C) : interp C -> G (RunResult prop) :=
+  match prop with
+  | FORALL _ gen _ _ _ p =>
+      fun env =>
+        a <- gen env;;
+        genAndRun _ p (a, env)
+  | IMPLIES _ pre p =>
+      fun env =>
+        if pre env then genAndRun _ p env else ret Discard
+  | CHECK _ p =>
+      fun env =>
+        ret (if p env then Normal true else Normal false)
+  end.
+\end{code}
+
+The flexibility to define such loops at user level allows encoding generators, runners,
+shrinkers, fuzzers, and hybrid loops in a single framework while keeping execution and
+reporting programmable.
+
+\paragraph*{Usable Defaults with Dependently Typed Programming}
+
+A common downside of deeper embeddings is ergonomics. If exposed directly, users would
+write substantial boilerplate:
+
+\begin{code}[language=Rocq]
+Definition prop_eval_bad :=
+  FORALL (fun _ => gen) (fun _ => mut)
+         (fun _ => shrink) (fun _ => pretty)
+         (@CHECK (Ext Expr Emp) (fun '(e, _) => eval e == eval (optimize e))).
+\end{code}
+
+In practice, we expose a surface language with typeclass-driven defaults:
+
+\begin{code}[language=Rocq]
+Definition prop_eval :=
+  ForAll e :- Expr,
+  Check (fun '(e, _) => eval e == eval (optimize e)).
+\end{code}
+
+Users can still override individual components:
+
+\begin{code}[language=Rocq]
+Definition prop_eval :=
+  ForAll e :- Expr gen:gen,
+  Check (fun '(e, _) => eval e == eval (optimize e)).
+\end{code}
+
+The final piece for convenient \code[language=Rocq]{Check} definitions uses a typeclass
+that reconstructs contexts from tupled predicates:
+
+\begin{code}[language=Rocq]
+Class Untuple (A : Type) :=
+  { untuple : Ctx
+  ; untuple_correct : interp untuple = A }.
+\end{code}
+
+\begin{code}[language=Rocq]
+Instance Untuple_empty : Untuple unit :=
+  { untuple := Emp
+  ; untuple_correct := eq_refl }.
+
+Instance Untuple_pair {A B} `{Untuple B} : Untuple (A * B) :=
+  { untuple := Ext A (@untuple B _)
+  ; untuple_correct := _ }.
+\end{code}
+
+\begin{code}[language=Rocq]
+Definition Check {A} `{Untuple A} (p : A -> bool) : Prop (@untuple A _).
+  refine (CHECK (@untuple A _) _).
+  rewrite untuple_correct.
+  exact p.
+Defined.
+\end{code}
+
+Finally, QuickChick metaprogramming can derive deep properties directly from Rocq
+predicates for a no-effort starting point:
+
+\begin{code}[language=Rocq]
+Definition eval_correct (e : Expr) := eval e == eval (optimize e).
+Derive Property eval_correct.
+(* ==> eval_correct_prop is defined. *)
+\end{code}
