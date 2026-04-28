@@ -158,6 +158,16 @@ Segev~Elazar Mittelman, Alvin Resnick, Ivan Perez, Alwyn Goodloe, and Leonidas L
 Robert Krook, Nicholas Smallbone, Bo~Joel Svensson, and Koen Claessen.
 \newblock Quickercheck: Implementing and evaluating a parallel run-time for quickcheck, 2024.
 
+\bibitem{genericRandom}
+{Li-yao} Xia.
+\newblock A quick tour of generic-random.
+\newblock \url{https://hackage.haskell.org/package/generic-random-1.5.0.0/docs/Generic-Random.html}, 2018.
+
+\bibitem{GeneratingGoodGenerators}
+Leonidas Lampropoulos, Zoe Paraskevopoulou, and Benjamin~C. Pierce.
+\newblock Generating good generators for inductive relations.
+\newblock In {\em Proceedings of the ACM Conference on Principles of Programming Languages (POPL)}, December 2018.
+
 \bibitem{boulton1992experience}
 Richard~J. Boulton, Andy Gordon, Michael J.~C. Gordon, John Harrison, John Herbert, and John~Van Tassel.
 \newblock Experience with embedding hardware description languages in hol.

@@ -156,7 +156,7 @@ shrinking: generators are usually tuned to only produce inputs that satisfy impl
 explicit validity constraints, and type-based shrinking most of the time will not take
 such constraints into account, leading to minimized but invalid counterexamples. A
 well-known instance of this issue manifested in the line of work on CSmith and
-CReduce~\cite{YangCER11,RegehrCCEEY12}, where C programs were generated as to not
+C-Reduce~\cite{YangCER11,RegehrCCEEY12}, where C programs were generated as to not
 exhibit undefined behavior, but shrinking based on C program grammar has no hope of
 avoiding such behavior during minimization leading to uninteresting counterexamples.
 
@@ -315,7 +315,190 @@ responsibility sharing across threads without contention.
 
 \subsection{Stateful Property Runner}\label{sec:loops:spr}
 
-\todo{Add stateful property runner}
+The shift from pure random generation in the Simple Generational Property Runner
+(Section~\ref{sec:loops:sgpr}) to the guided mutational generation in Fuzzing
+(Section~\ref{sec:loops:cgpr}) and Targeted (Section~\ref{sec:loops:tpr}) indicate a
+subtle social change in the usage of PBT. This change is best understood in the context
+of automation in PBT libraries.
+%
+In the introduction, I have shown the \code{Arbitrary} typeclass along with the
+definition of \code{prop_sort_correct} using the \code{forAll} combinator QuickCheck
+provides. In practice, QuickCheck is designed to ensure that the users \emph{do not
+  have to} write any of those components by hand. This is possible via the
+\code{Testable} typeclass. The top level \code{quickCheck} function we had seen is
+defined as:
+
+\begin{code}[language=Haskell]
+quickCheck :: Testable prop => prop -> IO ()
+quickCheck p = quickCheckWith stdArgs p
+\end{code}
+
+Something is \code{Testable} is it can be turned into a \code{Property}:
+
+\begin{code}[language=Haskell]
+class Testable prop where
+  -- Convert the thing to a property.
+  property :: prop -> Property
+\end{code}
+
+\code{Testable} instance is then defined for any simple type that is expected to
+be the result of a property predicate:
+
+\begin{code}[language=Haskell]
+-- This instance is here to make it easier to turn IO () into a Property.
+instance Testable () where
+  property = property . liftUnit
+    where
+      -- N.B. the unit gets forced only inside 'property',
+      -- so that we turn exceptions into test failures
+      liftUnit () = succeeded
+
+instance Testable prop => Testable (Maybe prop) where
+  property = property . liftMaybe
+    where
+      -- See comment for liftUnit above
+      liftMaybe Nothing = property Discard
+      liftMaybe (Just prop) = property prop
+
+instance Testable Bool where
+  property = property . liftBool
+
+instance Testable Result where
+  property = MkProperty . return . MkProp . protectResults . return
+\end{code}
+
+These result types alone would not allow us to turn any function into a
+\code{Property}:
+
+\begin{code}[language=Haskell]
+instance (Arbitrary a, Show a, Testable prop) => Testable (a -> prop) where
+  property f =
+    propertyForAllShrinkShow arbitrary shrink (return . show) f
+  propertyForAllShrinkShow gen shr shw f =
+    -- gen :: Gen b, shr :: b -> [b], f :: b -> a -> prop
+    -- Idea: Generate and shrink (b, a) as a pair
+    propertyForAllShrinkShow
+      (liftM2 (,) gen arbitrary)
+      (liftShrink2 shr shrink)
+      (\(x, y) -> shw x ++ [show y])
+      (uncurry f)
+\end{code}
+
+The automatic currying allows this typeclass instance to recursively handlf functions
+of any arity as long as the input type can be randomly generated (implements
+\code{Arbitrary}) and can be printed (implements \code{Show}). The automation goes
+further by allowing the users to automatically derive random generators for any Haskell
+type~\cite{genericRandom}; I will not go into the nitty-gritty details of generator
+derivation, but the essential intuition is that every variant of a sum type leads to a
+random choice, and every element of a product type is independently generated and
+composed into the result.
+
+However, this type-based random generator derivation is hopeless in the face of complex
+data structures that possess features and invariants that we cannot, or do not, engrain
+in the types. Let us take binary search trees as our example:
+
+\begin{code}[language=Haskell]
+data Tree a = Leaf | Node (Tree a) a (Tree a)
+\end{code}
+
+The core invariant of the tree (all keys in the left sub-tree are smaller than the
+root, all keys in the right sub-tree are greater than the root) is not expressed in the
+datatype definition. So, the derived generator would have the following form:
+
+\begin{code}[language=Haskell]
+instance Arbitrary a => Arbitrary (Tree a) where                                                                                                                                                                                                                                                                                   
+  arbitrary = sized gen                                                                                                                                                                                                                                                                                                            
+    where
+      gen 0 = pure Leaf                                                                                                                                                                                                                                                                                                            
+      gen n = frequency                                
+        [ (1, pure Leaf)
+        , (3, Node <$> gen (n `div` 2)                                                                                                                                                                                                                                                                                             
+                    <*> arbitrary
+                    <*> gen (n `div` 2))                                                                                                                                                                                                                                                                                            
+        ]       
+\end{code}
+
+The changes of generating valid binary trees using this generator is \emph{extremely
+  low}. Below is the table so you don't have to take my words at face value:
+
+\begin{table}[h!]
+  \centering
+  \caption{Distribution of trees produced by the naive generator above with size
+    budget $n=64$ and $200{,}000$ samples. The BST hit-rate collapses past two nodes,
+    and the bulk of the population (trees with $\geq 8$ nodes) contains no BSTs at
+    all.}
+  \label{tab:naive-bst-rate}
+  \begin{tabular}{|r|r|r|r|r|}
+    \hline
+    Nodes    & Sampled   & BSTs     & \% BST & \% of Pop. \\
+    \hline
+    0        & 51{,}159  & 51{,}159 & 100.00 & 25.58      \\
+    1        & 9{,}762   & 9{,}762  & 100.00 & 4.88       \\
+    2        & 3{,}670   & 1{,}743  & 47.49  & 1.84       \\
+    3        & 1{,}366   & 233      & 17.06  & 0.68       \\
+    4        & 597       & 21       & 3.52   & 0.30       \\
+    5        & 471       & 7        & 1.49   & 0.24       \\
+    6        & 212       & 0        & 0.00   & 0.11       \\
+    7        & 471       & 0        & 0.00   & 0.24       \\
+    \hline
+    $\geq 8$ & 132{,}292 & 0        & 0.00   & 66.15      \\
+    \hline
+  \end{tabular}
+\end{table}
+
+There are four solutions to this problem:
+
+\begin{enumerate}
+  \item \textbf{Write correct-by-construction generators:} One can always theoretically always implement a
+        hand-written generator that targets
+        the valid subset of the given datatype. However, this is (1) an error-prone and attention
+        bottlenecked process that requires expert knowledge and time, and (2) the complexity of the generator increases superlinearly
+        against the complexity of the generated structure.\todo{anecdotal}
+  \item \textbf{Derive correct-by-construction generators~\cite{GeneratingGoodGenerators}:} This is what
+        QuickChick in Rocq does, generators are derived via inductive Rocq specifications.
+        Although this is a very promising and powerful direction, it relies on having inductive
+        specification of the structure, which is a generous assumption to make.
+  \item \textbf{Mutate into interesting inputs~\cite{aflplusplus}:} This is coverage-guided fuzzing
+        approach, instead of relying on expert knowledge and effort to craft good generators as
+        in (1) or (2), coverage-guided fuzzing trusts the genetic process into eventually
+        reaching a subset of the input space that has valid binary search trees. This process
+        relies on monotonous improvement via coverage maximization, so it is not really a good
+        fit for small budget campaigns in the order of seconds or minutes without further
+        hybridization\todo{maybe elaborate, this is a bit handwavy}.
+  \item \textbf{Use stateful generation.}
+\end{enumerate}
+
+In stateful generation, instead of generating the structure itself we generate
+\emph{actions} or \emph{operations} against the structure to gradually change its
+state. For instance, instead of creating a binary search tree from scratch, we can
+start with a \code{Leaf} and repeatedly call \code{insert} with random key-value pairs.
+A more canonical example is using databases, the complexity of which makes from scratch
+generation an obviously impossible route. Instead, we define the database operators,
+the \code{CREATE TABLE}, \code{DROP TABLE} \code{INSERT}, \code{UPDATE}, \code{DELETE}
+to populate the database. Historically, stateful testing has been implemented as a
+separate feature, however conceptually, turning our generators to be \code{gen a ::
+  State -> Rng -> a} instead of \code{gen a :: Rng -> a} allows us to implement a
+stateful property runner with them. In Figure~\ref{fig:stateful-property-runner}, I
+present the stateful runner similar to the previous runners in this section. The key
+difference is the introduction of a shared \code{State} that the generator consults
+when producing each action, and that the checker advances after executing an action
+against the system under test. Unlike the simple generational runner where each input
+is generated independently from a fresh seed, here each generation step depends on the
+accumulated effects of the prior actions, and the shrinking loop operates over action
+\emph{sequences} rather than a single value.
+
+\todo{citations: ethan's stuff, database testing, the stateful testing thesis}
+
+\begin{figure}[h!]
+  \centering
+  \resizebox{0.95\linewidth}{!}{\input{figures/interaction/stateful.tex}}
+  \caption{An abstract representation of the stateful property runner. The
+    \code{State} box is read by the generator (\code{state}) and advanced by the
+    checker after each action (\code{step act}); the shrinking loop minimises the
+    sequence of actions \code{acts} that led to a failure rather than a single
+    value.}
+  \label{fig:stateful-property-runner}
+\end{figure}
 
 \subsection{Discussion}
 
@@ -788,7 +971,7 @@ of the possibilities succeed in reproducing the failure, applying the shrinking 
 recursively further down the tree.
 
 \begin{code}[language=Racket]
-(define (shrink-eager prop env)
+(define (shrink-loop prop env)
   (define (shrink-var prop env x shrinker)
     (let down ([v (dict-ref env x)])
       (let across ([shrinks (shrinker v)])
@@ -806,23 +989,43 @@ recursively further down the tree.
                            (-> contract (listof contract))
                            ((dict-ref augments '#:shrink) env))]
                 [v (shrink-var body env x shrinker)])
-           (shrink-eager body (dict-set env x v)))
-         (shrink-eager body env))]
-    [(Implies _ body) (shrink-eager body env)]
+           (shrink-loop body (dict-set env x v)))
+         (shrink-loop body env))]
+    [(Implies _ body) (shrink-loop body env)]
     [(Check _) env]))
 \end{code}
 
-Printer... \todo{HERE}
+A rather convenient feature of dynamically-typed settings is the uniformity of values,
+we can pass in any values we are interested in anywhere in the program; so in the case
+of the Racket implementation, we do not even need a separate \printer{} component. We
+can now build user-space property runners with these components:
+
+\begin{code}[language=Racket,escapeinside={(*@}{@*)}]
+(define (simple-generational-property-runner tests p)
+  (let loop ([n 0] [passed 0] [discards 0])
+    (if (= n tests)
+        (result #f passed discards #f)
+        (let ([env ((*@\generator{generator}@*) p (floor (log n 2)))])
+          (case ((*@\checker{checker}@*) p env)
+            [(fail) (result #t passed discards ((*@\shrinker{shrink-loop}@*) p env))]
+            [(pass) (loop (add1 n) (add1 passed) discards)]
+            [(discard) (loop (add1 n) passed (add1 discards))])))))
+\end{code}
+
+With that, we can move onto the road less travelled; I will now go through our
+implementation of DBAS in Rocq, a dependently-typed data structure that can hold
+properties, give rise to the same expressivity in a static-type-checked, type-safe
+setting.
 
 \section{A Dependently Typed Property Language}\label{sec:rocq}
 
-Implementing the language of universally quantified properties using deferred binding
-abstract syntax is straightforward in a dependently typed language, but achieving good
-ergonomics can be a challenge. In this section, I focus on implementing such a language
-on top of QuickChick~\cite{LeoThesis2018} in Rocq.
+We do, as we did in Racket, stand on the shoulders of previous work by relying on the
+generation infrastructure of QuickChick~\cite{LeoThesis2018} in Rocq. This allows us to
+trivially turn any existing QuickChick property-based test into programmable form with
+minimal effort.
 
-To that end, we explicitly encode contexts in our properties, capturing every input
-that \emph{will have been generated} by that point. We use a standard inductive
+In our implementation, we explicitly encode contexts in our properties, capturing every
+input that \emph{will have been generated} by that point. We use a standard inductive
 definition of contexts, where \code[language=Rocq]{Emp} is the empty context and
 \code[language=Rocq]{Ext} extends a context by one type. Given a context, we calculate
 the host-level tuple type corresponding to that context.
@@ -861,6 +1064,9 @@ Like shallow QuickCheck-style APIs, this representation still lets users write
 generators, mutators, shrinkers, and printers in the host language and still supports
 typeclass-based defaults. The key difference is that users can now pattern match on
 properties and define new interpreters without modifying framework internals.
+
+For instance, we can write the same \generator{} component in \todo{have gen, run, gen
+  and run separately}...
 
 For example, the standard generate-and-check loop can be written as a structural
 interpreter over this property syntax:

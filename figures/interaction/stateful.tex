@@ -1,0 +1,52 @@
+% Stateful Property Runner interaction loop diagram
+\begin{tikzpicture}[node distance=0.8cm]
+  % State box (model state shared across iterations) on the left
+  \node[size box, minimum width=1.0cm] (State) {State};
+
+  % Generation Loop components
+  \node[generator box, right=1.6cm of State] (G) {G};
+  \node[checker box, right=1.5cm of G] (C1) {C};
+
+  % State -> G : current state feeds the generator
+  \draw[loop arrow] (State.east) to[]
+    node[arrow label, above] {\texttt{state}} (G.west);
+
+  % G <-> C : action exchange (mirrors the standard generation loop)
+  \draw[loop arrow] ([yshift=3pt]G.east) to[]
+    node[arrow label, above] {\texttt{check act}} ([yshift=3pt]C1.west);
+  \draw[loop arrow] ([yshift=-3pt]C1.west) to[]
+    node[arrow label, below] {\texttt{gen act}} ([yshift=-3pt]G.east);
+
+  % C -> State : step the state by the executed action (curves underneath)
+  \draw[loop arrow] (C1.south) to[bend left=35]
+    node[arrow label, below] {\texttt{step act}} (State.south);
+
+  % Generation loop region
+  \begin{scope}[on background layer]
+    \node[loop region, fit=(State)(G)(C1),
+          inner ysep=22pt, inner xsep=8pt,
+          label={[loop title]above:Generation Loop}] (genloop) {};
+  \end{scope}
+
+  % Shrinking Loop (over action sequences)
+  \node[shrinker box, right=1.5cm of C1] (S) {S};
+  \node[checker box, right=1.5cm of S] (C2) {C};
+
+  \draw[loop arrow] ([yshift=3pt]S.east) to[]
+    node[arrow label, above] {\texttt{check acts'}} ([yshift=3pt]C2.west);
+  \draw[loop arrow] ([yshift=-3pt]C2.west) to[]
+    node[arrow label, below] {\texttt{shrink acts | acts'}} ([yshift=-3pt]S.east);
+
+  \begin{scope}[on background layer]
+    \node[loop region, fit=(S)(C2),
+          inner ysep=22pt, inner xsep=6pt,
+          label={[loop title]above:Shrinking Loop}] (shrinkloop) {};
+  \end{scope}
+
+  % Arrow from generation to shrinking
+  \draw[loop arrow] (C1.east) -- node[arrow label, above] {\texttt{shrink acts}} (S.west);
+
+  % Printer
+  \node[printer box, right=1.5cm of C2] (P) {P};
+  \draw[loop arrow] (C2.east) -- node[arrow label, above] {\texttt{print acts/acts'}} (P.west);
+\end{tikzpicture}
