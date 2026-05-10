@@ -208,4 +208,78 @@ Leonidas Lampropoulos.
 \newblock {\em Random Testing for Language Design}.
 \newblock PhD thesis, University of Pennsylvania, 2018.
 
+\bibitem{QuickerCheck}
+Robert Krook, Nicholas Smallbone, Bo~Joel Svensson, and Koen Claessen.
+\newblock Quickercheck: Implementing and evaluating a parallel run-time for quickcheck.
+\newblock In {\em Proceedings of the 35th Symposium on Implementation and Application of Functional Languages}, IFL '23, New York, NY, USA, 2024. Association for Computing Machinery.
+
+\bibitem{bolero}
+{Cameron Bytheway}.
+\newblock {Bolero}: A fuzzing and property testing front-end framework for rust.
+
+\bibitem{DBLP:journals/pacmpl/ParkWZS21}
+Jiwon Park, Dominik Winterer, Chengyu Zhang, and Zhendong Su.
+\newblock Generative type-aware mutation for testing {SMT} solvers.
+\newblock {\em Proc. {ACM} Program. Lang.}, 5({OOPSLA}):1--19, 2021.
+
+\bibitem{DBLP:conf/sigsoft/Sun0JWP023}
+Jingling Sun, Ting Su, Jiayi Jiang, Jue Wang, Geguang Pu, and Zhendong Su.
+\newblock Property-based fuzzing for finding data manipulation errors in android apps.
+\newblock In Satish Chandra, Kelly Blincoe, and Paolo Tonella, editors, {\em Proceedings of the 31st {ACM} Joint European Software Engineering Conference and Symposium on the Foundations of Software Engineering, {ESEC/FSE} 2023, San Francisco, CA, USA, December 3-9, 2023}, pages 1088--1100. {ACM}, 2023.
+
+\bibitem{DBLP:conf/icse/PadhyeLSPT19}
+Rohan Padhye, Caroline Lemieux, Koushik Sen, Mike Papadakis, and Yves~Le Traon.
+\newblock Validity fuzzing and parametric generators for effective random testing.
+\newblock In Joanne~M. Atlee, Tevfik Bultan, and Jon Whittle, editors, {\em Proceedings of the 41st International Conference on Software Engineering: Companion Proceedings, {ICSE} 2019, Montreal, QC, Canada, May 25-31, 2019}, pages 266--267. {IEEE} / {ACM}, 2019.
+
+\bibitem{10.1145/3551349.3559550}
+Jinfu Chen, Shengran Wang, Saihua Cai, Chi Zhang, Haibo Chen, Jingyi Chen, and Jianming Zhang.
+\newblock A novel coverage-guided greybox fuzzing based on power schedule optimization with time complexity.
+\newblock In {\em Proceedings of the 37th IEEE/ACM International Conference on Automated Software Engineering}, ASE '22, New York, NY, USA, 2023. Association for Computing Machinery.
+
+\bibitem{DBLP:conf/sigsoft/BohmeMC20}
+Marcel B{\"{o}}hme, Valentin J.~M. Man{\`{e}}s, and Sang~Kil Cha.
+\newblock Boosting fuzzer efficiency: an information theoretic perspective.
+\newblock In Prem Devanbu, Myra~B. Cohen, and Thomas Zimmermann, editors, {\em {ESEC/FSE} '20: 28th {ACM} Joint European Software Engineering Conference and Symposium on the Foundations of Software Engineering, Virtual Event, USA, November 8-13, 2020}, pages 678--689. {ACM}, 2020.
+
+\bibitem{zeller2002simplifying}
+A.~Zeller and R.~Hildebrandt.
+\newblock Simplifying and isolating failure-inducing input.
+\newblock {\em IEEE Transactions on Software Engineering}, 28(2):183--200, 2002.
+
+\bibitem{Foundational}
+Zoe Paraskevopoulou, Catalin Hritcu, Maxime Denes, Leonidas Lampropoulos, and Benjamin~C. Pierce.
+\newblock Foundational property-based testing.
+\newblock In {\em 6th International Conference on Interactive Theorem Proving (ITP)}, 2015.
+
+\bibitem{hudakBuildingDomainspecificEmbedded1996}
+Paul Hudak.
+\newblock Building domain-specific embedded languages.
+\newblock {\em ACM Computing Surveys}, 28(4es):196, December 1996.
+
+\bibitem{DBLP:journals/pacmpl/XiaZHHMPZ20}
+Li{-}yao Xia, Yannick Zakowski, Paul He, Chung{-}Kil Hur, Gregory Malecha, Benjamin~C. Pierce, and Steve Zdancewic.
+\newblock Interaction trees: representing recursive and impure programs in coq.
+\newblock {\em Proc. {ACM} Program. Lang.}, 4({POPL}):51:1--51:32, 2020.
+
+\bibitem{DBLP:journals/pacmpl/LiW22}
+Yao Li and Stephanie Weirich.
+\newblock Program adverbs and tl{\"{o}}n embeddings.
+\newblock {\em Proc. {ACM} Program. Lang.}, 6({ICFP}):312--342, 2022.
+
+\bibitem{CARETTE_KISELYOV_SHAN_2009}
+Jacques Carrete, Oleg Kiselyov, and Chung-Chieh Shan.
+\newblock Finally tagless, partially evaluated: Tagless staged interpreters for simpler typed languages.
+\newblock {\em Journal of Functional Programming}, 19(5):509–543, 2009.
+
+\bibitem{Unembedding}
+Kazutaka Matsuda, Samantha Frohlich, Meng Wang, and Nicolas Wu.
+\newblock Embedding by unembedding.
+\newblock {\em Proc. ACM Program. Lang.}, 7(ICFP), August 2023.
+
+\bibitem{weirichRoleDependentTypes2019}
+Stephanie Weirich, Pritam Choudhury, Antoine Voizard, and Richard~A. Eisenberg.
+\newblock A role for dependent types in {Haskell}.
+\newblock {\em Proceedings of the ACM on Programming Languages}, 3(ICFP):1--29, July 2019.
+
 \end{thebibliography}

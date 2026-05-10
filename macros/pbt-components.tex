@@ -72,3 +72,18 @@
 \newcommand{\passed}[1]{\pbtstatuscustom{statuspassed}{PASSED}{#1}}
 \newcommand{\discarded}[1]{\pbtstatuscustom{statusdiscarded}{DISCARDED}{#1}}
 \newcommand{\failed}[1]{\pbtstatuscustom{statusfailed}{FAILED}{#1}}
+
+% Overlay helpers used in proplang-paper code annotations.
+\newcommand{\overlay}[2]{%
+  \begingroup
+  \setlength{\fboxsep}{2pt}%
+  \raisebox{-0.1\height}{\fcolorbox{dk#1}{lt#1}{\texttt{#2}}}%
+  \endgroup
+}
+\newcommand{\overlayfull}[2]{%
+  \begingroup
+  \setlength{\fboxsep}{3pt}%
+  \fcolorbox{dk#1}{lt#1}{#2}%
+  \endgroup
+}
+\newcommand{\roverlay}[2]{\raisebox{0.3mm}{\overlay{#1}{#2}}}

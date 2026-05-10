@@ -92,6 +92,8 @@
 \input{macros/code}
 \input{macros/writing}
 \input{macros/pbt-components}
+% Proplang-paper compatibility: this thesis uses \cite but imported prose uses \citet.
+\providecommand{\citet}[1]{\cite{#1}}
 
 \newcommand{\tbsp}{\rule{0pt}{18pt}} %used to get a vertical distance after \hline
 \renewcommand{\baselinestretch}{2}

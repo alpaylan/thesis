@@ -91,9 +91,7 @@ flexibility we get from the testing library. The more pressing question is, \emp
 
 \input{tables/pbt-frameworks-full}
 
-\todo{rework}
-\todo{don't capitalize PBT}
-Property-based testing literature tells us it is not. Looking at
+Property-based testing landscape tells us it is not. Looking at
 Table~\ref{tab:pbt-frameworks}, we see significant fragmentation within languages;
 Haskell hosts QuickCheck, SmallCheck~\cite{RuncimanNL08}, Hedgehog~\cite{Hedgehog} as
 well as LeanCheck\cn, and falsify~\cite{falsify} that is not mentioned in the table.
@@ -422,8 +420,7 @@ instance Arbitrary a => Arbitrary (Tree a) where
 \end{code}
 
 The changes of generating valid binary trees using this generator is \emph{extremely
-  low}. Below is the table so you don't have to take my words at face value: \todo{too
-  conversational}
+  low}. Below is the table to view the situation quantitatively:
 
 \begin{table}[h!]
   \centering
@@ -1164,3 +1161,827 @@ Definition eval_correct (e : Expr) := eval e == eval (optimize e).
 Derive Property eval_correct.
 (* ==> eval_correct_prop is defined. *)
 \end{code}
+
+\section{Evaluation}
+\label{sec:eval}
+
+In this section I evaluate our approach and implementation:
+
+\begin{enumerate}
+
+  \item The first set of experiments demonstrate the expressiveness of DBAS, showing that it
+        allows for building new property runners without any dependence or modifications to the
+        library internals: we implemented all of the property runners we presented in
+        \S~\ref{sec:runners}. Here, I discuss four such runners and their implementations in
+        detail, the standard QuickCheck-inspired property runner (\S~\ref{sec:loops:sgpr}) and
+        the mutation-based coverage-guided runner (\S~\ref{sec:loops:cgpr}). the mutation-based
+        custom feedback-guided runner (\S~\ref{sec:loops:tpr}), and a parallel property runner
+        (\S~\ref{sec:loops:ppr}) inspired by QuickerCheck~\cite{QuickerCheck}.
+
+  \item In the second experiment, we evaluate the performance overhead of DBAS-based
+        implementations, showing that it is comparable to their shallowly embedded
+        counterparts. In \S~\ref{sec:shallow_vs_deep} we compare the performance of the
+        DBAS-based property runner as implemented in Rocq and Racket to the existing property
+        runners of QuickChick{} and RackCheck{}. We found that using the DBAS-based embedding
+        has {\em no observable performance overhead}.
+
+  \item Finally, the last two experiments show the added expressivity allows users to rapidly
+        prototype and carry out experiments that would have taken significantly more effort
+        otherwise. We carry out three new experiments: In \S~\ref{sec:seedpool} we explore how
+        different design choices with respect to the representation and sampling of the seed
+        pool affect testing performance, improving FuzzChick\cn{} in the process; in
+        \S~\ref{sec:shrink-comp}, we compare the default integrated shrinking capabilities of
+        RackCheck{} with a simple external shrinker we implemented for a DBAS-style Racket
+        library; in \S~\ref{sec:parallel-experiment}, we implement and benchmark a parallel
+        property-runner inspired by a recent work on parallelizing
+        QuickCheck~\cite{ParallelTesting}.
+\end{enumerate}
+
+\subsection{Property Runners with DBAS} \label{sec:property-runners}
+
+To demonstrate the power of DBAS we will discuss how it helped us quickly implement all
+property runners from \S~\ref{sec:runners}. In the last two sections we saw how to
+implement a simple \texttt{genAndRun} loop in both Rocq and Racket. Leveraging the
+ability to pattern match on properties and recurse down their structure, we can
+similarly easily develop building blocks that will help implement all property runners.
+In particular, for this section, we'll use a $\overlayfull{generator}{generator}$,
+which produces random inputs for a property; a $\overlayfull{mutator}{mutator}$, which
+given inputs to a property mutates some or all of them; a
+$\overlayfull{checker}{runner}$, which given inputs to a property executes it; a
+$\overlayfull{shrinker}{shrinker}$, which given a way to minimize a property's inputs
+and a counterexample finds a locally minimal counterexample using best-first search;
+and a $\overlayfull{printer}{printer}$, for reporting counterexamples. The underlying
+pattern matching ability is still useful in the presence of these abstractions. For
+example, we will also write domain-specific versions of these functions for some of our
+evaluation, such as an \roverlay{feedback}{\roverlay{checker}{instrumentedRunner}} that
+runs a property collecting instrumentation feedback in the process.
+
+\subsubsection{Simple Generational Property Runner}
+
+Using the components outlined above we can implement any variation of the standard
+generational runner, with code that closely follows its depiction.
+Fig.~\ref{fig:simple-generational-testing-loop-rocq} shows the implementation of the
+basic generate-and-test then shrink-and-test property runner.
+Fig.~\ref{fig:simple-generational-testing-loop-racket} shows the same runner in Racket,
+with minor syntactical adjustments.
+
+\begin{figure}
+  \begin{code}[language=Rocq,mathescape=true]
+Definition runLoop (fuel : nat) (cprop : Prop Emp) :=
+  let fix runLoop' (fuel : nat) (cprop : Prop Emp)
+      (passed : nat) (discards : nat) : G Result :=
+    match fuel with
+    | O => ret (mkResult discards false passed [])
+    | S fuel' =>
+        $\overlayfull{generator}{input <- gen cprop (log2 (passed + discards));;}$
+        $\overlayfull{checker}{res <- run cprop input;;}$
+        match res with
+        | Normal seed false =>
+            $\overlayfull{shrinker}{let shrunk := shrinker 10 cprop seed in}$
+            $\overlayfull{printer}{let printed := print cprop 0 shrunk in}$
+            ret (mkResult discards true (passed + 1) printed)
+        | Normal _ true =>
+            runLoop' fuel' cprop (passed + 1) discards
+        | Discard _ _ =>
+            runLoop' fuel' cprop passed (discards + 1)
+        end
+    end in
+  runLoop' fuel cprop 0 0.
+\end{code}
+  \caption{Simple Generational Property Runner in Rocq}
+  \label{fig:simple-generational-testing-loop-rocq}
+\end{figure}
+
+Each component of the property runner in
+Fig.~\ref{fig:quickcheck-property-runner-intro} has a clear correspondence to the
+corresponding overlaid sections in
+Fig.~\ref{fig:simple-generational-testing-loop-rocq}. The functions
+\roverlay{generator}{gen}, \roverlay{checker}{run}, \roverlay{shrinker}{shrinker}, and
+\roverlay{printer}{print} are the building blocks of user level property-runners, but
+can also be written by users themselves in a straightforward manner as shown in
+Sections~\ref{sec:rocq} and~\ref{sec:racket}. We use them here to present runners at a
+higher level of abstraction as enabled by DBAS, focusing on how these components
+interact with each other in order to showcase users how to implement new runners
+corresponding to their needs.
+
+The runner itself consists of two tight loops, the first one running
+\roverlay{generator}{gen}, \roverlay{checker}{run}, \roverlay{generator}{gen},
+\roverlay{checker}{run}\dots until a counterexample is found, or until a predefined
+limit of tests has been reached. The second loop runs \roverlay{shrinker}{shrink},
+\roverlay{checker}{run}, \roverlay{shrinker}{shrink}, \roverlay{checker}{run}\dots
+until it is not able to minimize the input further, reporting the smallest input within
+the shrinking process.
+
+\begin{figure}
+  \begin{code}[language=Racket]
+(define (run-loop tests p)
+  (let loop ([n 0] [passed 0] [discards 0])
+    (if (= n tests)
+        (result #f passed discards #f)
+        (let ([env (generate p run-rackcheck-gen (floor (log n 2)))])
+          (case (check-property p env)
+            [(fail) (result #t passed discards (shrink-eager p env))]
+            [(pass) (loop (add1 n) (add1 passed) discards)]
+            [(discard) (loop (add1 n) passed (add1 discards))])))))
+\end{code}
+  \caption{Simple Generational Property Runner in Racket}
+  \label{fig:simple-generational-testing-loop-racket}
+\end{figure}
+\subsubsection{Mutation-Based Property Runners}
+
+Property-based testing, for a long time, has relied solely on random generation from
+scratch as opposed to mutating existing inputs as fuzzing tools do. This design has
+been challenged in Targeted PBT~\cite{TargetedPBT} with a mutational approach that
+optimizes explicit user-provided feedback functions, and later by
+FuzzChick~\cite{FuzzChick} and Zest~\cite{Zest}, which rely on branch coverage
+information obtained via binary instrumentation, followed by libraries such as
+HypoFuzz~\cite{HypoFuzz} and Bolero~\cite{bolero}.
+
+An important design decision we must make when implementing a DBAS property encoding in
+a statically typed language, such as our Rocq encoding, is which associated functions
+are part of the property encoding. These recent advances in mutational PBT have led us
+to make mutation a first class citizen of our library, and we have implemented a
+generic seed pool interface that mutation-based property runners can leverage. The seed
+pool interface abstracts away search strategy (how to select which input to mutate) and
+power schedule (how long to fuzz it for) concerns. I will revisit this abstraction in
+just a few sections (Sec~\ref{sec:seedpool}). We implemented two property runners using
+these components: a coverage-guided fuzzing runner and a custom feedback-guided
+(targeted) runner. The targeted runner is detailed in the next section.
+
+\begin{code}[language=Rocq,mathescape=true]
+Definition fuzzLoop (fuel : nat) (cprop : Prop Emp) {Pool}
+    `{pool : SeedPool Pool} (seeds : Pool) : G Result :=
+  let fix fuzzLoop' (fuel passed discards : nat) (seeds : Pool) : G Result :=
+    match fuel with
+    | O => ret (mkResult discards false passed [])
+    | S fuel' =>
+        $\overlayfull{seedpool}{let directive := sample seeds in}$
+        input <- match directive with
+                 $\overlayfull{generator}{| Generate => gen cprop (log2 (passed + discards))}$
+                 $\overlayfull{mutator}{| Mutate source => mutate cprop source}$
+                 end;;
+        $\overlayfull{feedback}{\overlayfull{checker}{res <- instrumentedRun cprop withInstrumentation;;}}$
+        let '(res, feedback) := res in
+        match res with
+        | Normal seed false =>
+            $\overlayfull{shrinker}{let shrunk := shrinkLoop 10 cprop seed in}$
+            $\overlayfull{printer}{let printed := print cprop 0 shrunk in}$
+            ret (mkResult discards true (passed + 1) printed)
+        | Normal seed true =>
+            $\overlayfull{seedpool}{match useful seeds feedback with}$
+            | true =>
+                $\overlayfull{seedpool}{let seeds' := invest (seed, feedback) seeds in}$
+                fuzzLoop' fuel' (passed + 1) discards seeds'
+            | false =>
+                let seeds' := match directive with
+                              | Generate => seeds
+                              $\overlayfull{seedpool}{| Mutate \_ => revise seeds}$
+                              end in
+                fuzzLoop' fuel' (passed + 1) discards seeds'
+            end
+        | Discard _ _ =>
+            match directive with
+            | Generate => fuzzLoop' fuel' passed (discards + 1) seeds
+            | Mutate _ =>
+                $\overlayfull{seedpool}{match useful seeds feedback with}$
+                | true => fuzzLoop' fuel' passed (discards + 1) seeds
+                | false =>
+                    fuzzLoop' fuel' passed (discards + 1) $\overlayfull{seedpool}{(revise seeds)}$
+                end
+            end
+        end
+    end in
+  fuzzLoop' fuel 0 0 seeds.
+\end{code}
+
+The coverage-guided fuzzing property runner introduces some complexity on top of the
+simple QuickCheck-style generational runner. This complexity is mainly related to the
+orchestration logic that manages the seed pool, which is parametric over the
+\textcolor{seedpool}{\tt SeedPool} interface. At each iteration of the loop, the seed
+pool produces a directive, either to generate an input from scratch, or mutate a
+previous input. The generated input is then passed into
+\roverlay{feedback}{\roverlay{checker}{\tt instrumentedRun}} function that is also
+parameterized over a custom instrumentation function.
+
+In classic fuzz testing, this instrumentation function is branch or path coverage, yet
+our Rocq library can accommodate any function that observes information about the state
+of the executed program, as in \citet{FuzzFactory}. This is reflected in the fuzzing
+loop in Fig.~\ref{fig:fuzzloop} where feedback is received from the execution of the
+\roverlay{feedback}{\overlay{checker}{\tt instrumentedRun}}. Such feedback can range
+from traditional branch or path coverage (as in coverage-guided fuzzing) to timing or
+memory usage (as in performance fuzzing~\cite{PerfFuzz}).
+
+This way, we view the fuzzing property runner presented in Fig.~\ref{fig:fuzzloop} as
+(1) a more generalized version of the classic coverage-guided fuzzing, and (2) a
+property-based testing version of FuzzFactory~\cite{FuzzFactory}, which allowed for
+arbitrary instrumentation functions to guide the search similar to the fuzzing property
+runner I present here. \label{fig:fuzzloop}
+
+\subsubsection{Custom Feedback-Guided (Targeted) Property Runner}\label{sec:loops:targeted}
+
+In recent years, PBT tools and mutation based fuzzers have begun to find common ground.
+On one hand, fuzzing tools have been trying to move towards more and more structured
+generation of inputs as well as incorporate and encode more complex properties than
+simply ``the program doesn't
+crash''~\cite{DBLP:journals/pacmpl/ParkWZS21,DBLP:conf/sigsoft/Sun0JWP023,DBLP:conf/icse/PadhyeLSPT19}.
+On the other hand, we have seen a rise in the popularity of property-based testing
+tools that are able to guide the generation of inputs using feedback~\cite{TargetedPBT,
+  FuzzChick, Zest}. Following this trend, we have used DBAS to implement mutation-based
+generation, developing two property runners leveraging mutation and feedback.
+
+A mutation-based targeted property runner has two important differences from the simple
+generational property runner described in
+Fig.~\ref{fig:simple-generational-testing-loop-rocq}: the feedback and the targeting.
+It uses a genetic algorithm based on a user provided custom feedback function for
+guiding the search towards interesting inputs, and it employs a user-provided or
+type-derived mutator functions to mutate the input it currently focuses on. The main
+benefit of such a runner is that it means developers can potentially avoid writing
+complex generators for complex types and preconditions.
+
+The runner is further parameterized by a seed pool (to keep track of interesting
+inputs) and a utility function (to accommodate different types of feedback). As shown
+in the pioneering work of \citet{FuzzFactory}, customizable feedback under user control
+can lead to very effective testing, and DBAS allows even more relevant choices to be
+made without needing to modify the internals of a framework. A pictorial depiction of
+the targeted property runner is illustrated in Fig.~\ref{fig:targeted-property-runner}.
+
+In Fig.~\ref{fig:targetloop}, I provide an annotated Rocq implementation of the
+custom-feedback guided (targeted) property runner in Rocq. Similar to the simple
+generational runner or coverage-guided (fuzzing) runner in the previos section, this
+runner reuses the building blocks we have provided for writing novel property runners.
+
+\begin{code}[language=Rocq,mathescape=true]
+Definition targetLoop (fuel : nat) (cprop : Prop Emp)
+$\textcolor{feedback}{\tt (feedback\_function : Seed -> Z)}$ {Pool : Type}
+$\textcolor{seedpool}{\tt \{pool : SeedPool Pool\}}$ (seeds : Pool)
+$\textcolor{seedpool}{\tt \{utility : Utility Pool Z\}}$ : G Result :=
+  let fix targetLoop' (fuel passed discards : nat) (seeds : Pool) : G Result :=
+    match fuel with
+    | O => ret (mkResult discards false passed [])
+    | S fuel' =>
+        $\overlayfull{seedpool}{let directive := sample seeds in}$
+        input <- match directive with
+                 $\overlayfull{generator}{| Generate => gen cprop (log2 (passed + discards))}$
+                 $\overlayfull{mutator}{| Mutate source => mutate cprop source}$
+                 end;;
+        $\overlayfull{checker}{res <- run cprop input;;}$
+        match res with
+        | Normal seed false =>
+            $\overlayfull{shrinker}{let shrunk := shrinkLoop 10 cprop seed in}$
+            $\overlayfull{printer}{let printed := print cprop 0 shrunk in}$
+            ret (mkResult discards true (passed + 1) printed)
+        | Normal seed true =>
+            $\overlayfull{feedback}{let feedback := feedback\_function seed in}$
+            $\overlayfull{seedpool}{match useful seeds feedback with}$
+            | true =>
+                $\overlayfull{seedpool}{let seeds' := invest (seed, feedback) seeds in}$
+                targetLoop' fuel' (passed + 1) discards seeds'
+            | false =>
+                let seeds' := match directive with
+                              | Generate => seeds
+                              $\overlayfull{seedpool}{| Mutate \_ => revise seeds}$
+                              end in
+                targetLoop' fuel' (passed + 1) discards seeds'
+            end
+        | Discard _ _ =>
+            targetLoop' fuel' passed (discards + 1) seeds
+        end
+    end in
+  targetLoop' fuel 0 0 seeds.
+\end{code}
+
+It is important to note that this specific runner is not a fixed part of the library,
+but merely a default behavior that is convenient and can be readily used. Alternative
+implementations may change the feedback behavior to accommodate feedback in the discard
+cases, or change the printing or shrinking behaviors. Even the seed pool and utility
+typeclasses are provided as sensible defaults and building blocks, rather than static
+design choices as is the case in shallow embedding based PBT frameworks.
+\label{fig:targetloop}
+
+\subsubsection{Parallel Property Runner}
+
+In Fig.~\ref{fig:par-loop-appendix} is a slightly abridged version of our Racket
+parallel testing runner. Parallelism is done through Racket futures. We use a lock-free
+shared counter and a flag that is set if a counterexample is found, which is necessary
+because Racket futures are not able to be halted arbitrarily. Each worker thread grabs
+a test number from the counter, and loops until it either finds a counterexample or the
+counter exceeds the test number, with the main thread waiting for results from the
+workers and combining them when they finish.
+\begin{figure}
+  \begin{code}[language=Racket]
+(define (parallel-run-loop tests prop [num-workers (processor-count)])
+  (define counter (box 0))
+  (define found-counterexample? (box #f))
+  (define (worker-thunk)
+    (define rng (make-pseudo-random-generator))
+    (let worker-loop ([passed 0] [discards 0])
+      (define n (box-faa! counter 1))
+      (cond
+        [(>= n tests) (results #f passed discards #f)]
+        [(unbox found-counterexample?) (results #f passed discards #f)]
+        [else
+         (let-values ([(res env) (gen-and-run prop run-rackcheck-generator rng n)])
+           (case res
+             [(fail)
+              (set-box! found-counterexample? #t)
+              (results #t passed discards env)]
+             [(pass) (worker-loop (add1 passed) discards)]
+             [(discard) (worker-loop passed (add1 discards))]))])))
+  (define workers
+    (for/list ([_ (in-range num-workers)])
+      (future worker-thunk)))
+  (for/fold ([res (results #f 0 0 #f)]) ([worker workers])
+    (define worker-res (touch worker))
+    (results (or (results-foundbug? res) (results-foundbug? worker-res))
+             (+ (results-passed res) (results-passed worker-res))
+             (+ (results-discards res) (results-discards worker-res))
+             (or (results-counterexample res)
+                 (results-counterexample worker-res)))))
+\end{code}
+  \caption{Parallel Property Runner in Racket}
+  \label{fig:par-loop-appendix}
+\end{figure}
+
+Like all the other loops I presented, this loop is not a fixed part of the library, and
+more efficient or sophisticated parallel runners can be implemented without changing
+the underlying property representation.
+
+\subsection{Comparison of Deep and Shallow Embeddings}\label{sec:shallow_vs_deep}
+
+In this section, I present our comparisons of the performance of a DBAS-powered
+implementation to its shallow counterpart. We turn to the ETNA~\cite{ETNA} framework
+for evaluating property-based testing performance, which comes with a series of Rocq
+workloads---programs along with injected bugs---in the form of Binary Search Trees,
+Red-Black Trees, and the Simply Typed Lambda Calculus. For the purposes of this
+experiment we extended the ETNA tool to support Racket and ported these workloads.
+
+Throughout the sequence of case studies that follow, our performance results will use
+ETNA bucket charts: each bucket represents the tasks (mutant-property pairs) solved
+within a certain time limit in the average of 10 trial runs. The leftmost bucket with
+the darkest color denotes the tasks solved within 0.1 seconds, where the remaining
+buckets progressively denote the tasks solved within 1, 10, 60 seconds, and the last
+bucket denotes the tasks that were not solved within 60 seconds for at least one of the
+10 trial runs. The legend follows the same ETNA bucket-chart conventions used
+throughout this chapter.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[scale=0.10]{figures/chartkey.png}
+  \caption{ETNA Style Bucket Chart Legend}
+  \label{fig:etna-legend}
+\end{figure}
+
+\subsubsection{Comparison of Deep and Shallow Embeddings in Rocq}\label{sec:shallow_vs_deep-rocq}
+
+The first case study focuses on the performance implications of using deferred binding
+abstract syntax instead of the standard QuickCheck-style runner.
+
+We benchmark our implementations of this loop for both Rocq and Racket against the
+existing loops of the QuickChick\cite{Pierce:SF4} and RackCheck\cite{rackcheck}
+libraries in 3 ETNA workloads: binary search trees (BST), red-black trees (RBT), and
+the simply-typed lambda calculus (STLC). Our results show that libraries implemented
+via DBAS, using the runner we showed earlier in this section, is on par with both
+QuickChick and RackCheck.
+
+The Rocq bucket-chart results show that using DBAS does not incur a performance penalty
+compared to QuickChick in the BST, RBT, and STLC workloads. In a total of 12
+strategy/workload pairs, DBAS-style Rocq library outperforms QuickChick in 9 of them,
+while QuickChick has a better performance in 3 of them. Yet, there are no notable
+differences in the results of the two libraries in terms of mean time to solve the
+tasks.
+
+\begin{figure}[h!]
+  \centering
+  \begin{minipage}{.5\textwidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{figures/shallow-vs-deep/rocq/BST.png}
+    \caption{Binary Search Trees}
+    \label{fig:bst_rocq}
+  \end{minipage}%
+  \begin{minipage}{.5\textwidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{figures/shallow-vs-deep/rocq/RBT.png}
+    \caption{Red-Black Trees}
+    \label{fig:rbt_rocq}
+  \end{minipage}%
+
+  \begin{minipage}{.6\textwidth}
+    \centering
+    \includegraphics[width=.8\linewidth]{figures/shallow-vs-deep/rocq/STLC.png}
+    \caption{Simply-Typed Lambda Calculus}
+    \label{fig:STLC_rocq}
+  \end{minipage}%
+  \caption{Comparison of shallow and deep embeddings in Rocq.}
+  \label{fig:shallow_vs_deep_rocq}
+\end{figure}
+
+\subsubsection{Comparison of Deep and Shallow Embeddings in Racket}\label{sec:shallow_vs_deep-racket}
+
+In the Racket experiments, we focused on comparing the DBAS-style Racket library with
+the shallow embedding implemented by RackCheck. We have conducted our experiments on
+the same BST, RBT, and STLC workloads by porting the existing workloads in Haskell to
+Racket. In the process of porting these workloads, we have also discovered and reported
+\hyperlink{https://web.archive.org/web/20260510181513/https://github.com/Bogdanp/rackcheck/issues/14}{a
+  bug in the RackCheck core}, which the authors have fixed in the latest version of the
+library.
+
+Our Racket results for deep versus shallow embeddings show that, once again, we find no
+notable differences in performance between the two versions. However, during the course
+of these experiments we found that the default configuration of RackCheck in terms of
+size of generated terms led to considerable performance degradation in the RBT case
+study. As size is configurable in most PBT APIs, we have changed the RackCheck size
+function to be logarithmic with respect to number of tests, as our property-runner
+does. Still, this further reinforces our point on programmability: if sizes and similar
+aspects of generation are configurable (and severely impact testing performance), why
+shouldn’t the runners themselves be configurable?
+
+\begin{figure}[h!]
+  \centering
+  \begin{minipage}{.50\textwidth}
+    \centering
+    \includegraphics[width=.99\linewidth]{figures/shallow-vs-deep/racket/BST_threeway.png}
+    \caption{BST}
+    \label{fig:bst_racket}
+  \end{minipage}%
+  \begin{minipage}{.50\textwidth}
+    \centering
+    \includegraphics[width=.99\linewidth]{figures/shallow-vs-deep/racket/RBT_threeway.png}
+    \caption{RBT}
+    \label{fig:rbt_racket}
+  \end{minipage}%
+
+  \begin{minipage}{.50\textwidth}
+    \centering
+    \includegraphics[width=.99\linewidth]{figures/shallow-vs-deep/racket/STLC_threeway.png}
+    \caption{STLC}
+    \label{fig:STLC_racket}
+  \end{minipage}%
+  \caption{Comparison of shallow and deep embeddings in Racket.}
+  \label{fig:shallow_vs_deep_racket}
+\end{figure}
+
+\subsection{DBAS-powered Experiments}
+
+\todo{HERE}
+
+In this section, we carry out three case studies that were easy to carry out only
+because of the expressive power of DBAS.
+
+\subsubsection{An Exploration of Seed Pool Design Choices}\label{sec:seedpool}
+
+First, we turn to feedback-guided property runners and their programmability. Fuzzing
+research often explores different strategies and power schedules~\cite{aflplusplus,
+  10.1145/3551349.3559550,DBLP:conf/sigsoft/BohmeMC20, DBLP:journals/tse/BohmePR19}, with
+researchers coming up with better and better designs. On the other hand, property-based
+testing frameworks that support feedback-guided generation of inputs such as FuzzChick
+or Hypothesis, pride themselves in the power of testing arbitrary user-defined
+specifications, but do not provide an option to configure such crucial parameters of
+their feedback-guided property runners. We illustrated such a feedback-guided runner
+earlier in this section, that abstracts away such concerns into a small API, which we
+implement in Rocq using typeclasses.
+
+The configurability enabled by DBAS allows the users to rely on a set of
+community-accepted defaults chosen by framework developers, but also to explore if
+different choices from the literature or novel ones they devised fit their testing
+needs better. In this case study, we explore six different data structure
+representations to hold interesting seeds, as well as four different power schedules,
+leading to a total of 21 different configurations. We picked these configurations to
+explore different parts of the design space, such as the queuing strategy, the
+size/cardinality of the pool, whether the pool is monotonic, and how many times a given
+seed is reused. We have conducted our experiments on the IFC workload in ETNA, and we
+have used a type-based generator alongside a type-based mutator to conduct our
+experiments. While our experiment reveals a clear winner for this case study, we
+reiterate that our primary goal is not the exploration itself, but rather to
+demonstrate that such an exploration is not only feasible, but natural to carry out
+with DBAS-style PBT libraries.
+
+More concretely, we explore the following data structure representations, three that
+hold collections of seeds (as in FuzzChick), and three that only hold a single seed (as
+in Targeted PBT):
+\begin{enumerate}
+  \item {\em FIFO Queue Seed Pool}: A pool that holds a
+        queue of seeds, and reduces the energy of the current seed after
+        usage.  The pool only generates a new seed from scratch when the
+        queue is empty, and mutates the seed otherwise. When the energy of
+        the current seed drops to 0, it is removed from the queue. The next
+        seed is chosen from the front of the queue. This was the default
+        behavior of FuzzChick.
+
+  \item {\em FILO Queue Seed Pool}: The same as the {\em FIFO Queue
+            Seed Pool}, but the next seed is chosen from the back of the queue.
+
+  \item {\em Heap Seed Pool}: Similar to the FIFO and FILO Queues, but
+        the seeds are stored in a heap, creating a priority queue.
+
+  \item {\em Static Singleton Pool}: A pool that holds a single seed,
+        and does not reduce its energy after usage.  The pool generates a
+        new seed from scratch at the first iteration, and mutates its seed
+        for the subsequent iterations.  The seed is only updated when a new
+        seed with a better feedback is generated via mutation. This
+        essentially devolves the search to hill climbing, as in the original
+        Targeted PBT work~\cite{TargetedPBT}.
+
+  \item {\em Dynamic Monotonic Singleton Pool}: A pool that holds a single
+        seed, and reduces its energy after usage.  The pool generates a new
+        seed from scratch at the first iteration and when the energy of the
+        current seed is 0, mutates the seed otherwise. The seed is only
+        updated when a new seed with a better feedback is generated.
+
+  \item {\em Dynamic Resetting Singleton Pool}: A pool that holds a single
+        seed, and reduces its energy after usage.  As opposed to the {\em
+            Dynamic Monotonic Singleton Pool}, once the current seed's energy is
+        0, the seed is effectively discarded and a new seed is generated
+        from scratch.
+
+\end{enumerate}
+
+All of the queues except the {\em Static Singleton Pool} have been tested with 4
+different energy schedules, where the energy of the seed was respectively up to 1, 10,
+100, 1000, depending on its interestingness. We report the experiments over 5 trials
+for each configuration within 65 tasks in the IFC workload in ETNA. For brevity, the
+graphs omit 34 tasks none of the configurations have solved, and only show the
+remaining 31 tasks. Each bucket represents the tasks solved within a certain time limit
+for at least one of the 5 trials, where the leftmost bucket with the darkest color
+denotes the tasks solved within 0.1 seconds, where the remaining buckets progressively
+denote the tasks solved within 1, 10, 60 seconds, and the last bucket denotes the tasks
+that were not solved within 60 seconds.
+
+\begin{figure}[h!]
+  \centering
+  \begin{minipage}{.50\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{figures/seedpool/HeapSeedPool.png}
+    \caption{Heap Seed Pool}
+    \label{fig:heapseedpool}
+  \end{minipage}%
+  \begin{minipage}{.50\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{figures/seedpool/FILOSeedPool.png}
+    \caption{FILO Queue Seed Pool}
+    \label{fig:filoseedpool}
+  \end{minipage}%
+
+  \begin{minipage}{.50\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{figures/seedpool/FIFOSeedPool.png}
+    \caption{FIFO Queue Seed Pool}
+    \label{fig:fifo_seedpool}
+  \end{minipage}%
+  \begin{minipage}{.50\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{figures/seedpool/DynamicMonotonicSingletonPool.png}
+    \caption{Dynamic Monotonic \\ Singleton Seed Pool}
+    \label{fig:dynamicmonotonicseedpool}
+  \end{minipage}%
+
+  \begin{minipage}{.50\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{figures/seedpool/DynamicResettingSingletonPool.png}
+    \caption{Dynamic Resetting \\ Singleton Seed Pool}
+    \label{fig:dynamicresettingseedpool}
+  \end{minipage}%
+  \begin{minipage}{.50\textwidth}
+    \centering
+    \includegraphics[width=.95\linewidth]{figures/seedpool/StaticSingletonPool.png}
+    \caption{Static Singleton \\ Seed Pool}
+    \label{fig:staticsingletonpool}
+  \end{minipage}%
+  \caption{Comparison of seedpool strategies in Rocq.}
+  \label{fig:seedpool_rocq}
+\end{figure}
+
+These results mark a task as ``solved'' for the purposes of a bucket chart if at least
+1 out of 5 fuzzing campaigns finds a bug. If we switched to requiring {\em all} fuzzing
+campaigns to find the bug, the results paint an even more compelling argument: {\em
+only} Heap-based pools consistently find counterexamples---we omit the graphs because
+all other options fail to consistently solve a task across runs, indicating a very high
+variance that heap seed pool does not exhibit. As a result, we plan to submit a PR to
+QuickChick to use the effective configuration as a default going forward.
+
+\subsection{Comparison of Integrated Shrinking with External Shrinking}\label{sec:shrink-comp}
+
+Test case reduction, or counterexample minimization, or shrinking, is a fundamental
+aspect of random testing~\cite{zeller2002simplifying}, however it garners much less
+attention than its random generation counterpart. A major splitting point in PBT
+frameworks has been their approach to shrinking, with the original QuickCheck using
+delta-debugging style structural shrinking where the generated counterexample structure
+is shrunk by removing its substructures to produce smaller versions with an
+accompanying reproducer that tests if the smaller versions keep triggering the bug; and
+Hypothesis~\cite{HypothesisShrinking} in Python, falsify~\cite{falsifyLeo2023} in
+Haskell, and RackCheck~\cite{rackcheck} in Racket use an alternative route, instead of
+shrinking the generated structure, they shrink the source of randomness that led to the
+generation. This method, called integrated or internal shrinking, removes the
+requirement of a separate shrinking function and preserves the generation invariants in
+the generator while making no guarantees on the similarity of the shapes obtained in
+the shrinking phase.
+
+We argue, as we have done many times in the paper, that such splitting points should
+not be decisions at the level of the library, but rather decisions to be made in
+relevant contexts by the users of the library. In an ideal scenario, a user should be
+able to switch between using an integrated shrinker versus an external one, and vice
+versa; and perhaps even use or build a new approach that might not be available when
+the library was written in the first place. Instead of forcing the users to choose or
+change libraries based on their context and approach to shrinking, DBAS allows for
+building your own property runner with its custom approach to shrinking, and that is
+precisely what we have done in this experiment.
+
+We have compared the effectiveness of the integrated shrinker of RackCheck{} against a
+simple external shrinker we have implemented in our DBAS PBT library in Racket. We have
+conducted our experiment on the {\tt System F} workload in ETNA, and we used the same
+generator in both RackCheck{} and DBAS-style Racket library, equipping our library with
+a simple type-based external shrinker we implemented in place of the integrated
+shrinker.
+
+Our results show that the external shrinker successfully shrinks System F terms to a
+minimal counterexample that is an average of 2.66 times smaller than the original input
+with a standard deviation of 1.23, while the integrated shrinker of RackCheck{} only
+shrinks the inputs to an average rate of 1.04 times smaller than the original input
+with a standard deviation of 0.37. RackCheck{} only shrunk the inputs to smaller inputs
+in 66 out of the 360 trials, kept the size the same in 77, grew the inputs in 68, and
+failed to shrink in 149 trials. These results may be surprising at first glance: does
+the internal shrinker really only shrink the inputs in 20\% of the trials? In this
+case, it does. Its notion of size is based on the structure of the generator rather
+than on the input itself, so ``smaller randomness'' may not actually lead to smaller
+input values.
+
+The point of this experiment is not to demonize internal shrinking---for many testing
+situations, it is perfectly sufficient and much more user-friendly than a bespoke
+shrinker. However, in pathological cases, programmers need an escape hatch, and DBAS
+provides the necessary configurability.
+
+\begin{figure}[h!]
+  \centering
+  \begin{minipage}{.5\textwidth}
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/shrinking/scatter_plot_proplang.png}
+  \end{minipage}%
+  \begin{minipage}{.5\textwidth}
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/shrinking/scatter_plot_rackcheck.png}
+  \end{minipage}%
+  \caption{Original sizes (continuous) and shrunk sizes (dashed) of external
+    (left) and internal shrinker (right).}
+  \label{fig:shrinking_line}
+\end{figure}
+
+\subsection{Parallelizing Property-Based Testing} \label{sec:parallel-experiment}
+
+An important recent work on novel property runners is
+QuickerCheck~\cite{ParallelTesting}, where authors implement and evaluate a parallel
+run-time for QuickCheck~\cite{ClaessenH00}, achieving massive performance gains on a
+variety of workloads. The underlying idea the authors propose is rather simple, they
+provide an alternative, parallel property runner {\tt quickCheckPar}, where multiple
+worker threads share a common variable that controls the size of the generated inputs.
+Using this strategy, the authors achieve an almost linear speed-up with respect to the
+number of physical cores used in testing. Unfortunately, due to the rigid structure of
+shallow embedding based PBT libraries, creating such a parallel runner requires
+intensive engineering effort. The commit history of the project shows that the
+implementation of this new runner is an effort spanning 2 years and more than 50
+commits.
+
+In contrast, by leveraging the ability to implement property runners in user space, we
+were able to implement a naive version of the QuickerCheck algorithm in a matter of
+hours for our DBAS-style Racket library, with no prior knowledge of multicore Racket.
+Our implementation uses worker threads with 2 shared atomic variables, one keeping the
+current number of tests across threads, and one indicating if the process of testing is
+finished or not.
+
+We have compared this parallel runner with 4 threads against the single threaded runner
+across 131 tasks (53 BST, 58 RBT, 20 STLC). As the results of the simple generational
+property runner evaluation in Racket (\S~\ref{sec:shallow_vs_deep-racket}) shows, the
+majority of the tasks in ETNA~\cite{ETNA} are trivial for bespoke generators, they can
+be solved within 0.1 seconds. In order to measure the impact of the parallelization in
+the presence of such variation across tasks, we apply a set of cutoffs of time
+differences between task solving performance, and report the average ratio of time to
+solve for each cutoff.
+
+\begin{itemize}
+  \item For all tasks where the difference between time-to-failure for single and parallel
+        runners is greater than a millisecond, the average of their ratios is 1.2, where the
+        parallel runner takes 20\% more time {\it on average} than the single threaded runner
+        across 49 of the 131 tasks.
+  \item For all tasks where the difference between time-to-failure for single and parallel
+        runners is greater than 0.1 seconds, the average of their ratios is 0.33, where the
+        parallel runner is {\it on average} 3 times faster than the single threaded runner
+        across 10 of the 131 tasks.
+  \item Only 1 task has a difference of more than 1 second, which the average time-to-failure
+        for single threaded runner is 3.56 seconds, and the average time-to-failure for the
+        parallel runner is 1.16 seconds, resulting in again a 3 times speed-up due to
+        parallelization.
+\end{itemize}
+
+\section{Related Work}\label{sec:related}
+
+Throughout this paper, we have thoroughly discussed various property-based testing
+frameworks, their property languages, and the property runners that they come bundled
+with. Here, we briefly summarize related work in PBT and we also discuss related work
+in deeply embedded domain-specific languages.
+
+\paragraph{Property-Based Testing Frameworks}
+
+To our knowledge, no widely-used frameworks expose a reified property representation
+that supports user-defined runners without modifying library internals. However, there
+are multiple frameworks that make distinctly different choices in what capabilities
+they provide to users. Table~\ref{tab:frameworks} summarizes the status quo in popular
+tools.
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{ c|c|c|c}
+      \hline
+      {\bf     Framework}
+                                     & \raggedright {\bf Language  }
+                                     & \raggedright {\bf Shrinking }
+                                     & {\bf Feedback  }                                                                                      \\
+      \hline
+      \hline
+      QuickCheck~\cite{ClaessenH00}  & Haskell                       & External                            &                                 \\
+      \hline
+      Hedgehog~\cite{Hedgehog}       & Haskell                       & Internal                            &                                 \\
+      \hline
+      QuickChick~\cite{Foundational} & Rocq                          & External                            & Coverage~\cite{FuzzChick}       \\
+      \hline
+      Hypothesis~\cite{Hypothesis}   & Python                        & Internal~\cite{HypothesisShrinking} & Coverage$^*$                    \\
+      \hline
+      Zest~\cite{Zest}               & Java                          & AFL Trimming                        & Customizable~\cite{FuzzFactory} \\
+      \hline
+      QCheck                         & OCaml                         & Both$^*$                            &                                 \\
+      \hline
+      Crowbar                        & OCaml                         & AFL Trimming                        & Coverage                        \\
+      \hline
+      RackCheck                      & Racket                        & Internal                            &                                 \\
+      \hline
+      QuviQ QuickCheck               & Erlang                        & Both                                &                                 \\
+      \hline
+      PropEr                         & Erlang                        & Both                                & Targeting~\cite{TargetedPBT}    \\
+      \hline
+    \end{tabular}
+  \end{center}
+  \caption{Shrinking and feedback options in selected set of widely used frameworks; $^*$ denotes
+    experimental or partial support.}
+  \label{tab:frameworks}
+\end{table}
+
+\paragraph{Free Generators}
+
+The design of our deeply embedded property language builds on a rich literature of
+embedded DSLs~\cite{hudakBuildingDomainspecificEmbedded1996}. In particular, our
+approach parallels work on {\em free generators}~\cite{goldsteinParsingRandomness2022},
+which present a deeply embedded DSL for writing random generators. Deeply embedded
+properties and generators are largely orthogonal---free generators may be able to
+simplify the implementation of some of the different runners described in
+\S~\ref{sec:eval}, but they do not allow the developer to re-program the loop itself.
+%
+This follows a more general trend of using free structures to increase expressivity or
+usability in the programming languages community. For example,
+itrees~\cite{DBLP:journals/pacmpl/XiaZHHMPZ20} introduced a general-purpose Rocq
+structure which is essentially a coinductive variant of free monads, which allows them
+to represent and reason about interactive recursive programs. In follow up work,
+\citet{DBLP:journals/pacmpl/LiW22} explored how other free structures (such as
+applicative functors) can be used as an alternative to free-monad-based embeddings.
+
+\paragraph{Mixed Embeddings}
+There is also a long line of related work in attempting to bridge the benefits of
+shallow embeddings (ease of use, as in the current property language) with those of
+deep ones (extensibility). For example, \citet{CARETTE_KISELYOV_SHAN_2009} showed how
+to use typeclasses in Haskell to allow for shallow embeddings that can be interpreted
+in different ways, hinting at a way of incorporating a deeper property language in a
+type system such as Haskell's. More recently, \citet{Unembedding} showed how to convert
+between embedding representations by {\em unembedding} alleviating some of the problems
+with Higher-Order Abstract Syntax representations. Finally,
+\citet{DeeperShallowEmbeddings} introduced a hybrid embedding where typing derivations
+are represented as a deep embedding indexed by shallow terms in the host language,
+offering pattern matching capabilities.
+
+% \paragraph{DBAS for STLC}
+% To conclude the overview of related work, let us contrast once again
+% some of the most popular embedding techniques in a more familiar context:
+% the simply typed lambda calculus.
+% Higher O
+
+\section{Conclusion and Future Work}\label{sec:future}
+We have presented deferred binding abstract syntax (DBAS), a new approach to writing
+properties for PBT that enables more flexible and programmable testing. The key advance
+made by DBAS is to reify properties as a free data structure; allowing them to be
+written in a clear and readable way, separate from the property runner that tests them.
+These more deeply embedded properties can then be inspected and interpreted by
+user-defined property runners. With the help of DBAS, developers in Rocq, Racket, and
+hopefully soon other programming languages, can tailor and experiment with their setup
+to achieve optimal testing in their domain.
+
+In the future, we intend to make DBAS convenient to program in languages with more
+standard type systems than Rocq and Racket.
+% One might notice that while we have implemented \name{} in Rocq and
+% Racket, we do not have any implementations in languages with more
+% standard type systems.
+In particular, Haskell is conspicuously missing from the list. The main challenge in
+languages like Haskell is implementing contexts in a user-friendly manner. In Haskell
+we can't represent contexts with dependent types the way we implement them in Rocq, but
+it is also too strongly typed for the looser approach we took in Racket. Modern
+advances in dependently typed Haskell~\cite{weirichRoleDependentTypes2019} may actually
+provide the power we need, but there are other mainstream programming languages that
+lack this expressive power. Additional work might be necessary to bring the full
+potential of DBAS to more users.
+% We intend to do more work to
+% make \name{} convenient and safe program in in languages with more
+% traditional type systems.
