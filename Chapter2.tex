@@ -1273,13 +1273,13 @@ until it is not able to minimize the input further, reporting the smallest input
 the shrinking process.
 
 \begin{figure}
-  \begin{code}[language=Racket]
+  \begin{code}[language=Racket,mathescape=true]
 (define (run-loop tests p)
   (let loop ([n 0] [passed 0] [discards 0])
     (if (= n tests)
         (result #f passed discards #f)
-        (let ([env (generate p run-rackcheck-gen (floor (log n 2)))])
-          (case (check-property p env)
+        (let $\overlayfull{generator}{([env (generate p run-rackcheck-gen (floor (log n 2)))])}$
+          (case $\overlayfull{checker}{(check-property p env)}$
             [(fail) (result #t passed discards (shrink-eager p env))]
             [(pass) (loop (add1 n) (add1 passed) discards)]
             [(discard) (loop (add1 n) passed (add1 discards))])))))
@@ -1526,7 +1526,7 @@ throughout this chapter.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[scale=0.10]{figures/chartkey.png}
+  \includegraphics[scale=0.15]{figures/chartkey.png}
   \caption{ETNA Style Bucket Chart Legend}
   \label{fig:etna-legend}
 \end{figure}
@@ -1624,8 +1624,8 @@ shouldn’t the runners themselves be configurable?
 
 \todo{HERE}
 
-In this section, we carry out three case studies that were easy to carry out only
-because of the expressive power of DBAS.
+In this section, I go through three case studies we carried out that were easy to carry
+out only because of the expressivity of DBAS.
 
 \subsubsection{An Exploration of Seed Pool Design Choices}\label{sec:seedpool}
 
@@ -1658,6 +1658,7 @@ with DBAS-style PBT libraries.
 More concretely, we explore the following data structure representations, three that
 hold collections of seeds (as in FuzzChick), and three that only hold a single seed (as
 in Targeted PBT):
+
 \begin{enumerate}
   \item {\em FIFO Queue Seed Pool}: A pool that holds a
         queue of seeds, and reduces the energy of the current seed after
@@ -1753,9 +1754,9 @@ that were not solved within 60 seconds.
 These results mark a task as ``solved'' for the purposes of a bucket chart if at least
 1 out of 5 fuzzing campaigns finds a bug. If we switched to requiring {\em all} fuzzing
 campaigns to find the bug, the results paint an even more compelling argument: {\em
-only} Heap-based pools consistently find counterexamples---we omit the graphs because
-all other options fail to consistently solve a task across runs, indicating a very high
-variance that heap seed pool does not exhibit. As a result, we plan to submit a PR to
+only} Heap-based pools consistently find counterexamples---I've omitted the graphs
+because all other options fail to consistently solve a task across runs, indicating a
+very high variance that heap seed pool does not exhibit. As a result, we \todo{updated}
 QuickChick to use the effective configuration as a default going forward.
 
 \subsection{Comparison of Integrated Shrinking with External Shrinking}\label{sec:shrink-comp}
@@ -1775,8 +1776,8 @@ requirement of a separate shrinking function and preserves the generation invari
 the generator while making no guarantees on the similarity of the shapes obtained in
 the shrinking phase.
 
-We argue, as we have done many times in the paper, that such splitting points should
-not be decisions at the level of the library, but rather decisions to be made in
+The argument, as is the central point of the study, is that such splitting points
+should not be decisions at the level of the library, but rather decisions to be made in
 relevant contexts by the users of the library. In an ideal scenario, a user should be
 able to switch between using an integrated shrinker versus an external one, and vice
 versa; and perhaps even use or build a new approach that might not be available when
@@ -1785,18 +1786,17 @@ change libraries based on their context and approach to shrinking, DBAS allows f
 building your own property runner with its custom approach to shrinking, and that is
 precisely what we have done in this experiment.
 
-We have compared the effectiveness of the integrated shrinker of RackCheck{} against a
+We have compared the effectiveness of the integrated shrinker of RackCheck against a
 simple external shrinker we have implemented in our DBAS PBT library in Racket. We have
 conducted our experiment on the {\tt System F} workload in ETNA, and we used the same
-generator in both RackCheck{} and DBAS-style Racket library, equipping our library with
-a simple type-based external shrinker we implemented in place of the integrated
-shrinker.
+generator in both RackCheck and DBAS-style Racket library, equipping our library with a
+simple type-based external shrinker we implemented in place of the integrated shrinker.
 
-Our results show that the external shrinker successfully shrinks System F terms to a
+The results show that the external shrinker successfully shrinks System F terms to a
 minimal counterexample that is an average of 2.66 times smaller than the original input
-with a standard deviation of 1.23, while the integrated shrinker of RackCheck{} only
+with a standard deviation of 1.23, while the integrated shrinker of RackCheck only
 shrinks the inputs to an average rate of 1.04 times smaller than the original input
-with a standard deviation of 0.37. RackCheck{} only shrunk the inputs to smaller inputs
+with a standard deviation of 0.37. RackCheck only shrunk the inputs to smaller inputs
 in 66 out of the 360 trials, kept the size the same in 77, grew the inputs in 68, and
 failed to shrink in 149 trials. These results may be surprising at first glance: does
 the internal shrinker really only shrink the inputs in 20\% of the trials? In this
@@ -1872,55 +1872,17 @@ solve for each cutoff.
 
 \section{Related Work}\label{sec:related}
 
-Throughout this paper, we have thoroughly discussed various property-based testing
+Throughout the chapter, I have thoroughly discussed various property-based testing
 frameworks, their property languages, and the property runners that they come bundled
-with. Here, we briefly summarize related work in PBT and we also discuss related work
-in deeply embedded domain-specific languages.
+with. Here, I briefly summarize related work in PBT and we also discuss related work in
+deeply embedded domain-specific languages.
 
 \paragraph{Property-Based Testing Frameworks}
 
 To our knowledge, no widely-used frameworks expose a reified property representation
-that supports user-defined runners without modifying library internals. However, there
-are multiple frameworks that make distinctly different choices in what capabilities
-they provide to users. Table~\ref{tab:frameworks} summarizes the status quo in popular
-tools.
-
-\begin{table}[h]
-  \begin{center}
-    \begin{tabular}{ c|c|c|c}
-      \hline
-      {\bf     Framework}
-                                     & \raggedright {\bf Language  }
-                                     & \raggedright {\bf Shrinking }
-                                     & {\bf Feedback  }                                                                                      \\
-      \hline
-      \hline
-      QuickCheck~\cite{ClaessenH00}  & Haskell                       & External                            &                                 \\
-      \hline
-      Hedgehog~\cite{Hedgehog}       & Haskell                       & Internal                            &                                 \\
-      \hline
-      QuickChick~\cite{Foundational} & Rocq                          & External                            & Coverage~\cite{FuzzChick}       \\
-      \hline
-      Hypothesis~\cite{Hypothesis}   & Python                        & Internal~\cite{HypothesisShrinking} & Coverage$^*$                    \\
-      \hline
-      Zest~\cite{Zest}               & Java                          & AFL Trimming                        & Customizable~\cite{FuzzFactory} \\
-      \hline
-      QCheck                         & OCaml                         & Both$^*$                            &                                 \\
-      \hline
-      Crowbar                        & OCaml                         & AFL Trimming                        & Coverage                        \\
-      \hline
-      RackCheck                      & Racket                        & Internal                            &                                 \\
-      \hline
-      QuviQ QuickCheck               & Erlang                        & Both                                &                                 \\
-      \hline
-      PropEr                         & Erlang                        & Both                                & Targeting~\cite{TargetedPBT}    \\
-      \hline
-    \end{tabular}
-  \end{center}
-  \caption{Shrinking and feedback options in selected set of widely used frameworks; $^*$ denotes
-    experimental or partial support.}
-  \label{tab:frameworks}
-\end{table}
+that supports user-defined runners without modifying library internals. There are
+multiple frameworks that make distinctly different choices in what capabilities they
+provide to users as presented in Table~\ref{tab:pbt-frameworks}.
 
 \paragraph{Free Generators}
 
@@ -1960,14 +1922,14 @@ offering pattern matching capabilities.
 % Higher O
 
 \section{Conclusion and Future Work}\label{sec:future}
-We have presented deferred binding abstract syntax (DBAS), a new approach to writing
-properties for PBT that enables more flexible and programmable testing. The key advance
-made by DBAS is to reify properties as a free data structure; allowing them to be
-written in a clear and readable way, separate from the property runner that tests them.
-These more deeply embedded properties can then be inspected and interpreted by
-user-defined property runners. With the help of DBAS, developers in Rocq, Racket, and
-hopefully soon other programming languages, can tailor and experiment with their setup
-to achieve optimal testing in their domain.
+In this chapter, I have presented our work on deferred binding abstract syntax (DBAS),
+a new approach to writing properties for PBT that enables more flexible and
+programmable testing. The key advance made by DBAS is to reify properties as a free
+data structure; allowing them to be written in a clear and readable way, separate from
+the property runner that tests them. These more deeply embedded properties can then be
+inspected and interpreted by user-defined property runners. With the help of DBAS,
+developers in Rocq, Racket, and hopefully soon other programming languages, can tailor
+and experiment with their setup to achieve optimal testing in their domain.
 
 In the future, we intend to make DBAS convenient to program in languages with more
 standard type systems than Rocq and Racket.

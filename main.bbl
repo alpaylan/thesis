@@ -247,11 +247,6 @@ A.~Zeller and R.~Hildebrandt.
 \newblock Simplifying and isolating failure-inducing input.
 \newblock {\em IEEE Transactions on Software Engineering}, 28(2):183--200, 2002.
 
-\bibitem{Foundational}
-Zoe Paraskevopoulou, Catalin Hritcu, Maxime Denes, Leonidas Lampropoulos, and Benjamin~C. Pierce.
-\newblock Foundational property-based testing.
-\newblock In {\em 6th International Conference on Interactive Theorem Proving (ITP)}, 2015.
-
 \bibitem{hudakBuildingDomainspecificEmbedded1996}
 Paul Hudak.
 \newblock Building domain-specific embedded languages.
