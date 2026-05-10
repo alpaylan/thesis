@@ -73,7 +73,8 @@ turning to \code{forAllShrinkShowMaybe} (this is starting to look awfully like
 Definition prop_insert_correct :=
   forAllShrinkShowMaybe (
     fun _ =>
-        <todo>
+      bindGen arbitrary (fun (t: Tree) =>
+        if isBST t then returnGen (Some t) else returnGen None)
   ) shr pri (fun (t: Tree) =>
   forAll (choose -100 100)   (fun (k: nat)  =>
   forAll (choose -100 100)   (fun (k': nat) =>
@@ -86,11 +87,13 @@ There are a couple more changes we can do, such as adding callbacks to \code{col
 statistics from the tests, and we can configure some other aspects of the testing by
 the configuration options QuickChick gives us, but otherwise, this is all the
 flexibility we get from the testing library. The more pressing question is, \emph{is
-  this enough?}
+  this enough flexibility?}
 
 \input{tables/pbt-frameworks-full}
 
-Property-Based Testing literature tells us it is not. Looking at
+\todo{rework}
+\todo{don't capitalize PBT}
+Property-based testing literature tells us it is not. Looking at
 Table~\ref{tab:pbt-frameworks}, we see significant fragmentation within languages;
 Haskell hosts QuickCheck, SmallCheck~\cite{RuncimanNL08}, Hedgehog~\cite{Hedgehog} as
 well as LeanCheck\cn, and falsify~\cite{falsify} that is not mentioned in the table.
@@ -108,7 +111,7 @@ a programmable PBT framework.
 
 \section{Property Runners in Literature}\label{sec:runners}
 
-Property-Based Testing literature is filled with changes to the underlying property
+Property-based testing literature is filled with changes to the underlying property
 runners in an attempt to increase the performance of the tools. In this section, I
 explore a wide variety of property runners from the literature, highlighting their
 similarities and differences. I depict the runners using abstract representations of
@@ -419,7 +422,8 @@ instance Arbitrary a => Arbitrary (Tree a) where
 \end{code}
 
 The changes of generating valid binary trees using this generator is \emph{extremely
-  low}. Below is the table so you don't have to take my words at face value:
+  low}. Below is the table so you don't have to take my words at face value: \todo{too
+  conversational}
 
 \begin{table}[h!]
   \centering

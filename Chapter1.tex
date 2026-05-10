@@ -44,7 +44,7 @@ Science Department in which Bart Miller coins the term ``fuzz'' testing, fuzzing
 utilities with random inputs to produce breakages, triggering faults, finding bugs in
 programs\cn. While the fuzz testing literature evolved with a focus on finding more and
 more faults via smarter, guided, targeted input generation techniques\cn,
-Property-Based Testing has chosen the specifications as its main focus. The original
+Property-based testing has chosen the specifications as its main focus. The original
 paper introduces a language, as well as an implementation as a library, for expressing
 properties, and writing random data generators; the design of which has been replicated
 in virtually all programming languages in the last 26 years.
@@ -99,7 +99,7 @@ Stdout:
 %% https://arxiv.org/pdf/2602.18545
 
 What happens in the background after the \code{quickCheck} call? Well, the simplest
-form of a Property-Based Testing runner is as follows: A \generator{} produces some
+form of a property-based testing runner is as follows: A \generator{} produces some
 values a \checker{} tests and produces one of three possible results, either a
 \passed{}, indicating that the predicate executed with the input did not reveal any
 bugs, \discarded{}, indicating that the input is not a valid input for the property,
@@ -181,7 +181,7 @@ experiments for easily sharing, verifying and replicating existing results. Simi
 Programmable PBT, ETNA is a step towards accelerating scientific development of PBT.
 
 Much of the contemporary discussion of features, generalization, performance,
-interface, and usage of Property-Based Testing is based on general purpose frameworks
+interface, and usage of property-based testing is based on general purpose frameworks
 we have outlined in Table~\ref{tab:pbt-frameworks}. However, the world is full of
 oddities, special-purpose tools, requirements that push outside the boxes we draw.
 General purpose tools grow as they redraw the lines of their approach to accommodate
