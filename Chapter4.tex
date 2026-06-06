@@ -8,9 +8,9 @@ failure, or perhaps frame it as future work from a more optimistic lens: complet
 standardization over the complete landscape of property-based testing is a potentially
 doomed affair. Different domains require different tools and building blocks, many of
 which are possibly collapsible under a single framework; the greater question is the
-effectiveness of such a solution rather than its feasibility. This chapter talks about a
-particular instantiation of stateful property-based testing for testing databases,
-describing a paradigm we proposed as part of our DBTest2026 paper ``DIRT:
+effectiveness of such a solution rather than its feasibility. This chapter talks about
+a particular instantiation of stateful property-based testing for testing databases,
+describing a paradigm we proposed as part of our DBTest 2026 paper ``DIRT:
 Database-Integrated Random Testing''~\cite{dirt-dbtest26} on testing
 Turso~\cite{turso}, a SQLite-compatible open source database.
 
@@ -112,11 +112,11 @@ Testing (CODDTest)~\cite{rigger.coddtest} for finding logic bugs in optimization
 SQLancer focuses on testing large classes of behaviors across a variety of databases,
 each oracle amounts to a significant research contribution in a new research paper.
 
-Integrating a new DBMS into SQLancer is a time-consuming process. At a minimum, SQLancer
-integration requires implementing AST connectors, generation APIs for the relevant
-queries, and the oracles to use for detecting bugs. SQLancer also has a notion of
-\emph{expected errors}, bugs that the users can deem as expected, so SQLancer does not
-report them as errors and continues testing.
+Integrating a new DBMS into SQLancer is a time-consuming process. At a minimum,
+SQLancer integration requires implementing AST connectors, generation APIs for the
+relevant queries, and the oracles to use for detecting bugs. SQLancer also has a notion
+of \emph{expected errors}, bugs that the users can deem as expected, so SQLancer does
+not report them as errors and continues testing.
 
 \subsection{Specifying Correctness Oracles} \label{dirt:sec:correctness}
 
@@ -194,13 +194,14 @@ exemplified by the header initialization bug studied in \S \ref{dirt:case:header
 
 \subsubsection{Definitions of Oracles in \tool{}}
 
-In this subsection, I go over definitions of four different oracles written as
-sequences of generation actions, two of which are reimplementations of existing oracles
-in SQLancer. I start by defining the first of the three SQLancer oracles we
-implemented, Pivoted Query Synthesis (PQS)~\cite{rigger.pqs}, as a universally
-quantified proposition in Fig.~\ref{dirt:fig:pqs}. PQS states that given a set of
-tables in the database, \sql{SELECT}ing for a row constructed from the contents of
-those tables should contain the row.
+In this subsection, I present five oracles written as sequences of generation actions.
+Three of them are adaptations of SQLancer oracles: Pivoted Query Synthesis (PQS),
+Non-Optimizing Reference Engine Construction (NoREC), and Ternary Logic Partitioning
+(TLP). I first define PQS~\cite{rigger.pqs} as a universally quantified proposition in
+Fig.~\ref{dirt:fig:pqs}, then show its implementation as a generation action in
+Fig.~\ref{dirt:fig:pqs-ga}. PQS states that, given a set of tables in the database,
+\sql{SELECT}ing for a row constructed from the contents of those tables should contain
+that row.
 
 \begin{figure}
     \[
@@ -310,7 +311,7 @@ gen property db:
     s1 <- gen SELECT db.tables
     s2 <- gen SELECT db.tables
     ! RS3 = s1 UNION ALL s2
-    ! assume(s1.first().length() == s1.first().length())
+    ! assume(s1.first().length() == s2.first().length())
     ! assert(s1.length() + s2.length() == RS3.length())
 \end{gacode}
         \caption{UNION ALL preserves cardinality}
@@ -327,11 +328,12 @@ demonstrates how to write Non-Optimizing Reference Engine Construction Generatio
 \texttt{WHERE Extended} case of Ternary Logic Partitioning (TLP)~\cite{rigger.tlp}
 oracle from SQLancer. We can express other properties that are not present in SQLancer,
 including those fundamental to key-value stores such as \emph{Deleted rows should not
-    be in the table} presented in Fig.~\ref{dirt:fig:deleted_rows}. Properties, depending
-on how they are constructed, might sometimes be invalid. In
-Fig.~\ref{dirt:fig:union_all}, applying \sql{WHERE} or \sql{UNION ALL} operation for
-composing the results of multiple \sql{WHERE} queries require both sides of the
-\sql{WHERE}s to have the same number of columns.
+    be in the table} presented in Fig.~\ref{dirt:fig:deleted_rows}.
+%
+Some generated properties require additional validity conditions. For example,
+Fig.~\ref{dirt:fig:union_all} composes two generated \sql{SELECT} queries with
+\sql{UNION ALL}; this composition is only valid when both queries return the same
+number of columns, so the generation action includes an explicit \sql{assume}.
 
 \subsection{Query Generation}
 
@@ -455,10 +457,9 @@ following questions:
     \end{footnotesize}
 \end{singlespace}
 
-We have collected over 23 confirmed and fixed unique bugs found by \tool{} in \db{}
-over the course its development, evolving in complexity as \db{} grows.
-Table~\ref{dirt:tab:bugs} is the list of confirmed bugs, along with the changes to the
-testing infrastructure that resulted in the discovery. The bugs range from simple
+We have collected 23 confirmed and fixed unique bugs found by \tool{} in \db{} over the
+course its development, evolving in complexity as \db{} grows.
+Table~\ref{dirt:tab:bugs} is the list of confirmed bugs. The bugs range from simple
 parser level bugs that could be classified as minor problems, to severe logic bugs deep
 in the core functionality of the database that could result in data loss. We have
 chosen three representative bugs as case studies, detailing the conditions in which
@@ -481,12 +482,12 @@ be compiled to run before the main execution loop of the query, but instead the
 compilation step just skipped them. This caused \sql{DELETE} with a constant that
 evaluates to \sql{FALSE} to be incorrectly executed.
 
-This bug was automatically reported by \tool{} running in \db{} CI and fixed within the
-week. The bug was discovered as a result of our PQS implementation in \db{}
-augmented with validity preserving queries between the \sql{INSERT} and \sql{SELECT}
-statements. The random tester added a naive \sql{DELETE} operation that should not have
-affected the results of the \sql{SELECT}, keeping the containment property intact, but
-the assertion that the inserted row should be in the result of the \sql{SELECT} failed,
+This bug was automatically reported by \tool{} running in \db{} CI and fixed within a
+week. The bug was discovered as a result of our PQS implementation in \db{} augmented
+with validity preserving queries between the \sql{INSERT} and \sql{SELECT} statements.
+The random tester added a naive \sql{DELETE} operation that should not have affected
+the results of the \sql{SELECT}, keeping the containment property intact, but the
+assertion that the inserted row should be in the result of the \sql{SELECT} failed,
 triggering the bug report.
 
 \paragraph{Case 2: Interior node replacement caused self-reference when depth exceeded 2.}
@@ -511,18 +512,17 @@ operations, requiring the DBMS to read such information from WAL. This bug is th
 result of such a situation, where metadata like database size and schema is out-of-date
 at the time of reading, leading to incorrect operations. \tool{} found this bug through
 an assertion failure in the freelist structure in the database header. As a result, the
-developer who reported the original bug wrote the first example of a
-\emph{regression property}, added a new fault primitive \sql{ReopenDatabase} that
-closes down existing connections with the database and reopens them later, enabling the
-detection of any future bugs that might be a result of an error in the persistent state
-logic of \db{}.
+developer who reported the original bug wrote the first example of a \emph{regression
+    property}, added a new fault primitive \sql{ReopenDatabase} that closes down existing
+connections with the database and reopens them later, enabling the detection of any
+future bugs that might be a result of an error in the persistent state logic of \db{}.
 
 \subsubsection{RQ2: How does \tool{} compare to SQLancer?}
 
-We answered RQ2 by comparing the rate of true-positive and false-positive reports
-from three different random testing configurations: \tool{}, the default SQLite3
-integration of SQLancer with pragmas disabled (denoted SQLancer-SQLite), and the fork
-of a work-in-progress \db{} integration of SQLancer by a \db{} contributor (denoted
+We answered RQ2 by comparing the rate of true-positive and false-positive reports from
+three different random testing configurations: \tool{}, the default SQLite3 integration
+of SQLancer with pragmas disabled (denoted SQLancer-SQLite), and the fork of a
+work-in-progress \db{} integration of SQLancer by a \db{} contributor (denoted
 SQLancer-\db{}). Pragmas had to be removed for SQLancer-SQLite because most of them
 were unimplemented in Turso, causing all reported bugs to be false positives in our
 testing. We defined an actionable bug report from the tools as a sequence of SQL
@@ -538,7 +538,7 @@ and \emph{No Bugs} that did not report a failure, provided in the stacked bar ch
 Fig.~\ref{dirt:fig:comparison}. SQLancer-SQLite achieves a true positive rate below
 10\% across all 14 commits. SQLancer-\db{} performs better, with a 42\% true positive
 rate, but still yields many more false positives than \tool{} (58\% vs.\ under 1\%).
-\tool{} also finds substantially more actionable bugs: 25 unique bugs, compared with
+\tool{} also finds substantially more actionable bugs: 23 unique bugs, compared with
 six found by the two SQLancer configurations combined (\S\ref{dirt:app:sqlancer-bugs}).
 This does not mean that \tool{} has better generators or oracles than SQLancer. Rather,
 it shows that for rapidly evolving databases with many missing features,
@@ -553,11 +553,6 @@ database-integrated testing yields more actionable bugs.
 \end{figure}
 
 \subsection{Discussion}
-
-\tool{} is a paradigm for testing databases during development, even
-though we used \tool{} the paradigm and \tool{} for \db{} interchangeably
-throughout the chapter. I've compared the performance of \tool{} for \db{} against
-SQLancer with minimal modifications, which raises some questions worth discussing.
 
 \emph{Why not integrate SQLancer into the development process instead of developing
     a random testing framework from scratch?} As I discussed earlier, SQLancer
@@ -594,17 +589,15 @@ the ability to follow values through execution in a holistic way as properties d
 they can only reason about local invariants.
 
 \emph{Role in \db{}.}
-As a last point of discussion, I would like to clarify our role in the implementation
-of \tool{} in \db{}, in order to fully credit the open source contributors for their work.
 At the time we started working on \db{}, it had a small, unstructured random testing
 infrastructure that overwhelmingly focused on being able to support Deterministic
 Simulation Testing~\cite{fdb}. I/O was implemented in a way that could be easily simulated,
 which allowed for \sql{FAULT}s to be integrated in the generated interactions.
-We have taken a role as an external open source contributor to the project, gradually
+We contributed to the project as external open source contributors, gradually
 proposing improvements to random testing infrastructure such as the Generation Actions
 DSL, most of the existing properties, stateful random generation, shrinking, additional
-oracles such as differential testing against SQLite and determinism checking, and have
-implemented such proposals. The infrastructure has grown outside of our control at times,
+oracles such as differential testing against SQLite and determinism checking, and
+implementing such proposals. The infrastructure has grown outside of our control at times,
 producing regressions through the development, along with many improvements by the
 maintainers and contributors to the project that contributed to the list of bugs
 found in Table~\ref{dirt:tab:bugs}. The SQLancer-\db{} integration was almost entirely
@@ -624,7 +617,7 @@ and fault models as the implementation changes.
 \subsection{Bugs Found by SQLancer} \label{dirt:app:sqlancer-bugs}
 
 \begin{itemize}
-    \item (\sql{UPDATE t SET (c0, c0)=(0, 0)}): This expression results in a ``Column specified more than once'' error that has not been fixed at the time of our submission.
+    \item (\sql{UPDATE t SET (c0, c0)=(0, 0)}): This expression results in a ``Column specified more than once'' error that was fixed soon after we reported it.
     \item (\sql{SELECT (0x0)}): There was a parsing error for hexadecimals that resulted in an ``invalid float literal'' error that had been fixed before our experiments with SQLancer.
     \item (\sql{SELECT * FROM t WHERE c0 GLOB c0}): There was a logic bug in the \sql{GLOB} that panicked when the values passed were not \sql{TEXT}. Executing this statement after inserting a \sql{NULL} triggered the bug, which was fixed soon after we reported it.
     \item (\sql{INSERT INTO t VALUES ("a")}): Using double quotes for string literals is discouraged, and SQLite3 even provides a runtime flag for disabling it. We reported this bug as \db{} panicked for the provided statement.
@@ -632,11 +625,11 @@ and fault models as the implementation changes.
     \item (\sql{INSERT INTO t(c2, c0) VALUES (0, 0), (0, 0)}): There was a bug in calculating the column indexes when inserting values to a table in reverse order. SQLancer discovered the bug when the initial table \sql{t} had a \sql{NOT NULL} clause for the column \sql{c0}, which promptly failed after executing the statement. We reported this bug after manually inspecting the result of the failure.
 \end{itemize}
 
-In all six cases, we see the benefit of generating the entire possible input space for
+In all six cases, we saw the benefit of generating the entire possible input space for
 the SQL dialect of SQLite, which \tool{} does not attempt to do, thereby missing such
-bugs. Our evaluation
-demonstrates the benefit of such comprehensive generation, but also shows that without
-tailoring to the database, the produced bug reports will be overwhelmingly dominated by
-false positives and reproductions of existing bugs yet to be fixed.
+bugs. Our evaluation demonstrates the benefit of such comprehensive generation, but
+also shows that without tailoring to the database, the produced bug reports will be
+overwhelmingly dominated by false positives and reproductions of existing bugs yet to
+be fixed.
 
 \section{Lessons from DIRT}\label{dirt-lessons}
