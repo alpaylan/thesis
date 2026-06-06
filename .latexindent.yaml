@@ -4,3 +4,7 @@ modifyLineBreaks:
 
 verbatimEnvironments:
   code: 1
+  gacode: 1
+
+noIndentBlock:
+  gacode: 1

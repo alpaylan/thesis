@@ -317,4 +317,122 @@ Catalin Hritcu, Leonidas Lampropoulos, Antal Spector-Zabusky, Arthur~Azevedo Amo
 \newblock Testing noninterference, quickly.
 \newblock In {\em Journal of Functional Programming (JFP)}, 2016.
 
+\bibitem{dirt-dbtest26}
+Alperen Keles, Ethan Chou, Harrison Goldstein, and Leonidas Lampropoulos.
+\newblock {DIRT}: Database-integrated random testing.
+\newblock In {\em Testing Database Systems (DBTest '26)}. Association for Computing Machinery, 2026.
+
+\bibitem{turso}
+{Turso Contributors}.
+\newblock Turso, 2026.
+
+\bibitem{sqlsmith}
+Andreas Seltenreich.
+\newblock Sqlsmith.
+\newblock \url{https://github.com/anse1/sqlsmith}, 2015.
+
+\bibitem{fuzzingbook2024}
+Andreas Zeller, Rahul Gopinath, Marcel B{\"o}hme, Gordon Fraser, and Christian Holler.
+\newblock {\em The Fuzzing Book}.
+\newblock CISPA Helmholtz Center for Information Security, 2024.
+\newblock Retrieved 2024-07-01 16:50:18+02:00.
+
+\bibitem{AFLFast}
+Marcel B\"{o}hme, Van-Thuan Pham, and Abhik Roychoudhury.
+\newblock Coverage-based greybox fuzzing as markov chain.
+\newblock In {\em Proceedings of the 2016 ACM SIGSAC Conference on Computer and Communications Security}, CCS '16, pages 1032--1043, New York, NY, USA, 2016. Association for Computing Machinery.
+
+\bibitem{pbtpractice}
+Harrison Goldstein, Joseph~W. Cutler, Daniel Dickstein, Benjamin~C. Pierce, and Andrew Head.
+\newblock Property-based testing in practice.
+\newblock In {\em Proceedings of the IEEE/ACM 46th International Conference on Software Engineering}, ICSE '24, New York, NY, USA, 2024. Association for Computing Machinery.
+
+\bibitem{apollo}
+Jinho Jung, Hong Hu, Joy Arulraj, Taesoo Kim, and Woon{-}Hak Kang.
+\newblock {APOLLO:} automatic detection and diagnosis of performance regressions in database systems.
+\newblock {\em {PVLDB}}, 13(1):57--70, 2019.
+
+\bibitem{quickcheck}
+Koen Claessen and John Hughes.
+\newblock Quickcheck: a lightweight tool for random testing of haskell programs.
+\newblock {\em SIGPLAN Not.}, 35(9):268--279, September 2000.
+
+\bibitem{htsi}
+John Hughes.
+\newblock How to specify it! a guide to writing properties of pure functions.
+\newblock In {\em Trends in Functional Programming: 20th International Symposium, TFP 2019, Vancouver, BC, Canada, June 12--14, 2019, Revised Selected Papers}, pages 58--83, Berlin, Heidelberg, 2019. Springer-Verlag.
+
+\bibitem{generatinggenerators}
+Leonidas Lampropoulos, Zoe Paraskevopoulou, and Benjamin~C. Pierce.
+\newblock Generating good generators for inductive relations.
+\newblock {\em Proc. ACM Program. Lang.}, 2(POPL), December 2017.
+
+\bibitem{rigger.pqs}
+Manuel Rigger and Zhendong Su.
+\newblock Testing database engines via pivoted query synthesis.
+\newblock In {\em Proceedings of the 14th USENIX Conference on Operating Systems Design and Implementation}, OSDI'20, USA, 2020. USENIX Association.
+
+\bibitem{rigger.norec}
+Manuel Rigger and Zhendong Su.
+\newblock Detecting optimization bugs in database engines via non-optimizing reference engine construction.
+\newblock In {\em Proceedings of the 28th ACM Joint Meeting on European Software Engineering Conference and Symposium on the Foundations of Software Engineering}, ESEC/FSE 2020, pages 1140--1152, New York, NY, USA, 2020. Association for Computing Machinery.
+
+\bibitem{rigger.tlp}
+Manuel Rigger and Zhendong Su.
+\newblock Finding bugs in database systems via query partitioning.
+\newblock {\em Proc. ACM Program. Lang.}, 4(OOPSLA), November 2020.
+
+\bibitem{rigger.qpg}
+Jinsheng Ba and Manuel Rigger.
+\newblock Testing database engines via query plan guidance.
+\newblock In {\em Proceedings of the 45th International Conference on Software Engineering}, ICSE '23, pages 2060--2071. IEEE Press, 2023.
+
+\bibitem{rigger.cert}
+Jinsheng Ba and Manuel Rigger.
+\newblock Cert: Finding performance issues in database systems through the lens of cardinality estimation.
+\newblock In {\em Proceedings of the IEEE/ACM 46th International Conference on Software Engineering}, ICSE '24, New York, NY, USA, 2024. Association for Computing Machinery.
+
+\bibitem{rigger.dqp}
+Jinsheng Ba and Manuel Rigger.
+\newblock Keep it simple: Testing databases via differential query plans.
+\newblock {\em Proc. ACM Manag. Data}, 2(3), May 2024.
+
+\bibitem{rigger.coddtest}
+Chi Zhang and Manuel Rigger.
+\newblock Constant optimization driven database system testing.
+\newblock {\em Proc. ACM Manag. Data}, 3(1), February 2025.
+
+\bibitem{fdb}
+Jingyu Zhou, Meng Xu, Alexander Shraer, Bala Namasivayam, Alex Miller, Evan Tschannen, Steve Atherton, Andrew~J. Beamon, Rusty Sears, John Leach, Dave Rosenthal, Xin Dong, Will Wilson, Ben Collins, David Scherer, Alec Grieser, Young Liu, Alvin Moore, Bhaskar Muppana, Xiaoge Su, and Vishesh Yadav.
+\newblock Foundationdb: A distributed unbundled transactional key value store.
+\newblock In {\em Proceedings of the 2021 International Conference on Management of Data}, SIGMOD '21, pages 2653--2666, New York, NY, USA, 2021. Association for Computing Machinery.
+
+\bibitem{testifc}
+Catalin Hritcu, John Hughes, Benjamin~C. Pierce, Antal Spector-Zabusky, Dimitrios Vytiniotis, Arthur Azevedo~de Amorim, and Leonidas Lampropoulos.
+\newblock Testing noninterference, quickly.
+\newblock {\em SIGPLAN Not.}, 48(9):455--468, September 2013.
+
+\bibitem{sqlite}
+Richard~D Hipp.
+\newblock {SQLite}, 2020.
+
+\bibitem{thanos}
+Ying Fu, Zhiyong Wu, Yuanliang Zhang, Jie Liang, Jingzhou Fu, Yu~Jiang, Shanshan Li, and Xiangke Liao.
+\newblock { Thanos: DBMS Bug Detection via Storage Engine Rotation Based Differential Testing }.
+\newblock In {\em 2025 IEEE/ACM 47th International Conference on Software Engineering (ICSE)}, pages 655--666, Los Alamitos, CA, USA, May 2025. IEEE Computer Society.
+
+\bibitem{sqlright}
+Yu~Liang, Song Liu, and Hong Hu.
+\newblock {Detecting Logical Bugs of DBMS with Coverage-based Guidance}.
+\newblock In {\em Proceedings of the 31st USENIX Security Symposium (USENIX 2022)}, Boston, MA, aug 2022.
+
+\bibitem{griffin}
+Jingzhou Fu, Jie Liang, Zhiyong Wu, Mingzhe Wang, and Yu~Jiang.
+\newblock Griffin: Grammar-free dbms fuzzing.
+\newblock In {\em Proceedings of the 37th IEEE/ACM International Conference on Automated Software Engineering}, ASE '22, New York, NY, USA, 2023. Association for Computing Machinery.
+
+\bibitem{zhong2026scalingautomateddatabasetesting}
+Suyang Zhong and Manuel Rigger.
+\newblock Scaling automated database system testing, 2026.
+
 \end{thebibliography}

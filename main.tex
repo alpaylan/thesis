@@ -68,6 +68,8 @@
 \usepackage{subeqn}
 \usepackage{float}
 \usepackage{supertabular}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage[onehalfspacing]{setspace} %used for footnote spacing
 
 \usepackage{tocloft,calc}
@@ -92,6 +94,7 @@
 \input{macros/code}
 \input{macros/writing}
 \input{macros/pbt-components}
+\input{macros/dirt}
 % Proplang-paper compatibility: this thesis uses \cite but imported prose uses \citet.
 \providecommand{\citet}[1]{\cite{#1}}
 
@@ -198,6 +201,6 @@
 \small\normalsize
 
 \bibliographystyle{unsrt}
-\bibliography{Bibliography,bib/pbtbenchmark/pbtbenchmark-merged}
+\bibliography{Bibliography,bib/pbtbenchmark/pbtbenchmark-merged,bib/dirt/references}
 
 \end{document}

@@ -42,9 +42,13 @@
 \titleformat{\subsubsection}
   {\normalfont\normalsize\bfseries\color{thesissubheading}}
   {\thesubsubsection}{0.8em}{}
+\titleformat{\paragraph}[hang]
+  {\normalfont\small\bfseries\color{thesissubheading}}
+  {\theparagraph}{0.8em}{}
 \titlespacing*{\section}{0pt}{1.4em}{0.6em}
 \titlespacing*{\subsection}{0pt}{1.2em}{0.5em}
 \titlespacing*{\subsubsection}{0pt}{1em}{0.4em}
+\titlespacing*{\paragraph}{0pt}{0.9em}{0.35em}
 \usepackage{tikz}
 \usetikzlibrary{positioning, arrows.meta, fit, backgrounds, calc, shapes.geometric}
 \usepackage[T1]{fontenc}
@@ -66,6 +70,8 @@
 \usepackage{subeqn}
 \usepackage{float}
 \usepackage{supertabular}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage[onehalfspacing]{setspace} %used for footnote spacing
 
 \usepackage{tocloft,calc}
@@ -90,6 +96,9 @@
 \input{macros/code}
 \input{macros/writing}
 \input{macros/pbt-components}
+\input{macros/dirt}
+% Proplang-paper compatibility: this thesis uses \cite but imported prose uses \citet.
+\providecommand{\citet}[1]{\cite{#1}}
 
 \newcommand{\tbsp}{\rule{0pt}{18pt}} %used to get a vertical distance after \hline
 \renewcommand{\baselinestretch}{2}
@@ -194,6 +203,6 @@
 \small\normalsize
 
 \bibliographystyle{unsrt}
-\bibliography{Bibliography,bib/pbtbenchmark/pbtbenchmark-merged}
+\bibliography{Bibliography,bib/pbtbenchmark/pbtbenchmark-merged,bib/dirt/references}
 
 \end{document}
