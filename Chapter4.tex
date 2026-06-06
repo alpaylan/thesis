@@ -48,45 +48,36 @@ off-the-shelf tester, such tailoring would require developers of the DBMS to div
 the internals of an external project, modify it to suit their needs, and maintain those
 changes as the DBMS evolves.
 
-We propose \emph{database-integrated testing}, an alternative testing paradigm for
-testing databases during development. We embed the testing tool within the database
-itself, allowing for the generators to naturally evolve alongside the DBMS, therefore
-avoiding false positives by construction. At the same time, we leverage this tight
-integration to empower developers to write their own oracles by developing a
-domain-specific language (DSL) for expressing properties customized to particular
-features being developed.
+In our work, we proposed DIRT, \emph{database-integrated random testing}, an
+alternative testing paradigm for testing databases during development. DIRT embeds the
+testing tool within the database itself, allowing for the generators to naturally
+evolve alongside the DBMS, therefore avoiding false positives by construction.
+%
+At the same time, we leveraged this tight integration to empower developers to write
+their own oracles by developing a domain-specific language (DSL) for expressing
+properties customized to particular features being developed.
 
-We study this problem in the context of \db{}, an open-source SQLite3-compatible OLTP
-database engine in active development. With an average of more than 30 commits a day,
-\db{} is a rapidly evolving target for testing. \tool{} helped find 23 confirmed bugs,
-all of which were subsequently fixed. In comparison, running SQLancer-SQLite3 with
-minimal modifications in \db{} led to a false positive rate of 96.5\% with only one new
-bug, and running SQLancer-\db{}, an existing independently developed SQLancer
-integration for \db{}, without modifications led to a false positive rate of 58\% with
-six newly discovered bugs.
+We studied this problem in the context of \db{}, an open-source SQLite3-compatible OLTP
+database engine in active development. With an average of more than 30 commits a day at
+the time of our study, \db{} was a rapidly evolving target for testing. \tool{} helped
+find many different bugs in the database, we have confirmed and studied 23 of these
+bugs. In comparison, running SQLancer-SQLite3 with minimal modifications in \db{} led
+to a false positive rate of 96.5\% with only one new bug, and running SQLancer-\db{},
+an existing independently developed SQLancer integration for \db{}, without
+modifications led to a false positive rate of 58\% with six newly discovered bugs.
 
-In summary, our contributions are as follows:
-\begin{enumerate}
-    \item We propose \tool{}, a paradigm for testing databases during development which
-          integrates a testing framework within the database and provides convenient and flexible
-          abstractions to developers.
-    \item We implement \tool{} for \db{}, an open source SQLite3-compatible OLTP database under
-          active development.
-    \item We evaluate the effectiveness of \tool{} by finding actionable bugs in \db{}: we found
-          23 unique confirmed bugs with very few false positives compared to the
-          state-of-the-art.
-\end{enumerate}
-\section{Background and Related Work} \label{dirt:sec:background}
+\subsection{Fuzzing and Property-Based Testing} \label{dirt:subsec:fuzz-pbt}
 
-We begin by providing background: first on coverage-guided fuzzing and property-based
-testing at a high level, and then focusing on SQLancer, the prominent framework for
-testing databases.
-\subsection{Fuzzing and Property-Based Testing}
-\label{dirt:subsec:fuzz-pbt}
-In Fuzz Testing~\cite{fuzzingbook2024}, the primary focus is on smart and effective test-case generation that can work out of the box with minimal user inputs.
-The key idea is to leverage {\em runtime feedback}, usually in the form of branch coverage~\cite{aflplusplus,AFLFast}, though not always~\cite{FuzzFactory},
-to keep track of inputs that exhibit interesting behavior (e.g. uncovered new paths) and then mutate them in the hopes of discovering even more interesting inputs.
-The most common oracle for deciding if an input is a bug or not is simple: does the program crash? Other oracles include fuzzing against a model or a different implementation (known as differential fuzzing~\cite{pbtpractice, apollo}) or checking for excessive execution times~\cite{PerfFuzz}.
+In Fuzz Testing~\cite{fuzzingbook2024}, the primary focus is on smart and effective
+test-case generation that can work out of the box with minimal user inputs. The key
+idea is to leverage {\em runtime feedback}, usually in the form of branch
+coverage~\cite{aflplusplus,AFLFast}, though not always~\cite{FuzzFactory}, to keep
+track of inputs that exhibit interesting behavior (e.g. uncovered new paths) and then
+mutate them in the hopes of discovering even more interesting inputs. The most common
+oracle for deciding if an input is a bug or not is simple: does the program crash?
+Other oracles include fuzzing against a model or a different implementation (known as
+differential fuzzing~\cite{pbtpractice, apollo}) or checking for excessive execution
+times~\cite{PerfFuzz}.
 
 Property-Based Testing (PBT), on the other hand, primarily focuses on empowering users
 to write their own oracles~\cite{quickcheck, htsi}. PBT frameworks usually offer DSLs
@@ -102,8 +93,8 @@ database testing, both SQLancer and \tool{} follow such a hybrid viewpoint.
 
 \subsection{SQLancer} \label{dirt:subsec:slancer}
 
-SQLancer is a multi-year research project by Rigger et. al that set the bar for
-automated random testing of databases since its inception in 2020. It hosts an
+SQLancer~\cite{SQLancer} is a multi-year research project by Rigger et. al that set the
+bar for automated random testing of databases since its inception in 2020. It hosts an
 extensible core with adapters for many production DBMSs including but not limited to
 ClickHouse, Apache Datafusion, MySQL, PostgreSQL, and SQLite. Within the last five
 years, SQLancer has not only grown with respect to the breadth of databases it
@@ -127,7 +118,7 @@ queries, and the oracles to use for detecting bugs. SQLancer also has a notion o
 \emph{expected errors}, bugs that the users can deem as expected, so SQLancer does not
 report them as errors and continues testing.
 
-\section{Specifying Correctness Oracles} \label{dirt:sec:correctness}
+\subsection{Specifying Correctness Oracles} \label{dirt:sec:correctness}
 
 Rather than expecting database developers to modify SQLancer to suit their particular
 needs, we instead wanted to offer them flexible and extensible abstractions so that
@@ -138,21 +129,23 @@ tailoring the input space of SQL generation to the currently implemented portion
 \db{} for reducing false positives, but also tailoring the correctness oracles to new
 features as they are added, decreasing false negatives.
 
-In this section, we introduce {\em generation actions}, an imperative formulation for
+In this section, I introduce {\em generation actions}, an imperative formulation for
 properties that do not just describe \emph{what} the property tests, but \emph{how} to
 test it. We begin by using a very simple commutativity property to convey the basic
 ideas and notation, then detail the oracles that were actually developed to test \db{},
 and conclude the section with a description of our generation strategy. For
-concreteness, let us consider the following equivalence relation leveraging the
-commutativity of $(\land)$: for any database $db$ and any two predicates $p$ and $q$
-that can range over variables from the database, if we evaluate $SELECT$ $(p \land q)$
-and $SELECT (q \land p)$ in $db$ they should yield equivalent results:
+concreteness, let us consider the following hypothetical equivalence relation
+leveraging the commutativity of $(\land)$: for any database $db$ and any two predicates
+$p$ and $q$ that can range over variables from the database, if we evaluate $SELECT$
+$(p \land q)$ and $SELECT (q \land p)$ in $db$ they should yield equivalent results:
+
 \[
     \begin{array}{rl}
         \forall db, p, q. & variables(p) \subseteq db  \land variables(q) \subseteq db \\
         \Rightarrow       & SELECT (p \land q) \equiv SELECT (q \land p)
     \end{array}
 \]
+
 Testing such a property would entail generating an arbitrary database, two expressions
 $p$ and $q$ that only mention variables from that database, and then evaluating it
 repeatedly. That is, we have precisely described \emph{what} we want to test, the exact
@@ -175,15 +168,21 @@ gen property db =
 \end{gacode}
 
 \noindent Each generation action is parameterized by the type it returns and the context it
-can use (implemented as a trait in Rust).
-On the right, we express the same high-level commutativity property as a generation action that returns a \ga{property} parameterized by a context that contains a database \ga{db}.
-Rather than independently generating $p$ and $q$, we fix some of the details of generation. We \ga{pick} an arbitrary table from the database, \ga{pick} a column from that table, and generate
-an expression \ga{v} of that column's type, before constructing an explicit equality check \ga{t.c = v}. For \ga{q}, we generate an arbitrary \ga{expression} that can refer to both \ga{t} and \ga{c}. We use $\leftarrow$ to bind the results
+can use (implemented as a trait in Rust). The snippet I present above expresses the same
+high-level commutativity property as a generation action
+that returns a \ga{property} parameterized by a context that contains a database \ga{db}.
+Rather than independently generating $p$ and $q$, we fix some of the details of generation.
+We \ga{pick} an arbitrary table from the database, \ga{pick} a column from that table, and generate
+an expression \ga{v} of that column's type, before constructing an explicit equality
+check \ga{t.c = v}. For \ga{q}, we generate an arbitrary \ga{expression} that can refer to
+both \ga{t} and \ga{c}. We use $\leftarrow$ to bind the results
 of generation and $:=$ for regular let-style binding.
-We express interactions with the database, explicitly annotated with a $(!)$. In this example, the only interactions are defining the two different ways of conjuncting $p$ and $q$ and then \ga{assert}ing their equality, but can generally be a query or an assertion.
+We express interactions with the database, explicitly annotated with a $(!)$. In this
+example, the only interactions are defining the two different ways of conjuncting $p$
+and $q$ and then \ga{assert}ing their equality, but can generally be a query or an assertion.
 
-An interaction not shown in this example that we will use in our oracles is the ability
-to inject simulated {\em faults}. DBMSs interact heavily with the underlying OS, file
+An interaction not shown in this example that we used in our oracles is the ability to
+inject simulated {\em faults}. DBMSs interact heavily with the underlying OS, file
 system, and network, all of which have unpredictable and chaotic failure modes. As
 such, the same set of interactions (e.g. \sql{CREATE-INSERT-DELETE}) might result in
 different results depending on any invisible failures in the middle.
@@ -192,11 +191,11 @@ simulated faults within an otherwise correctly working testing environment. We a
 introduced fault injection in \tool{} as part of the DSL for generation actions, as
 exemplified by the header initialization bug studied in \S \ref{dirt:case:headerinit}.
 
-\subsection{Definitions of Oracles in \tool{}}
+\subsubsection{Definitions of Oracles in \tool{}}
 
-In this subsection, we go over definitions of five different oracles written as
-sequences of generation actions, three of which are reimplementations of existing
-oracles in SQLancer. We start by defining the first of the three SQLancer oracles we
+In this subsection, I go over definitions of four different oracles written as
+sequences of generation actions, two of which are reimplementations of existing oracles
+in SQLancer. I start by defining the first of the three SQLancer oracles we
 implemented, Pivoted Query Synthesis (PQS)~\cite{rigger.pqs}, as a universally
 quantified proposition in Fig.~\ref{dirt:fig:pqs}. PQS states that given a set of
 tables in the database, \sql{SELECT}ing for a row constructed from the contents of
@@ -245,24 +244,25 @@ gen property db:
     \label{dirt:fig:pqs-ga}
 \end{figure}
 
-Fig.~\ref{dirt:fig:pqs} and Fig.~\ref{dirt:fig:pqs-ga} shows two formulations of PQS,
+Fig.~\ref{dirt:fig:pqs} and Fig.~\ref{dirt:fig:pqs-ga} show two formulations of PQS,
 Fig.~\ref{dirt:fig:pqs} is the propositional formulation with universally quantified
 variables that define \emph{what} PQS is, and Fig.~\ref{dirt:fig:pqs-ga} is a GA
 formulation of PQS with two tables/columns as generation actions that define \emph{how}
 PQS is tested, modeling the implementation of PQS that tests \db{} today. The
 propositional formulation quantifies over a database and a sequence of tables, columns,
 and expressions, under the constraint that the expressions will return \sql{TRUE} when
-tested against a row $r$. The corresponding GA closely follows along, but ensures these
-constraints are satisfied by construction. We start by picking tables \sql{t1, t2} from
-the state \sql{db.tables}, followed by picking columns from the respective table.
-\sql{gen row t} and \sql{gen expression} \sql{(t, r)} are dependent generation
-primitives, where the former generates a row based on the table \sql{t}, and the latter
-generates an expression that will evaluate to \sql{TRUE} for row \sql{r} of the table
-\sql{t}.
+tested against a row \sql{r}. The corresponding GA closely follows along, but ensures
+these constraints are satisfied by construction.
+%
+We start by picking tables \sql{t1, t2} from the state \sql{db.tables}, followed by
+picking columns from the respective table. \sql{gen row t} and \sql{gen expression}
+\sql{(t, r)} are dependent generation primitives, where the former generates a row
+based on the table \sql{t}, and the latter generates an expression that will evaluate
+to \sql{TRUE} for row \sql{r} of the table \sql{t}.
 
 \begin{figure}
     \centering
-    \begin{subfigure}{0.45\textwidth}
+    \begin{subfigure}{0.90\textwidth}
         \begin{gacode}
 gen property db:
     t <- pick db.tables
@@ -275,7 +275,7 @@ gen property db:
         \caption{Non-Optimizing Reference Engine\\Construction (NoREC)}
         \label{dirt:fig:norec}
     \end{subfigure}
-    \begin{subfigure}{0.45\textwidth}
+    \begin{subfigure}{0.90\textwidth}
         \begin{gacode}
 gen property db:
     t <- pick db.tables
@@ -290,7 +290,7 @@ gen property db:
         \caption{Ternary Logic Partitioning (TLP) WHERE Extended}
         \label{dirt:fig:tlp}
     \end{subfigure}
-    \begin{subfigure}{0.45\textwidth}
+    \begin{subfigure}{0.90\textwidth}
         \begin{gacode}
 gen property db:
     t <- pick db.tables
@@ -303,7 +303,7 @@ gen property db:
         \caption{Deletes rows should not be in the table}
         \label{dirt:fig:deleted_rows}
     \end{subfigure}
-    \begin{subfigure}{0.45\textwidth}
+    \begin{subfigure}{0.90\textwidth}
         \begin{gacode}
 gen property db:
     s1 <- gen SELECT db.tables
@@ -319,8 +319,8 @@ gen property db:
     \label{dirt:fig:gen-actions}
 \end{figure}
 
-In Fig.~\ref{dirt:fig:gen-actions}, we provide definitions of SQLancer oracles as GAs
-in addition to the other oracles we implemented for \tool{}. Fig.~\ref{dirt:fig:norec}
+In Fig.~\ref{dirt:fig:gen-actions}, I provide definitions of SQLancer oracles as GAs in
+addition to the other oracles we implemented for \tool{}. Fig.~\ref{dirt:fig:norec}
 demonstrates how to write Non-Optimizing Reference Engine Construction Generation
 (NoREC)~\cite{rigger.norec} as a GA. Fig.~\ref{dirt:fig:tlp} presents the GA for
 \texttt{WHERE Extended} case of Ternary Logic Partitioning (TLP)~\cite{rigger.tlp}
@@ -377,7 +377,7 @@ state for constructing arbitrary queries and properties, and because it gives us
 canonical property over the database state: the shadow state is identical to the
 database at any given moment.
 
-\section{Evaluation}\label{dirt:sec:eval}
+\subsection{Evaluation}\label{dirt:sec:eval}
 
 In order to evaluate the effectiveness of \tool{}, we explored the answers to the
 following questions:
@@ -387,7 +387,7 @@ following questions:
     \item RQ2: How does \tool{} compare to the state-of-the-art?
 \end{itemize}
 
-\subsection{RQ1: Does \tool{} find bugs in \db{}?} \label{dirt:subsec:bugs}
+\subsubsection{RQ1: Does \tool{} find bugs in \db{}?} \label{dirt:subsec:bugs}
 \begin{singlespace}
     \begin{footnotesize}
         \begin{table}[h!]
@@ -459,13 +459,13 @@ over the course its development, evolving in complexity as \db{} grows.
 Table~\ref{dirt:tab:bugs} is the list of confirmed bugs, along with the changes to the
 testing infrastructure that resulted in the discovery. The bugs range from simple
 parser level bugs that could be classified as minor problems, to severe logic bugs deep
-in the core functionality of the database that could result in data loss. We choose
-three representative bugs as case studies, detailing the conditions in which they were
-discovered and triggered. The cases demonstrate the diversity of bugs found in \db{}
-with respect to their origin (the bytecode compiler, the B-tree index, and the database
-header), to how they were discovered and reported (automated report, ourselves, and the
-developers), and to the oracles used (simple deletion properties, large indexed table
-generation, and developer-written properties).
+in the core functionality of the database that could result in data loss. We have
+chosen three representative bugs as case studies, detailing the conditions in which
+they were discovered and triggered. The cases demonstrate the diversity of bugs found
+in \db{} with respect to their origin (the bytecode compiler, the B-tree index, and the
+database header), to how they were discovered and reported (automated report,
+ourselves, and the developers), and to the oracles used (simple deletion properties,
+large indexed table generation, and developer-written properties).
 
 \paragraph{Case 1: DELETE not emitting constant Where terms.}
 
@@ -488,7 +488,9 @@ affected the results of the \sql{SELECT}, keeping the containment property intac
 the assertion that the inserted row should be in the result of the \sql{SELECT} failed,
 triggering the bug report.
 
-\paragraph{Case 2: Interior node replacement caused self-reference when depth exceeded 2.} The second bug manifested in the balancing logic of the B-tree implementation of \db{},
+\paragraph{Case 2: Interior node replacement caused self-reference when depth exceeded 2.}
+
+The second bug manifested in the balancing logic of the B-tree implementation of \db{},
 but only because the generated interactions were paced to match the state of the \db{}
 development. When \db{} added database indexes as an experimental feature, we extended
 generation to support statements such as \sql{SELECT DISTINCT}, \sql{CREATE INDEX}, and
@@ -498,7 +500,9 @@ resulted in triggering a crash failure in the core B-tree data structure that co
 result in data loss or corruption if not fixed. We reported this bug to the \db{}
 developers, and the bug is currently fixed.
 
-\paragraph{Case 3: Database Header Initialization.}\label{dirt:case:headerinit} The third selected bug highlights the importance of considering fault scenarios. SQLite
+\paragraph{Case 3: Database Header Initialization.}\label{dirt:case:headerinit}
+
+The third selected bug highlights the importance of considering fault scenarios. SQLite
 uses write-ahead logs (WAL) in order to provide non-blocking reads and ACID
 transactions in the database. This strategy incurs an additional complexity to the
 persistent state of the DBMS as the database file might be out-of-date for certain
@@ -512,15 +516,15 @@ closes down existing connections with the database and reopens them later, enabl
 detection of any future bugs that might be a result of an error in the persistent state
 logic of \db{}.
 
-\subsection{RQ2: How does \tool{} compare to SQLancer?}
+\subsubsection{RQ2: How does \tool{} compare to SQLancer?}
 
-We answer RQ2 by comparing the rate of true positives and false positives reports from
-three different random testing configurations: \tool{}, the default SQLite3 integration
-of SQLancer with pragmas disabled (denoted SQLancer-SQLite), and the fork of a
-work-in-progress \db{} integration of SQLancer by a \db{} contributor (denoted
+We answered RQ2 by comparing the rate of true positives and false positives reports
+from three different random testing configurations: \tool{}, the default SQLite3
+integration of SQLancer with pragmas disabled (denoted SQLancer-SQLite), and the fork
+of a work-in-progress \db{} integration of SQLancer by a \db{} contributor (denoted
 SQLancer-\db{}). Pragmas had to be removed for SQLancer-SQLite because most of them
 were unimplemented in Turso, causing all reported bugs to be false positives in our
-testing. We define an actionable bug report from the tools as a sequence of SQL
+testing. We defined an actionable bug report from the tools as a sequence of SQL
 statements that \emph{would have been} submitted and confirmed as a bug at the time of
 its original report. We used the 23 bug reports we analyzed as the ground truth,
 finding commits which are known to have bugs. The bugs span over 20 \db{} commits, 6 of
@@ -547,42 +551,75 @@ database-integrated testing yields more actionable bugs.
     \label{dirt:fig:comparison}
 \end{figure}
 
-\section{Discussion}
+\subsection{Discussion}
 
-\tool{} is a paradigm for testing databases during development, even though we use \tool{} the paradigm and \tool{} for \db{} interchangeably throughout the paper. We compare the performance of \tool{} for \db{} against SQLancer with minimal modifications, which begets some questions worth discussing.
+\tool{} is a paradigm for testing databases during development, even
+though we used \tool{} the paradigm and \tool{} for \db{} interchangeably
+throughout the chapter. I've compared the performance of \tool{} for \db{} against
+SQLancer with minimal modifications, which begets some questions worth discussing.
 
-\emph{Why not integrate SQLancer to the development process instead of developing a random testing framework from scratch?} As we briefly discussed earlier, SQLancer is not designed for the constant evolution of the random testing infrastructure along with the project. It is a project with its own trajectory, development, new algorithms, generators, and oracles.
-\tool{} aims to empower the database developers themselves by giving them a mechanism to test the database, instead of giving them bugs to solve. There are additional practical barriers; Java bindings for \db{} are not complete at the moment, so we had to fix bugs in the SQLancer-\db{} integration implemented by one of the \db{} developers that relied on incomplete features that silently failed, panics in \db{} caused SQLancer to terminate, so it was not possible to minimize the counterexamples with SQLancer reducers without further changes.
+\emph{Why not integrate SQLancer to the development process instead of developing
+    a random testing framework from scratch?} As I discuss earlier, SQLancer
+is not designed for the constant evolution of the random testing infrastructure
+along with the project. It is a project with its own trajectory, development, new
+algorithms, generators, and oracles.
+\tool{} aims to empower the database developers themselves by giving them a
+mechanism to test the database, instead of giving them bugs to solve. There are
+additional practical barriers; Java bindings for \db{} are not complete at the
+moment, so we had to fix bugs in the SQLancer-\db{} integration implemented by
+one of the \db{} developers that relied on incomplete features that silently
+failed, panics in \db{} caused SQLancer to terminate, so it was not possible
+to minimize the counterexamples with SQLancer reducers without further changes.
 
-\emph{Given that SQLancer supports expected errors for reducing false positives, could we use expected errors for known bugs and false positives we found to discover more bugs?} We could use expected errors, and we would have discovered more bugs in the process. In terms of any static evaluation target, tweaking SQLancer by progressively finding more bugs as found ones are marked as expected, it is always possible to make SQLancer find more bugs. The point, however, is that constant modification is not the expected and supported mode of operation when using SQLancer. Although it is phenomenal for off-the-shelf usage, its capabilities unfortunately act as a disadvantage against its use in actively developed projects with many missing features. We have shown that a project with a much smaller scope can adopt the ideas of input generation and oracles in SQLancer as well as other related work on database testing such as Apollo~\cite{apollo} or Thanos~\cite{thanos} and demonstrated that database developers can turn their domain expertise into writing properties as presented in the third case study in \S \ref{dirt:subsec:bugs}.
-We also observed that many crash failures are the result of inline assertions in \db{}. These crashes imply logic bugs as they contradict invariants specified by the developers, blurring the distinction between crash failures and logic bugs in the literature. Such assertions do not replace SQLancer oracles or \db{} properties because they do not have the ability to follow values through execution in a holistic way as properties do, so they can only reason about local invariants.
+\emph{Given that SQLancer supports expected errors for reducing false positives,
+    could we use expected errors for known bugs and false positives we found to
+    discover more bugs?} We could use expected errors, and we would have discovered
+more bugs in the process. In terms of any static evaluation target, tweaking
+SQLancer by progressively finding more bugs as found ones are marked as expected,
+it is always possible to make SQLancer find more bugs. The point, however, is
+that constant modification is not the expected and supported mode of operation
+when using SQLancer. Although it is phenomenal for off-the-shelf usage, its
+capabilities unfortunately act as a disadvantage against its use in actively developed
+projects with many missing features. We have shown that a project with a much smaller
+scope can adopt the ideas of input generation and oracles in SQLancer as well as other
+related work on database testing such as Apollo~\cite{apollo} or Thanos~\cite{thanos}
+and demonstrated that database developers can turn their domain expertise into writing
+properties as presented in the third case study in \S \ref{dirt:subsec:bugs}.
+We also observed that many crash failures are the result of inline assertions in \db{}.
+These crashes imply logic bugs as they contradict invariants specified by the developers,
+blurring the distinction between crash failures and logic bugs in the literature. Such
+assertions do not replace SQLancer oracles or \db{} properties because they do not have
+the ability to follow values through execution in a holistic way as properties do, so
+they can only reason about local invariants.
 
 \emph{Role in \db{}.}
-As a last point of discussion, we would like to clarify our role in the implementation of \tool{} in \db{}, in order to fully credit the open source contributors for their work. At the time we started working on \db{}, it had a small, unstructured random testing infrastructure that overwhelmingly focused on being able to support Deterministic Simulation Testing~\cite{fdb}. I/O was implemented in a way that could be easily simulated, which allowed for \sql{FAULT}s to be integrated in the generated interactions.
-We have taken a role as an external open source contributor to the project, gradually proposing improvements to random testing infrastructure such as the Generation Actions DSL, most of the existing properties, stateful random generation, shrinking, additional oracles such as differential testing against SQLite and determinism checking, and have implemented such proposals. The infrastructure has grown outside of our control at times, producing regressions through the development, along with many improvements by the maintainers and contributors to the project that contributed to the list of bugs found in Table~\ref{dirt:tab:bugs}. The SQLancer-\db{} integration was almost entirely developed by one contributor, which we have used in our evaluations with small changes to their code.
+As a last point of discussion, I would like to clarify our role in the implementation
+of \tool{} in \db{}, in order to fully credit the open source contributors for their work.
+At the time we started working on \db{}, it had a small, unstructured random testing
+infrastructure that overwhelmingly focused on being able to support Deterministic
+Simulation Testing~\cite{fdb}. I/O was implemented in a way that could be easily simulated,
+which allowed for \sql{FAULT}s to be integrated in the generated interactions.
+We have taken a role as an external open source contributor to the project, gradually
+proposing improvements to random testing infrastructure such as the Generation Actions
+DSL, most of the existing properties, stateful random generation, shrinking, additional
+oracles such as differential testing against SQLite and determinism checking, and have
+implemented such proposals. The infrastructure has grown outside of our control at times,
+producing regressions through the development, along with many improvements by the
+maintainers and contributors to the project that contributed to the list of bugs
+found in Table~\ref{dirt:tab:bugs}. The SQLancer-\db{} integration was almost entirely
+developed by Diego Reis, which we have used in our evaluations with small changes
+to their code.
 
-\emph{Related work on adaptive DBMS testing.} Although we compared \tool{} mainly against SQLancer as the basis of our oracles, other systems such as SQLRight~\cite{sqlright}, Griffin~\cite{griffin}, and SQLancer++~\cite{zhong2026scalingautomateddatabasetesting} also adapt testing to DBMS behavior. However, these systems primarily approach adaptation from the perspective of an external testing framework, with evaluations centered on broad effectiveness across multiple databases and minimal manual intervention. In contrast, \tool{} studies adaptation as a database-integrated process: the testing infrastructure evolves together with a single DBMS under development, and developers directly shape generators, properties, and fault models as the implementation changes.
+\emph{Related work on adaptive DBMS testing.} Although we compared \tool{} mainly
+against SQLancer as the basis of our oracles, other systems such as SQLRight~\cite{sqlright},
+Griffin~\cite{griffin}, and SQLancer++~\cite{zhong2026scalingautomateddatabasetesting} also
+adapt testing to DBMS behavior. However, these systems primarily approach adaptation from the
+perspective of an external testing framework, with evaluations centered on broad effectiveness
+across multiple databases and minimal manual intervention. In contrast, \tool{} studies
+adaptation as a database-integrated process: the testing infrastructure evolves together
+with a single DBMS under development, and developers directly shape generators, properties,
+and fault models as the implementation changes.
 
-\section{Conclusion and Future Work}\label{dirt:sec:futurework}
-
-In this paper, we introduced \tool{}, a new paradigm and concrete implementation for
-testing databases during development. By tightly integrating the testing infrastructure
-with the DBMS itself, \tool{} avoids many of the limitations that off-the-shelf testing
-frameworks like SQLancer face when applied to rapidly evolving systems with incomplete
-feature sets. Our framework provides developers with tools to express custom
-correctness properties via generation actions and ensures state-aware query generation.
-We implemented \tool{} for \db{} and found 23 confirmed bugs with minimal false
-positives. In the same setting, SQLancer-based baselines produced substantially more
-false positives and fewer actionable reports. Our experience shows that when databases
-are still under heavy development, flexible, integrated testing approaches that evolve
-alongside the system are significantly more productive and developer-friendly than
-external, comprehensive tools. Moreover, our approach fosters collaboration between
-testing infrastructure and DBMS development by giving developers intuitive ways to
-encode domain-specific knowledge as properties.
-
-\tool{} bridges the gap between random testing and practical debugging by empowering developers to guide, understand, and act on test results. We believe this paradigm has broad applicability beyond \db{} and offers a promising path forward for testing other evolving and complex systems.
-
-\section{Additional SQLancer Bugs}\label{dirt:sec:appendix}
 \subsection{Bugs Found by SQLancer} \label{dirt:app:sqlancer-bugs}
 
 \begin{itemize}
@@ -599,3 +636,6 @@ SQL dialect of SQLite, which \tool{} does not, hence missing such bugs. Our eval
 demonstrates the benefit of such comprehensive generation, but also shows that without
 tailoring to the database, the produced bug reports will be overwhelmingly dominated by
 false positives and reproductions of existing bugs yet to be fixed.
+
+\section{Lessons from DIRT}\label{dirt-lessons}
+
