@@ -11,45 +11,45 @@ Warning--entry type for "HypoFuzz" isn't style-file defined
 Warning--entry type for "bolero" isn't style-file defined
 --line 4867 of file bib/pbtbenchmark/pbtbenchmark-merged.bib
 Warning--empty booktitle in Tlon
-You've used 56 entries,
+You've used 64 entries,
             1791 wiz_defined-function locations,
-            996 strings with 19326 characters,
-and the built_in function-call counts, 15362 in all, are:
-= -- 1435
-> -- 643
-< -- 24
-+ -- 235
-- -- 179
-* -- 859
-:= -- 2184
-add.period$ -- 188
-call.type$ -- 56
-change.case$ -- 54
+            1041 strings with 20844 characters,
+and the built_in function-call counts, 17924 in all, are:
+= -- 1668
+> -- 773
+< -- 28
++ -- 281
+- -- 217
+* -- 1019
+:= -- 2549
+add.period$ -- 215
+call.type$ -- 64
+change.case$ -- 62
 chr.to.int$ -- 0
-cite$ -- 57
-duplicate$ -- 833
-empty$ -- 1506
-format.name$ -- 179
-if$ -- 3704
+cite$ -- 65
+duplicate$ -- 976
+empty$ -- 1728
+format.name$ -- 217
+if$ -- 4321
 int.to.chr$ -- 0
-int.to.str$ -- 56
-missing$ -- 46
-newline$ -- 280
-num.names$ -- 64
-pop$ -- 238
+int.to.str$ -- 64
+missing$ -- 54
+newline$ -- 320
+num.names$ -- 72
+pop$ -- 267
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 564
+skip$ -- 670
 stack$ -- 0
-substring$ -- 783
-swap$ -- 353
-text.length$ -- 24
+substring$ -- 908
+swap$ -- 421
+text.length$ -- 28
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 1
-while$ -- 119
-width$ -- 58
-write$ -- 639
+while$ -- 135
+width$ -- 66
+write$ -- 734
 (There were 4 warnings)

@@ -277,4 +277,44 @@ Stephanie Weirich, Pritam Choudhury, Antoine Voizard, and Richard~A. Eisenberg.
 \newblock A role for dependent types in {Haskell}.
 \newblock {\em Proceedings of the ACM on Programming Languages}, 3(ICFP):1--29, July 2019.
 
+\bibitem{etna-icfp23}
+Jessica Shi, Alperen Keles, Harrison Goldstein, Benjamin~C. Pierce, and Leonidas Lampropoulos.
+\newblock Etna: An evaluation platform for property-based testing (experience report).
+\newblock {\em Proc. ACM Program. Lang.}, 7(ICFP), August 2023.
+
+\bibitem{Lava}
+Brendan Dolan-Gavitt, Patrick Hulin, Engin Kirda, Tim Leek, Andrea Mambretti, Wil Robertson, Frederick Ulrich, and Ryan Whelan.
+\newblock Lava: Large-scale automated vulnerability addition.
+\newblock In {\em 2016 IEEE Symposium on Security and Privacy (SP)}, pages 110--121, 2016.
+
+\bibitem{Hazimeh:2020:Magma}
+Ahmad Hazimeh, Adrian Herrera, and Mathias Payer.
+\newblock Magma: A ground-truth fuzzing benchmark.
+\newblock {\em Proc. ACM Meas. Anal. Comput. Syst.}, 4(3), December 2020.
+
+\bibitem{GopinathJG14}
+Rahul Gopinath, Carlos Jensen, and Alex Groce.
+\newblock Code coverage for suite evaluation by developers.
+\newblock In {\em Proceedings of the 36th International Conference on Software Engineering}, ICSE 2014, page 72–82, New York, NY, USA, 2014. Association for Computing Machinery.
+
+\bibitem{EvaluatingFuzzTesting}
+George Klees, Andrew Ruef, Benji Cooper, Shiyi Wei, and Michael Hicks.
+\newblock Evaluating fuzz testing.
+\newblock In {\em Proceedings of the 2018 ACM SIGSAC Conference on Computer and Communications Security}, CCS '18, page 2123–2138, New York, NY, USA, 2018. Association for Computing Machinery.
+
+\bibitem{JiaH11}
+Yue Jia and Mark Harman.
+\newblock An analysis and survey of the development of mutation testing.
+\newblock {\em IEEE Transactions on Software Engineering}, 37(5):649--678, 2011.
+
+\bibitem{FixReverter}
+Zenong Zhang, Zach Patterson, Michael Hicks, and Shiyi Wei.
+\newblock {FIXREVERTER}: A realistic bug injection methodology for benchmarking fuzz testing.
+\newblock In {\em 31st USENIX Security Symposium (USENIX Security 22)}, pages 3699--3715, Boston, MA, August 2022. USENIX Association.
+
+\bibitem{TestingNIjfp}
+Catalin Hritcu, Leonidas Lampropoulos, Antal Spector-Zabusky, Arthur~Azevedo Amorim, Maxime Denes, John Hughes, Benjamin~C. Pierce, and Dimitrios Vytiniotis.
+\newblock Testing noninterference, quickly.
+\newblock In {\em Journal of Functional Programming (JFP)}, 2016.
+
 \end{thebibliography}

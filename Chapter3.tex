@@ -2,3 +2,127 @@
 \renewcommand{\thechapter}{3}
 
 \chapter{Quantitative Evaluation of Property-Based\\Testing}\label{chap:etna}
+
+The second chapter of this thesis remarks a fragmentation caused by the design of
+property-based testing libraries, leading to diverging features, separated ecosystems.
+In this chapter, I focus on yet another fragmentation, this time caused by something
+much more banal, a lack of general purpose evaluation benchmarks for PBT. The
+literature is full of interesting novel techniques for enhancing random generation and
+counterexample minimization, but these techniques are rarely evaluated within a
+coherent context. Many times, the studies have relied on bespoke benchmarks
+(\todo{examples}), if one were to build a web of studies and the benchmarks they used,
+the result is somewhat reminiscent of the infamous public transport coverage of Ankara,
+a small number of hub workloads that many studies reuse, many one-off benchmarks that
+haven't been validated or reused in other studies, and a complete lack of
+standardization.
+
+This lack of common comparative analysis surely contributes to a lack of understanding
+in the effects of these new techniques and changes; but the problem is persistent
+beyond the literature and into the libraries themselves. All the property-based testing
+libraries I have read in the course of developing this thesis are full of bespoke
+decisions accummulated in the last 25 years. The choice of which sizing function to
+use, the shrinking algorithm, the default settings on budgets and parameters... Many of
+these decisions have never been subject to quantitative judgement beyond the initial
+discussions, never been evaluated at scale, or understood in the broader context of PBT
+usage.
+
+In the beginning of my Ph.D. we set out to remediate this fragmentation and help build
+a common quantitative understanding for the field. With Jessica and Harry implementing
+the common evaluation framework in Python as well as the Haskell workloads, and I
+working on the implementation of the Rocq pipeline and workloads, we have published
+``Etna: An Evaluation Platform for Property-Based Testing (Experience
+Report)''~\cite{etna-icfp23} in ICFP23.
+
+After the initial publication, I have taken the lead role in future development of the
+ETNA platform and horizontally grown it for OCaml with Nikhil Kamath, Racket with Ceren
+Mert and Justine Frank, for Haskell with George Miao, and for Rust by myself. The
+initial implementation as a library has been replaced with a standalone tool that could
+be easily run cross-platform on many machines, eventually to the point we can start to
+run our experiments as Github Actions. Many of these changes have found their ways into
+publications, our JFP extension for the ICFP23 paper has incorporated the work by Ceren
+and Nikhil as well as Tin from UPenn working together with Jessica.
+
+The rest of this chapter includes excerpts edited from these papers, mainly the 2026
+JFP extension of ETNA, with a major section on evaluation of shrinking from our
+under-review work for the Haskell Symposium with George and Leo.
+
+\section{ETNA}
+
+ETNA is, as you may have thought of, named after the famous Sicilian volcano~\cn. The
+name follows a convention established by prior work in the fuzz testing community,
+Lava~\cite{Lava} and Magma~\cite{Hazimeh:2020:Magma}, both of which have been
+instrumental to our design, particularly with the ground truth approach of Magma.
+
+During the design and development of ETNA, we focused on a few key design principles,
+centered around usefulness, extensibility, and maintainability.
+
+\subsection{Evaluate for the ground truth, not for proxy metrics.}
+
+How should an evaluation platform measure the effectiveness of a generator? The
+software testing literature offers two common answers: \emph{code coverage} and
+\emph{mutation testing}. Code coverage is attractive because it is easy to instrument
+and compare, but it is at best an indirect signal: higher coverage does not always
+translate to better bug finding~\cite{GopinathJG14,EvaluatingFuzzTesting}. For ETNA, we
+instead chose mutation testing~\cite{JiaH11}, which measures the effectiveness of a
+testing technique by artificially injecting mutations into the system under test and
+checking whether testing is able to detect them.
+
+Mutations used in prior evaluation work fall on a spectrum from manually sourced to
+automatically synthesized~\cite{Hazimeh:2020:Magma,EvaluatingFuzzTesting,
+    FixReverter,TestingNIjfp}. ETNA opts for manual sourcing. This choice makes the
+benchmark harder to populate, since every task requires a meaningful mutant and a
+property that exposes it, but it also lets us maintain a clearer ground truth: each
+mutant should violate some aspect of the property specification. The workloads,
+properties, and injected bugs used in this chapter are detailed in
+\S~\ref{etna:workloads}.
+
+\subsection{Use minimal, but precise interfaces.}
+
+A key challenge during ETNA's development was that the platform needed to gather
+comparable data about the testing effectiveness of a wide variety of existing PBT
+frameworks, each of which reports such data in an ad-hoc and non-standardized manner.
+Most frameworks report the number of inputs generated before a counterexample is found.
+Far fewer expose timing statistics, and none of the frameworks we studied initially
+offered a detailed breakdown of generation, testing, and minimization time. Similarly,
+most frameworks report the number of inputs that fail to satisfy a precondition as
+discards, while others, such as Rust's QuickCheck and Racket's RackCheck, do not
+separate discards from passing tests.
+
+These differences matter because ETNA is not evaluating a single library in isolation;
+it is trying to compare workloads, strategies, frameworks, and languages. To make those
+comparisons meaningful, we settled on a small set of metrics that are easy to measure
+across frameworks and on a precise output format that implementations can validate
+themselves: JSON conforming to a schema exposed by the ETNA
+protocol.\footnote{\url{https://github.com/alpaylan/etna-cli/blob/main/PROTOCOL.md}}
+The resulting interface is intentionally modest. It does not try to encode every
+feature of every PBT library. Instead, it records the information that ETNA needs to
+run experiments reproducibly and compare their outcomes.
+
+\subsection{Every ETNA capability should be available to use manually.}
+
+ETNA acts as an orchestration mechanism: it invokes testing tools, toggles mutations,
+parses results, and performs analysis over the collected data. Such orchestration is
+fragile even when every component is individually well engineered, because ETNA sits
+between loosely coupled systems that were developed independently. In practice, any
+opaqueness in this process can make failures difficult to diagnose and, in the worst
+case, unrecoverable.
+
+The final guiding principle of ETNA is therefore transparency. Each step of an
+experiment should correspond to an operation that a user can understand and, when
+needed, reproduce manually. This principle shaped the transition from the initial
+library implementation to the standalone command-line tool described in the next
+section. Rather than hiding build steps, mutation activation, test execution, and
+analysis behind a single opaque pipeline, ETNA exposes them as ordinary commands. That
+design makes the platform easier to debug, easier to extend to new languages, and
+easier to trust when an experiment produces surprising results.
+
+\section{ETNA Tools}
+
+\section{Workloads} \label{etna:workloads}
+\section{Experiments}
+\subsection{Evaluating Random Generation}
+\subsubsection{Rocq}
+\subsubsection{OCaml}
+\subsection{Evaluating Shrinking}
+\section{Discussion}
+\section{Future Work}

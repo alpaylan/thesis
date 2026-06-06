@@ -9,7 +9,14 @@ tested by the testing framework. In this chapter, I will walk the reader through
 exposition of the rough edges of the existing APIs for writing properties, followed by
 an identification of a core problem in the design of existing PBT libraries. I will
 present the ramifications of the problem followed by a solution from our paper with the
-same title as the chapter, ``Programmable Property-Based Testing''~\cn.
+same title as the chapter, ``Programmable Property-Based Testing''~\cn. This is the
+result of joint work with Justine, who is the main designer and implementer of the
+Racket Programmable PBT library; Ceren, who has worked on the reimplementation of the
+existing ETNA workloads in Rocq and Haskell for evaluating our approach; Harry and Leo,
+who have been integral to understanding the problem at hand, the design of the
+interface as well as exposition of the ideas we presented. I have worked on the core
+design of the DBAS encoding, both libraries in Rocq and Racket as well as all of the
+experimental setup of the paper.
 
 \section{How to write properties?}
 
@@ -317,10 +324,10 @@ responsibility sharing across threads without contention.
 \subsection{Stateful Property Runner}\label{sec:loops:spr}
 
 The shift from pure random generation in the Simple Generational Property Runner
-(Section~\ref{sec:loops:sgpr}) to the guided mutational generation in Fuzzing
-(Section~\ref{sec:loops:cgpr}) and Targeted (Section~\ref{sec:loops:tpr}) indicate a
-subtle social change in the usage of PBT. This change is best understood in the context
-of automation in PBT libraries.
+(\S~\ref{sec:loops:sgpr}) to the guided mutational generation in Fuzzing
+(\S~\ref{sec:loops:cgpr}) and Targeted (\S~\ref{sec:loops:tpr}) indicate a subtle
+social change in the usage of PBT. This change is best understood in the context of
+automation in PBT libraries.
 %
 In the introduction, I have shown the \code{Arbitrary} typeclass along with the
 definition of \code{prop_sort_correct} using the \code{forAll} combinator QuickCheck
@@ -901,8 +908,8 @@ To make this rewriting compositional, the macro uses a syntax parameter
 
 The premise of our new property language is that it gives rise to flexible PBT
 libraries that allow for writing user-space property runners based on the conceptual
-architectures we introduced in Section~\ref{sec:runners}. In theory, of course, because
-the property is stored as a data structure that can be inspected and manipulated, one
+architectures we introduced in \S~\ref{sec:runners}. In theory, of course, because the
+property is stored as a data structure that can be inspected and manipulated, one
 should be able to act as one wishes; in reality, however, we want to give the users of
 the library abstractions that will be convenient for them. Our abstraction layer over
 properties is \emph{components}. Remember the simple generational property runner from
@@ -1304,7 +1311,7 @@ to make mutation a first class citizen of our library, and we have implemented a
 generic seed pool interface that mutation-based property runners can leverage. The seed
 pool interface abstracts away search strategy (how to select which input to mutate) and
 power schedule (how long to fuzz it for) concerns. I will revisit this abstraction in
-just a few sections (Sec~\ref{sec:seedpool}). We implemented two property runners using
+just a few sections (\S~\ref{sec:seedpool}). We implemented two property runners using
 these components: a coverage-guided fuzzing runner and a custom feedback-guided
 (targeted) runner. The targeted runner is detailed in the next section.
 
