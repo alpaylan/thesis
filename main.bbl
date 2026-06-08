@@ -158,6 +158,11 @@ Segev~Elazar Mittelman, Alvin Resnick, Ivan Perez, Alwyn Goodloe, and Leonidas L
 Robert Krook, Nicholas Smallbone, Bo~Joel Svensson, and Koen Claessen.
 \newblock Quickercheck: Implementing and evaluating a parallel run-time for quickcheck, 2024.
 
+\bibitem{swarm-testing}
+Alex Groce, Chaoqiang Zhang, Eric Eide, Yang Chen, and John Regehr.
+\newblock Swarm testing.
+\newblock In {\em Proceedings of the 2012 International Symposium on Software Testing and Analysis}, ISSTA 2012, pages 78--88, New York, NY, USA, 2012. ACM.
+
 \bibitem{genericRandom}
 {Li-yao} Xia.
 \newblock A quick tour of generic-random.
@@ -272,10 +277,10 @@ Kazutaka Matsuda, Samantha Frohlich, Meng Wang, and Nicolas Wu.
 \newblock Embedding by unembedding.
 \newblock {\em Proc. ACM Program. Lang.}, 7(ICFP), August 2023.
 
-\bibitem{weirichRoleDependentTypes2019}
-Stephanie Weirich, Pritam Choudhury, Antoine Voizard, and Richard~A. Eisenberg.
-\newblock A role for dependent types in {Haskell}.
-\newblock {\em Proceedings of the ACM on Programming Languages}, 3(ICFP):1--29, July 2019.
+\bibitem{HaskellPromotion}
+Brent~A. Yorgey, Stephanie Weirich, Julien Cretin, Simon Peyton~Jones, Dimitrios Vytiniotis, and Jos{\'e}~Pedro Magalh{\~a}es.
+\newblock Giving haskell a promotion.
+\newblock In {\em Proceedings of the 8th ACM SIGPLAN Workshop on Types in Language Design and Implementation}, TLDI '12, pages 53--66, New York, NY, USA, 2012. Association for Computing Machinery.
 
 \bibitem{etna-icfp23}
 Jessica Shi, Alperen Keles, Harrison Goldstein, Benjamin~C. Pierce, and Leonidas Lampropoulos.

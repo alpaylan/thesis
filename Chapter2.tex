@@ -165,8 +165,10 @@ explicit validity constraints, and type-based shrinking most of the time will no
 such constraints into account, leading to minimized but invalid counterexamples. A
 well-known instance of this issue manifested in the line of work on CSmith and
 C-Reduce~\cite{YangCER11,RegehrCCEEY12}, where C programs were generated as to not
-exhibit undefined behavior, but shrinking based on C program grammar has no hope of
-avoiding such behavior during minimization leading to uninteresting counterexamples.
+exhibit undefined behavior, but shrinking based on C program grammar alone is likely to
+introduce undefined behavior during minimization, producing uninteresting
+counterexamples unless the shrinking process is guarded by external undefined-behavior
+detection tools.
 
 Integrated shrinking solves this problem by removing the shrinker from the equation
 altogether, instead reusing the generators themselves to carry out the minimization.
@@ -308,10 +310,18 @@ inputs by guiding the generator towards interesting parts of the search space, i
 contrast, QuickerCheck~\cite{ParallelTesting} improved upon the standard loop by
 exploiting parallelism: letting users run more tests during the same time span.
 %
-In a parallel runner, depicted in Figure~\ref{fig:parallel-property-runner}, different
-threads share a common atomic size counter for ensuring parallel progress on each
-thread while keeping contention on shared resources to a minimum. The paper presents
-near-linear speed-up for up to 6 threads due to the ability of almost perfect
+In prior work, parallelization is made possible by building a
+``swarm''~\cite{swarm-testing} of testing campaigns, each member focusing on a
+different subset of operations or capabilities of the underlying system. QuickerCheck
+instead builds a parallel runner where each thread cooperatively works within the same
+campaign. Running independent QuickCheck campaigns naively can cause each worker to
+repeatedly explore the same small-sized part of the input space. QuickerCheck avoids
+this by sharing a growing size counter across workers.
+%
+In such a parallel runner, depicted in Figure~\ref{fig:parallel-property-runner},
+different threads share a common atomic size counter for ensuring parallel progress on
+each thread while keeping contention on shared resources to a minimum. The paper
+presents near-linear speed-up for up to 6 threads due to the ability of almost perfect
 responsibility sharing across threads without contention.
 
 \begin{figure}[h!]
@@ -919,7 +929,6 @@ the introduction:
   \centering
   \resizebox{0.95\linewidth}{!}{\input{figures/interaction/quickchick.tex}}
   \caption{An abstract representation of QuickCheck's property runner.}
-  \label{fig:quickchick-property-runner-loops}
 \end{figure}
 
 The loop relies on four components, a \generator{}, a \checker{}, a \shrinker{}, and a
@@ -1192,11 +1201,11 @@ In this section I evaluate our approach and implementation:
         runners of QuickChick{} and RackCheck{}. We found that using the DBAS-based embedding
         has {\em no observable performance overhead}.
 
-  \item Finally, the last two experiments show the added expressivity allows users to rapidly
-        prototype and carry out experiments that would have taken significantly more effort
-        otherwise. We carry out three new experiments: In \S~\ref{sec:seedpool} we explore how
-        different design choices with respect to the representation and sampling of the seed
-        pool affect testing performance, improving FuzzChick\cn{} in the process; in
+  \item Finally, the added expressivity allows these experiments to be expressed as changes to
+        reusable runners and runner components, rather than as changes to the property language
+        or framework internals. We carry out three new experiments: In \S~\ref{sec:seedpool} we
+        explore how different design choices with respect to the representation and sampling of
+        the seed pool affect testing performance, improving FuzzChick\cn{} in the process; in
         \S~\ref{sec:shrink-comp}, we compare the default integrated shrinking capabilities of
         RackCheck{} with a simple external shrinker we implemented for a DBAS-style Racket
         library; in \S~\ref{sec:parallel-experiment}, we implement and benchmark a parallel
@@ -1206,22 +1215,22 @@ In this section I evaluate our approach and implementation:
 
 \subsection{Property Runners with DBAS} \label{sec:property-runners}
 
-To demonstrate the power of DBAS we will discuss how it helped us quickly implement all
-property runners from \S~\ref{sec:runners}. In the last two sections we saw how to
-implement a simple \texttt{genAndRun} loop in both Rocq and Racket. Leveraging the
-ability to pattern match on properties and recurse down their structure, we can
-similarly easily develop building blocks that will help implement all property runners.
-In particular, for this section, we'll use a $\overlayfull{generator}{generator}$,
-which produces random inputs for a property; a $\overlayfull{mutator}{mutator}$, which
-given inputs to a property mutates some or all of them; a
-$\overlayfull{checker}{runner}$, which given inputs to a property executes it; a
-$\overlayfull{shrinker}{shrinker}$, which given a way to minimize a property's inputs
-and a counterexample finds a locally minimal counterexample using best-first search;
-and a $\overlayfull{printer}{printer}$, for reporting counterexamples. The underlying
-pattern matching ability is still useful in the presence of these abstractions. For
-example, we will also write domain-specific versions of these functions for some of our
-evaluation, such as an \roverlay{feedback}{\roverlay{checker}{instrumentedRunner}} that
-runs a property collecting instrumentation feedback in the process.
+We demonstrate the expressiveness of DBAS by implementing all property runners from
+\S~\ref{sec:runners}. In the last two sections we saw how to implement a simple
+\texttt{genAndRun} loop in both Rocq and Racket. Leveraging the ability to pattern
+match on properties and recurse down their structure, we can similarly develop building
+blocks that will help implement all property runners. In particular, for this section,
+we'll use a $\overlayfull{generator}{generator}$, which produces random inputs for a
+property; a $\overlayfull{mutator}{mutator}$, which given inputs to a property mutates
+some or all of them; a $\overlayfull{checker}{runner}$, which given inputs to a
+property executes it; a $\overlayfull{shrinker}{shrinker}$, which given a way to
+minimize a property's inputs and a counterexample finds a locally minimal
+counterexample using best-first search; and a $\overlayfull{printer}{printer}$, for
+reporting counterexamples. The underlying pattern matching ability is still useful in
+the presence of these abstractions. For example, we will also write domain-specific
+versions of these functions for some of our evaluation, such as an
+\roverlay{feedback}{\roverlay{checker}{instrumentedRunner}} that runs a property
+collecting instrumentation feedback in the process.
 
 \subsubsection{Simple Generational Property Runner}
 
@@ -1294,6 +1303,16 @@ the shrinking process.
   \caption{Simple Generational Property Runner in Racket}
   \label{fig:simple-generational-testing-loop-racket}
 \end{figure}
+
+As users now have access to the building blocks for writing this loop, they are
+empowered to change it. For instance, we have experimented with implementing a
+precondition-bypassing \roverlay{checker}{run} function that can optimize property
+execution for correct-by-construction generators by skipping preconditions. Users can
+also change the shrinking algorithm, adjust sizes, move to structured printing, write
+results directly to a file, decide not to terminate after a single counterexample, or
+add specific budgets for discards and time bounds. These choices, and many more that
+users may invent, can be used to augment the effectiveness of testing.
+
 \subsubsection{Mutation-Based Property Runners}
 
 Property-based testing, for a long time, has relied solely on random generation from
@@ -1629,10 +1648,8 @@ shouldn’t the runners themselves be configurable?
 
 \subsection{DBAS-powered Experiments}
 
-\todo{HERE}
-
-In this section, I go through three case studies we carried out that were easy to carry
-out only because of the expressivity of DBAS.
+In this section, I go through three case studies that the expressiveness of DBAS
+enabled us to carry out.
 
 \subsubsection{An Exploration of Seed Pool Design Choices}\label{sec:seedpool}
 
@@ -1643,26 +1660,26 @@ researchers coming up with better and better designs. On the other hand, propert
 testing frameworks that support feedback-guided generation of inputs such as FuzzChick
 or Hypothesis, pride themselves in the power of testing arbitrary user-defined
 specifications, but do not provide an option to configure such crucial parameters of
-their feedback-guided property runners. We illustrated such a feedback-guided runner
+their feedback-guided property runners. I illustrated such a feedback-guided runner
 earlier in this section, that abstracts away such concerns into a small API, which we
-implement in Rocq using typeclasses.
+implemented in Rocq.
 
 The configurability enabled by DBAS allows the users to rely on a set of
 community-accepted defaults chosen by framework developers, but also to explore if
 different choices from the literature or novel ones they devised fit their testing
-needs better. In this case study, we explore six different data structure
+needs better. In this case study, we explored six different data structure
 representations to hold interesting seeds, as well as four different power schedules,
 leading to a total of 21 different configurations. We picked these configurations to
 explore different parts of the design space, such as the queuing strategy, the
 size/cardinality of the pool, whether the pool is monotonic, and how many times a given
 seed is reused. We have conducted our experiments on the IFC workload in ETNA, and we
 have used a type-based generator alongside a type-based mutator to conduct our
-experiments. While our experiment reveals a clear winner for this case study, we
-reiterate that our primary goal is not the exploration itself, but rather to
-demonstrate that such an exploration is not only feasible, but natural to carry out
-with DBAS-style PBT libraries.
+experiments. While this experiment reveals a clear winner for this case study, the
+primary goal is not the exploration itself, but rather to demonstrate that such an
+exploration can be expressed by varying reusable runner components without modifying
+the property language or framework internals.
 
-More concretely, we explore the following data structure representations, three that
+More concretely, we explored the following data structure representations, three that
 hold collections of seeds (as in FuzzChick), and three that only hold a single seed (as
 in Targeted PBT):
 
@@ -1704,10 +1721,10 @@ in Targeted PBT):
 \end{enumerate}
 
 All of the queues except the {\em Static Singleton Pool} have been tested with 4
-different energy schedules, where the energy of the seed was respectively up to 1, 10,
-100, 1000, depending on its interestingness. We report the experiments over 5 trials
-for each configuration within 65 tasks in the IFC workload in ETNA. For brevity, the
-graphs omit 34 tasks none of the configurations have solved, and only show the
+different energy schedules, where the energy of a new seed was respectively up to 1,
+10, 100, 1000, depending on its interestingness. We report the experiments over 5
+trials for each configuration within 65 tasks in the IFC workload in ETNA. For brevity,
+the graphs omit 34 tasks none of the configurations have solved, and only show the
 remaining 31 tasks. Each bucket represents the tasks solved within a certain time limit
 for at least one of the 5 trials, where the leftmost bucket with the darkest color
 denotes the tasks solved within 0.1 seconds, where the remaining buckets progressively
@@ -1826,8 +1843,8 @@ provides the necessary configurability.
     \centering
     \includegraphics[width=0.9\linewidth]{figures/shrinking/scatter_plot_rackcheck.png}
   \end{minipage}%
-  \caption{Original sizes (continuous) and shrunk sizes (dashed) of external
-    (left) and internal shrinker (right).}
+  \caption{Original sizes (continuous) and shrunk sizes (dashed) across tasks (x axis)
+    for the external shrinker (left) and internal shrinker (right).}
   \label{fig:shrinking_line}
 \end{figure}
 
@@ -1846,12 +1863,11 @@ intensive engineering effort. The commit history of the project shows that the
 implementation of this new runner is an effort spanning 2 years and more than 50
 commits.
 
-In contrast, by leveraging the ability to implement property runners in user space, we
-were able to implement a naive version of the QuickerCheck algorithm in a matter of
-hours for our DBAS-style Racket library, with no prior knowledge of multicore Racket.
-Our implementation uses worker threads with 2 shared atomic variables, one keeping the
-current number of tests across threads, and one indicating if the process of testing is
-finished or not.
+In contrast, the DBAS-style Racket library let us implement a naive version of the
+QuickerCheck algorithm as a user-space runner, without changing the property
+representation or the core framework. Our implementation uses worker threads with 2
+shared atomic variables, one keeping the current number of tests across threads, and
+one indicating if the process of testing is finished or not.
 
 We have compared this parallel runner with 4 threads against the single threaded runner
 across 131 tasks (53 BST, 58 RBT, 20 STLC). As the results of the simple generational
@@ -1929,28 +1945,28 @@ offering pattern matching capabilities.
 % Higher O
 
 \section{Conclusion and Future Work}\label{sec:future}
-In this chapter, I have presented our work on deferred binding abstract syntax (DBAS),
-a new approach to writing properties for PBT that enables more flexible and
-programmable testing. The key advance made by DBAS is to reify properties as a free
-data structure; allowing them to be written in a clear and readable way, separate from
-the property runner that tests them. These more deeply embedded properties can then be
-inspected and interpreted by user-defined property runners. With the help of DBAS,
-developers in Rocq, Racket, and hopefully soon other programming languages, can tailor
-and experiment with their setup to achieve optimal testing in their domain.
+In this chapter, I have presented Programmable Property-Based Testing, a PBT paradigm
+that changes the underlying representation of properties using deferred binding
+abstract syntax (DBAS), a mixed embedding we introduce. Programmable PBT is a new
+approach to encoding properties for PBT that enables more flexible and programmable
+testing. The key advance made by DBAS is to reify properties as a free data structure;
+allowing them to be written in a clear and readable way, separate from the property
+runner that tests them. These more deeply embedded properties can then be inspected and
+interpreted by user-defined property runners. With the help of DBAS, developers in
+Rocq, Racket, and hopefully soon other programming languages, can tailor, experiment,
+and adapt their testing setup to their domain.
 
-In the future, we intend to make DBAS convenient to program in languages with more
-standard type systems than Rocq and Racket.
-% One might notice that while we have implemented \name{} in Rocq and
-% Racket, we do not have any implementations in languages with more
-% standard type systems.
-In particular, Haskell is conspicuously missing from the list. The main challenge in
-languages like Haskell is implementing contexts in a user-friendly manner. In Haskell
-we can't represent contexts with dependent types the way we implement them in Rocq, but
-it is also too strongly typed for the looser approach we took in Racket. Modern
-advances in dependently typed Haskell~\cite{weirichRoleDependentTypes2019} may actually
-provide the power we need, but there are other mainstream programming languages that
-lack this expressive power. Additional work might be necessary to bring the full
-potential of DBAS to more users.
+In the future, we intend to make DBAS convenient to program in more mainstream
+languages than Rocq and Racket. On the static typing side, we chose to implement our
+approach in Rocq as its dependent type system and powerful notation mechanism allowed
+us to conveniently express the heterogeneous contexts involved. The same approach
+should also be implementable in Haskell using standard GADT-based heterogeneous
+lists~\cite{HaskellPromotion}; however, without access to notational conveniences as in
+Rocq, it remains future work to see how to regain a similar degree of ergonomics in
+that setting. On the dynamic typing side, the techniques described should be readily
+transferrable to other languages. For example, given Python's powerful reflection
+capabilities and its convenient decorator features, a deferred-binding style property
+language should be implementable on top of, e.g., Hypothesis.
 % We intend to do more work to
 % make \name{} convenient and safe program in in languages with more
 % traditional type systems.
