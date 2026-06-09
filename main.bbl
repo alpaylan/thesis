@@ -339,6 +339,10 @@ Koen Claessen and John Hughes.
 \newblock Quickcheck: a lightweight tool for random testing of haskell programs.
 \newblock {\em SIGPLAN Not.}, 35(9):268--279, September 2000.
 
+\bibitem{marauders}
+Alperen Keles.
+\newblock A declarative framework for hand-crafted mutation analysis and management, 2026.
+
 \bibitem{dirt-dbtest26}
 Alperen Keles, Ethan Chou, Harrison Goldstein, and Leonidas Lampropoulos.
 \newblock {DIRT}: Database-integrated random testing.

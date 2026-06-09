@@ -12,45 +12,45 @@ Warning--entry type for "bolero" isn't style-file defined
 --line 4885 of file bib/pbtbenchmark/pbtbenchmark-merged.bib
 Database file #3: bib/dirt/references.bib
 Warning--empty booktitle in Tlon
-You've used 92 entries,
+You've used 93 entries,
             1791 wiz_defined-function locations,
-            1166 strings with 25284 characters,
-and the built_in function-call counts, 24917 in all, are:
-= -- 2294
-> -- 1125
+            1168 strings with 25366 characters,
+and the built_in function-call counts, 25035 in all, are:
+= -- 2302
+> -- 1129
 < -- 36
-+ -- 410
-- -- 318
-* -- 1444
-:= -- 3612
-add.period$ -- 307
-call.type$ -- 92
-change.case$ -- 89
++ -- 412
+- -- 319
+* -- 1445
+:= -- 3629
+add.period$ -- 309
+call.type$ -- 93
+change.case$ -- 90
 chr.to.int$ -- 0
-cite$ -- 93
-duplicate$ -- 1313
-empty$ -- 2415
-format.name$ -- 318
-if$ -- 5960
+cite$ -- 94
+duplicate$ -- 1318
+empty$ -- 2433
+format.name$ -- 319
+if$ -- 5988
 int.to.chr$ -- 0
-int.to.str$ -- 92
+int.to.str$ -- 93
 missing$ -- 76
-newline$ -- 455
-num.names$ -- 100
-pop$ -- 384
+newline$ -- 459
+num.names$ -- 101
+pop$ -- 391
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 863
+skip$ -- 867
 stack$ -- 0
 substring$ -- 1221
-swap$ -- 525
+swap$ -- 526
 text.length$ -- 36
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 1
-while$ -- 190
-width$ -- 94
-write$ -- 1053
+while$ -- 191
+width$ -- 95
+write$ -- 1061
 (There were 4 warnings)

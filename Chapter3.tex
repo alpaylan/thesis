@@ -175,9 +175,43 @@ the given number of trials. One point I am yet to talk about is how the mutation
 defined and how are they managed, which I will now do before diving into the workloads
 in \S~\ref{etna:workloads}.
 
-\todo{HERE PLEASE}
+Workloads encode mutations directly in the source language using a comment syntax
+recognized by ETNA's mutation management tool~\cite{marauders}. For example, the
+following Haskell implementation of binary-search-tree insertion contains both the
+correct implementation and a mutant named \code{insert_duplicate_entries}.
+
+\begin{code}[language=Haskell,emph={insert,Node,Leaf,otherwise},emph={[2]k,v,l,r,k',v'}]
+insert k v Leaf = Node Leaf k v Leaf
+insert k v (Node l k' v' r)
+  {-! -}
+  | k < k' = Node (insert k v l) k' v' r
+  | k > k' = Node l k' v' (insert k v r)
+  | otherwise = Node l k' v r
+  {-!! insert_duplicate_entries -}
+  {-!
+  | k < k' = Node (insert k v l) k' v' r
+  | otherwise = Node l k' v' (insert k v r)
+  -}
+  {- !-}
+\end{code}
+
+The uncommented base implementation preserves the search-tree invariant by replacing
+the value when the inserted key is already present. When ETNA activates
+\code{insert_duplicate_entries}, the marked mutant body replaces the base code with an
+implementation that treats equality like the right-subtree case, thereby allowing
+duplicate keys. In general, a variation begins with a language-specific marker comment,
+contains the base implementation, then lists one or more named mutants, each with a
+header and a marked replacement body. Since the markers are comments, the workload
+continues to compile normally when no mutant is active.
+
+I have also spent time carrying this mechanism further by enabling multiple forms of
+mutations, and conversions between them. Today ETNA can use diff patches,
+C-Preprocessor macros, match-and-replace mutations, and finally in-AST mutations that
+can reduce the experimentation time by removing the compilation requirement, which is
+currently only implemented for Rust.
 
 \section{Workloads} \label{etna:workloads}
+
 \section{Experiments}
 \subsection{Evaluating Random Generation}
 \subsubsection{Rocq}\label{evaluating-generators-rocq}
