@@ -322,6 +322,23 @@ Catalin Hritcu, Leonidas Lampropoulos, Antal Spector-Zabusky, Arthur~Azevedo Amo
 \newblock Testing noninterference, quickly.
 \newblock In {\em Journal of Functional Programming (JFP)}, 2016.
 
+\bibitem{etna-cli}
+Alperen Keles.
+\newblock etna-cli, 2026.
+
+\bibitem{etna-index}
+Alperen Keles.
+\newblock etna-index, 2026.
+
+\bibitem{etna-schemas}
+Alperen Keles.
+\newblock etna-schemas, 2026.
+
+\bibitem{quickcheck}
+Koen Claessen and John Hughes.
+\newblock Quickcheck: a lightweight tool for random testing of haskell programs.
+\newblock {\em SIGPLAN Not.}, 35(9):268--279, September 2000.
+
 \bibitem{dirt-dbtest26}
 Alperen Keles, Ethan Chou, Harrison Goldstein, and Leonidas Lampropoulos.
 \newblock {DIRT}: Database-integrated random testing.
@@ -356,11 +373,6 @@ Harrison Goldstein, Joseph~W. Cutler, Daniel Dickstein, Benjamin~C. Pierce, and 
 Jinho Jung, Hong Hu, Joy Arulraj, Taesoo Kim, and Woon{-}Hak Kang.
 \newblock {APOLLO:} automatic detection and diagnosis of performance regressions in database systems.
 \newblock {\em {PVLDB}}, 13(1):57--70, 2019.
-
-\bibitem{quickcheck}
-Koen Claessen and John Hughes.
-\newblock Quickcheck: a lightweight tool for random testing of haskell programs.
-\newblock {\em SIGPLAN Not.}, 35(9):268--279, September 2000.
 
 \bibitem{htsi}
 John Hughes.

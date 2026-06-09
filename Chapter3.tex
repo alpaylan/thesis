@@ -46,7 +46,7 @@ The rest of this chapter includes excerpts edited from these papers, mainly the 
 JFP extension of ETNA, with a major section on evaluation of shrinking from our
 under-review work for the Haskell Symposium with George and Leo.
 
-\section{ETNA}
+\section{ETNA} \label{sec:etna}
 
 ETNA is, as you may have thought of, named after the famous Sicilian volcano~\cn. The
 name follows a convention established by prior work in the fuzz testing community,
@@ -118,11 +118,70 @@ easier to trust when an experiment produces surprising results.
 
 \section{ETNA Tools}
 
+Adhering to the principles outlined in \S~\ref{sec:etna}, I have built a set of tools
+that allow for easier experimentation. The first is the
+\code{etna-cli}~\cite{etna-cli}, a tool that allows for managing ETNA
+\emph{experiments}, standalone version-controlled units that hold \emph{tests} that
+mark the set of \emph{tasks} and the corresponding parameters such as timeout, number
+of trials, or any other runtime injected parameter to the running test. Experiments are
+created by \emph{etna experiment new}, reproduction and collaboration is as seamless as
+possible, a user can upload the automatically committed repository to a version control
+tool such as Github, the collaborator can clone the repository; run \emph{etna
+    experiment register} to start tracking the experiment.
+
+Another importance concept is a \emph{workload}, a workload is a program with a set of
+injected bugs; and properties that define correctness for some behaviors of the
+workload. Bugs are paired with the subset of properties they invalidate to constitute
+\emph{tasks}, targets for the property-based testing tools to evaluate on. Each ETNA
+workload is hosted on its own Github repository, and the \code{etna-cli} hosts an
+index~\cite{etna-index} to all currently validated workloads.
+
+Workloads, in addition to defining tasks for the PBT tools, define a set of
+\emph{steps} for configuring, building, and running the workload. The
+\code{schemas}~\cite{etna-schemas} section in the \code{etna-cli} repository define the
+shape of this schema as well as the expected shape of the reporting mechanism for the
+results and the persistent messaging format for \emph{capabilities}. Currently, ETNA
+workloads have four possible capabilities: \emph{solve} for running a full testing
+campaign for a given \emph{testing strategy}; \emph{sample} for sampling a random
+generator; \emph{test} for testing a given set of inputs against the strategy
+(sample-test pairing is used in the cross-language experimentation in \todo{ref
+    section}); and finally \emph{shrink} for shrinking a given input with a shrinking
+algorithm.
+
+The testing strategies can be across \emph{frameworks}, such as implementing the same
+generator in Hedgehog~\cite{Hedgehog} and QuickCheck~\cite{quickcheck} as we have done
+in \S~\ref{evaluating-shrinking}, or within frameworks such as comparison of derived
+and bespoke generators in Rocq's QuickChick~\cite{Pierce:SF4} as we have done in
+\S~\ref{evaluating-generators-rocq}. ETNA workloads typically have an entry point that
+acts as a simple CLI for setting the current property and strategy; adding a new
+strategy or property is as simple as adding the required functionality to the workload
+and updating the entry point, although the design is flexible as the procedure for
+running a workload is ultimately defined in the \emph{steps} file.
+
+Once the user designates a task to solve, they define the strategy, the timeout, the
+number of trials and any runtime parameters, all of which constitute a \emph{test}. The
+users can bundle tests together into a test file, and run them with additional settings
+we have found useful in our own experiments. \code{--short-circuit} tells the system to
+only run a given test until the first \emph{failure to solve}, meaning that either the
+predefined maximum budget within the strategy was exhausted, or ETNA terminated the
+test with an external timeout. \code{--parallel} allows running multiple tests in
+parallel, which is especially useful as many PBT tools are single threaded so multicore
+execution enables faster experimentation with minimal interference.
+
+The test is ran via the command \code{etna experiment run --tests <test-name>}, after
+which ETNA reads the workload running procedure from the provided steps file; runs the
+configuration, \emph{activates the mutation}, builds the project, and runs the test for
+the given number of trials. One point I am yet to talk about is how the mutations are
+defined and how are they managed, which I will now do before diving into the workloads
+in \S~\ref{etna:workloads}.
+
+\todo{HERE PLEASE}
+
 \section{Workloads} \label{etna:workloads}
 \section{Experiments}
 \subsection{Evaluating Random Generation}
-\subsubsection{Rocq}
+\subsubsection{Rocq}\label{evaluating-generators-rocq}
 \subsubsection{OCaml}
-\subsection{Evaluating Shrinking}
+\subsection{Evaluating Shrinking}\label{evaluating-shrinking}
 \section{Discussion}
 \section{Future Work}
