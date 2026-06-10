@@ -1,4 +1,4 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{100}
 
 \bibitem{jmid-pbt-frameworks}
 jmid.
@@ -342,6 +342,135 @@ Koen Claessen and John Hughes.
 \bibitem{marauders}
 Alperen Keles.
 \newblock A declarative framework for hand-crafted mutation analysis and management, 2026.
+
+\bibitem{Luck}
+Leonidas Lampropoulos, Diane Gallois-Wong, Catalin Hritcu, John Hughes, Benjamin~C. Pierce, and Li~yao Xia.
+\newblock Beginner's luck: a language for property-based generators.
+\newblock In {\em Proceedings of the 44th ACM SIGPLAN Symposium on Principles of Programming Languages, (POPL)}, 2017.
+
+\bibitem{MistaR19B}
+Agust\'{\i}n Mista and Alejandro Russo.
+\newblock Generating random structurally rich algebraic data type values.
+\newblock In {\em Proceedings of the 14th International Workshop on Automation of Software Test}, AST '19, page 48–54. IEEE Press, 2019.
+
+\bibitem{Klein09}
+Casey Klein and Robert~Bruce Findler.
+\newblock Randomized testing in {PLT Redex}.
+\newblock In {\em Workshop on Scheme and Functional Programming (SFP)}, 2009.
+
+\bibitem{PalkaAST11}
+Michael~H. Palka, Koen Claessen, Alejandro Russo, and John Hughes.
+\newblock Testing an optimising compiler by generating random lambda terms.
+\newblock In {\em Proceedings of the 6th International Workshop on Automation of Software Test}, AST '11, pages 91--97, New York, NY, USA, 2011. ACM.
+
+\bibitem{MidtgaardNPFH17}
+Jan Midtgaard, Mathias~Nygaard Justesen, Patrick Kasting, Flemming Nielson, and Hanne~Riis Nielson.
+\newblock Effect-driven quickchecking of compilers.
+\newblock {\em Proc. ACM Program. Lang.}, 1(ICFP), aug 2017.
+
+\bibitem{BlockchainTesting}
+Tram Hoang, Anton Trunov, Leonidas Lampropoulos, and Ilya Sergey.
+\newblock Random testing of a higher-order blockchain language (experience report).
+\newblock In {\em Proceedings of the ACM SIGPLAN International Conference on Functional Programming (ICFP)}, 2022.
+
+\bibitem{TestingNoninterferenceQuickly}
+Catalin Hritcu, John Hughes, Benjamin~C. Pierce, Antal Spector-Zabusky, Dimitrios Vytiniotis, Arthur~Azevedo de~Amorim, and Leonidas Lampropoulos.
+\newblock Testing noninterference, quickly.
+\newblock In {\em Proceedings of the ACM SIGPLAN International Conference on Functional Programming (ICFP)}, 2013.
+
+\bibitem{QCheckOCaml}
+Simon Cruanes.
+\newblock Quickcheck inspired property-based testing for ocaml.
+\newblock \url{https://github.com/c-cube/qcheck/}, 2017.
+
+\bibitem{base_quickcheck}
+Jane Street.
+\newblock Random testing framework for ocaml.
+\newblock \url{https://opensource.janestreet.com/base_quickcheck/}, 2019.
+
+\bibitem{MysteriesOfDropbox2016}
+John Hughes, Benjamin~C. Pierce, Thomas Arts, and Ulf Norell.
+\newblock Mysteries of {D}ropbox: {P}roperty-based testing of a distributed synchronization service.
+\newblock In {\em International Conference on Software Testing, Verification and Validation (ICST)}, April 2016.
+
+\bibitem{Matela2017ToolsFD}
+Rudy Matela.
+\newblock Tools for discovery, refinement and generalization of functional properties by enumerative testing.
+\newblock 2017.
+
+\bibitem{leancheck}
+leancheck: Enumerative property-based testing.
+\newblock \url{https://hackage.haskell.org/package/leancheck}.
+
+\bibitem{zhang1989simple}
+Kaizhong Zhang and Dennis Shasha.
+\newblock Simple fast algorithms for the editing distance between trees and related problems.
+\newblock {\em SIAM Journal on Computing}, 18(6):1245--1262, 1989.
+
+\bibitem{zssPythonGithub}
+Tim Henderson.
+\newblock Zhang-shasha: Tree edit distance in python.
+\newblock \url{https://github.com/timtadh/zhang-shasha}, 2016.
+
+\bibitem{demsar2006statistical}
+Janez Dem{\v{s}}ar.
+\newblock Statistical comparisons of classifiers over multiple data sets.
+\newblock {\em Journal of Machine Learning Research}, 7:1--30, 2006.
+
+\bibitem{misherghi2006hdd}
+Ghassan Misherghi and Zhendong Su.
+\newblock {HDD}: Hierarchical delta debugging.
+\newblock In {\em Proceedings of the 28th International Conference on Software Engineering}, pages 142--151. ACM, 2006.
+
+\bibitem{sun2018perses}
+Chengnian Sun, Yuanbo Li, Qirun Zhang, Tianxiao Gu, and Zhendong Su.
+\newblock Perses: Syntax-guided program reduction.
+\newblock In {\em Proceedings of the 40th International Conference on Software Engineering}, pages 361--371. ACM, 2018.
+
+\bibitem{herfert2017automatically}
+Satia Herfert, Jibesh Patra, and Michael Pradel.
+\newblock Automatically reducing tree-structured test inputs.
+\newblock In {\em Proceedings of the 32nd IEEE/ACM International Conference on Automated Software Engineering}, pages 861--871. IEEE Press, 2017.
+
+\bibitem{wang2021probabilistic}
+Guancheng Wang, Ruobing Shen, Junjie Chen, Yingfei Xiong, and Lu~Zhang.
+\newblock Probabilistic delta debugging.
+\newblock In {\em Proceedings of the 29th ACM Joint Meeting on European Software Engineering Conference and Symposium on the Foundations of Software Engineering}, pages 881--892. ACM, 2021.
+
+\bibitem{zhou2025wdd}
+Xintong Zhou, Zhenyang Xu, Mengxiao Zhang, Yongqiang Tian, and Chengnian Sun.
+\newblock {WDD}: Weighted delta debugging.
+\newblock In {\em 2025 IEEE/ACM 47th International Conference on Software Engineering}, pages 1592--1603. IEEE, 2025.
+
+\bibitem{donaldson2021test}
+Alastair~F. Donaldson, Paul Thomson, Vasyl Teliman, Stefano Milizia, Andr{\'{e}}~Perez Maselco, and Antoni Karpi{\'{n}}ski.
+\newblock Test-case reduction and deduplication almost for free with transformation-based compiler testing.
+\newblock In {\em Proceedings of the 42nd ACM SIGPLAN International Conference on Programming Language Design and Implementation}, pages 1017--1032. ACM, 2021.
+
+\bibitem{lin2024sqless}
+Li~Lin, Zongyin Hao, Chengpeng Wang, Zhuangda Wang, Rongxin Wu, and Gang Fan.
+\newblock {SQLess}: Dialect-agnostic sql query simplification.
+\newblock In {\em Proceedings of the 33rd ACM SIGSOFT International Symposium on Software Testing and Analysis}, pages 743--754. ACM, 2024.
+
+\bibitem{kalhauge2019binary}
+Christian~Gram Kalhauge and Jens Palsberg.
+\newblock Binary reduction of dependency graphs.
+\newblock In {\em Proceedings of the 2019 27th ACM Joint Meeting on European Software Engineering Conference and Symposium on the Foundations of Software Engineering}, pages 556--566. ACM, 2019.
+
+\bibitem{ferles2017failure}
+Kostas Ferles, Valentin W{\"{u}}stholz, Maria Christakis, and Isil Dillig.
+\newblock Failure-directed program trimming.
+\newblock In {\em Proceedings of the 2017 11th Joint Meeting on Foundations of Software Engineering}, pages 174--185. ACM, 2017.
+
+\bibitem{rastogi2017cimplifier}
+Vaibhav Rastogi, Drew Davidson, Lorenzo De~Carli, Somesh Jha, and Patrick McDaniel.
+\newblock Cimplifier: Automatically debloating containers.
+\newblock In {\em Proceedings of the 2017 11th Joint Meeting on Foundations of Software Engineering}, pages 476--486. ACM, 2017.
+
+\bibitem{heo2018effective}
+Kihong Heo, Woosuk Lee, Pardis Pashakhanloo, and Mayur Naik.
+\newblock Effective program debloating via reinforcement learning.
+\newblock In {\em Proceedings of the 2018 ACM SIGSAC Conference on Computer and Communications Security}, pages 380--394. ACM, 2018.
 
 \bibitem{dirt-dbtest26}
 Alperen Keles, Ethan Chou, Harrison Goldstein, and Leonidas Lampropoulos.

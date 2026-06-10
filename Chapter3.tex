@@ -212,10 +212,930 @@ currently only implemented for Rust.
 
 \section{Workloads} \label{etna:workloads}
 
+The initial ETNA workload suite was drawn from application domains that are both
+practically relevant to functional programming and common in the PBT literature. Not
+every experiment in this chapter uses every workload: the Haskell and Rocq experiments
+focus primarily on binary search trees, red-black trees, lambda calculi, and
+information-flow control, while the later OCaml and cross-language experiments reuse
+the portable subset of these workloads. The complete workload definitions, including
+their properties and associated mutants, are hosted in the ETNA workload repositories
+indexed by \code{etna-cli}~\cite{etna-index}.
+
+\paragraph*{Data Structures} The first workload, binary search trees (BST), is a small but
+useful baseline because BST generation appears repeatedly in property-based testing
+papers. In particular, John Hughes's \emph{How to Specify It!}~\cite{Hughes2019HowTS}
+uses BSTs as an extended example for writing QuickCheck properties. ETNA's BST workload
+ports the mutations and properties from that example, including operations such as
+insertion, deletion, lookup, union, and validity checking.
+
+The second workload, red-black trees (RBT), keeps the same broad data-structure domain
+but adds a substantially richer invariant. Red-black trees combine ordering constraints
+with balancing and coloring constraints, making insertion and deletion easy places to
+introduce subtle implementation mistakes. RBTs have also been used in prior PBT
+work~\cite{Luck,RuncimanNL08,MistaR19B,Klein09}. ETNA's RBT workload combines BST-like
+mutants with additional mutants targeting balancing and coloring errors.
+
+\paragraph*{Lambda Calculi and Type Systems} The third workload is a De Bruijn-indexed
+implementation of the simply typed lambda calculus (STLC) with booleans. Generating
+well-typed lambda terms is a long-running benchmark problem for
+PBT~\cite{PalkaAST11,MidtgaardNPFH17}; the STLC mutations used in ETNA are drawn from
+the relevant fragment of a System F case study and mainly exercise mistakes in
+substitution, shifting, and lifting~\cite{CombinatorialPBT}.
+
+The fourth workload extends this line to System~F$_{<:}$, following the fuller case
+study of \citet{CombinatorialPBT}. Adding polymorphism and subtyping makes the workload
+large enough to expose more complex type-manipulation errors, including type
+substitution, shifting, and lifting. Bespoke generators for System F terms have also
+been studied in recent PBT work~\cite{CombinatorialPBT,BlockchainTesting}, and the same
+ideas can be extended to the subtyping variant.
+
+\paragraph*{Parsing} The fifth workload is a parser and pretty-printer for Lu, a language
+based on Lua whose implementation was drawn from a Haskell course at the University of
+Pennsylvania. Its main property is a round trip: printing a valid Lu expression and
+then parsing the printed text should recover the original expression. The released
+workload includes a bespoke generator for valid Lu expressions.
+
+\paragraph*{Security} The sixth workload is information-flow control (IFC), based on the
+case study from \citet{TestingNoninterferenceQuickly,TestingNIjfp}. The workload tests
+whether low-level monitors for abstract machines enforce noninterference: differences
+in secret data should not become publicly visible through execution. Its mutants
+systematically weaken security checks or taint-propagation rules, yielding tasks that
+are especially useful for evaluating feedback-guided generation strategies.
+
 \section{Experiments}
+
+\subsection{Analysis and Presentation}
+
+Before presenting the individual experiments, I will fix the common measurement and
+presentation conventions used throughout this chapter. ETNA supports customizable
+experiments, but the experiments here use a standard setup unless explicitly noted
+otherwise: each strategy is run on each task for a fixed number of trials, usually 10,
+with a 60-second timeout. A strategy \emph{solves} a task when it finds the injected
+bug within the timeout in every trial. Multiple trials account for the nondeterminism
+of random generation strategies, and aggregate measurements are simple averages unless
+a figure or paragraph says otherwise.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.95\textwidth]{figures/etna/experiments-legend.png}
+    \\[1.5ex]
+    \includegraphics[width=.72\textwidth]{figures/chartkey.png}
+    \caption[ETNA task-bucket chart presentation]{ETNA task-bucket chart
+        presentation. The upper chart shows one strategy/workload result split across
+        timing buckets; the lower key explains the bucket shading convention.}
+    \label{fig:etna-presentation}
+\end{figure}
+
+Raw averages are not always the right way to communicate these results. If one strategy
+takes two seconds on average and another takes three, the practical difference depends
+on which bugs are found, how quickly they are found, and which tasks remain unsolved. I
+therefore use \emph{task-bucket charts} as the main visual representation. A row in
+such a chart groups tasks by the time required to solve them: the darkest bucket
+denotes tasks solved within 0.1 seconds, and the remaining buckets denote tasks solved
+within 1, 10, and 60 seconds. The lightest bucket denotes tasks that were not solved
+within the timeout. For example, Figure~\ref{fig:etna-presentation} shows a
+strategy/workload result where 14 tasks are solved almost immediately and 4 tasks
+remain unsolved.
+
+Some comparisons need more detail than a task-bucket chart alone can show. In those
+cases, I either use alternate bucket definitions, such as counting tasks solved in at
+least one trial, or supplement the bucket chart with statistical comparisons. When a
+figure departs from the default ``solved in every trial'' interpretation, its caption
+states that explicitly.
+
 \subsection{Evaluating Random Generation}
 \subsubsection{Rocq}\label{evaluating-generators-rocq}
-\subsubsection{OCaml}
+
+Rocq gives a different experimental landscape from Haskell. Instead of comparing
+multiple mature PBT frameworks, the comparison is mostly within a single framework:
+QuickChick~\cite{LeoThesis2018}. Besides the type-based and bespoke generators that
+also appear in Haskell experiments, QuickChick supports two strategies that are
+especially relevant to ETNA: specification-driven generation, which derives
+correct-by-construction generators from inductive
+preconditions~\cite{GeneratingGoodGenerators}, and coverage-guided fuzzing, which
+combines type-based generation with input mutation guided by branch
+coverage~\cite{FuzzChick}.
+
+Both prior evaluations left useful gaps for ETNA to fill. The specification-driven
+generation work measured generator throughput on a small IFC example, but did not
+measure bug-finding effectiveness. FuzzChick was evaluated on a more realistic IFC
+workload with systematically injected monitor bugs~\cite{TestingNIjfp}, but its
+performance on other workloads, and against specification-driven generation, had not
+been studied in a shared setting.
+
+\paragraph*{Comparing Fuzzers, Derived Generators, and Handwritten Generators} The first
+Rocq experiment asks how QuickChick's newer strategies compare with the more
+established type-based and bespoke approaches. We use the BST, RBT, and STLC workloads,
+plus the IFC case study from the FuzzChick paper. For the first three workloads,
+inductively defined specifications are available, for example in Software
+Foundations~\cite{Pierce:SF4}, so we can compare type-based, specification-derived,
+fuzzing, and bespoke strategies. For IFC, suitable inductive specifications do not
+exist, so the specification-derived strategy does not apply; the comparison instead
+includes the type-based generator, the type-based fuzzer, a bespoke generator, and the
+variational fuzzer used in the original FuzzChick work.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{\bargraphwidth}
+        \includegraphics[width=\textwidth]{figures/etna/rocq/bst.png}
+        \vspace*{-5ex}
+        \caption{BST}
+        \label{subfig:coq1:bst}
+    \end{subfigure}
+    \begin{subfigure}{\bargraphwidth}
+        \includegraphics[width=\textwidth]{figures/etna/rocq/rbt.png}
+        \vspace*{-5ex}
+        \caption{RBT}
+        \label{subfig:coq1:rbt}
+    \end{subfigure}
+
+    \begin{subfigure}{\bargraphwidth}
+        \includegraphics[width=\textwidth]{figures/etna/rocq/stlc.png}
+        \vspace*{-5ex}
+        \caption{STLC}
+        \label{subfig:coq1:stlc}
+    \end{subfigure}
+    \begin{subfigure}{\bargraphwidth}
+        \includegraphics[width=\textwidth]{figures/etna/rocq/ifc.png}
+        \vspace*{-5ex}
+        \caption{IFC}
+        \label{subfig:coq1:ifc}
+    \end{subfigure}
+
+    \captionsetup{justification=centering}
+    \caption[Effectiveness of Rocq generation strategies on four workloads]{Effectiveness of Rocq generation strategies on four workloads.\\
+        \explaincolor{chart_blue}{Type-based generator},
+        \explaincolor{chart_orange}{Type-based fuzzer},\\
+        \explaincolor{chart_red}{Specification-based generator ((a)--(c) only)},
+        \explaincolor{chart_green}{Variational fuzzer ((d) only)},\\
+        \explaincolor{chart_black}{Bespoke generator}.}
+    \label{fig:coq1}
+\end{figure}
+
+Figure~\ref{fig:coq1} visualizes the Rocq comparison using ETNA task bucket charts. The
+simple BST workload establishes a baseline: all four applicable methods solve most
+tasks quickly, with the type-based fuzzer falling short on a small number of tasks. The
+more interesting pattern appears in RBT and STLC, where the preconditions are much
+sparser. In RBT, the type-based generator fails to solve 23 tasks within the 60-second
+timeout, and the type-based fuzzer fails to solve 25. By contrast, the bespoke
+generator solves all tasks in under ten seconds, while the specification-derived
+generator solves all but 10. STLC shows the same broad pattern: precondition-driven
+methods substantially outperform type-driven methods.
+
+The IFC workload sharpens the story. Noninterference has a very sparse precondition, so
+the type-based generator is essentially unable to generate useful valid inputs. The
+bespoke generator is the clear winner, but fuzzing still matters: both the type-based
+fuzzer and the variational fuzzer reach parts of the input space that the pure
+type-based generator does not. They are not reliable in the same way as the bespoke
+generator; over 10 runs, roughly 30 IFC tasks are solved at least once by fuzzing, but
+fewer than 10 are solved in every trial.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/etna/rocq/ifc-atleastonce.png}
+    \caption[IFC tasks solved within the timeout in one or more trials]{IFC tasks solved within the timeout in one or more trials.\\
+        Empty = Type-based generator.\\
+        \explaincolor{chart_orange}{Type-based fuzzer},
+        \explaincolor{chart_green}{Variational fuzzer},
+        \explaincolor{chart_black}{Bespoke generator}.}
+    \label{fig:IFC-fine}
+\end{figure}
+
+This variance is important. Figure~\ref{fig:IFC-fine} shows that, if we include tasks
+solved in at least one run rather than tasks solved in every run, fuzzers outperform
+the pure type-based generator. Fuzzers can get stuck following paths that do not expose
+the injected bug, but they can also discover paths that naive generation is unlikely to
+reach at all. For IFC, mutation is also cheaper than fresh generation: the type-based
+generator spends about four times longer per input than the type-based fuzzer.
+
+\paragraph*{Validating and Improving Fuzzers} These results support the main conclusion of
+the FuzzChick work: feedback-guided generation is promising, especially for sparse
+preconditions, but it still trails precondition-driven generation when good bespoke or
+specification-derived generators are available. ETNA also made it possible to improve
+FuzzChick by evaluating it across several workloads rather than only its original IFC
+case study.
+
+We focused on two aspects of fuzzing, size and feedback. FuzzChick's original size
+schedule started small but quickly moved to large inputs, following the usual
+``combinatorial advantage'' intuition that large inputs contain many smaller behaviors.
+The BST size experiment described later in this chapter shows why that intuition can
+fail: large inputs can make dependency-sensitive bugs harder to expose. Switching to a
+more gently increasing size bound improved throughput and, in turn, bug-finding
+performance.
+
+\begin{figure}[htb!]
+    \centering
+    \begin{subfigure}{\bargraphwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/etna/rocq/fuzz-bst.png}
+        \vspace*{-5ex}
+        \caption{BST}
+    \end{subfigure}
+    \begin{subfigure}{\bargraphwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/etna/rocq/fuzz-rbt.png}
+        \vspace*{-5ex}
+        \caption{RBT}
+    \end{subfigure}
+    \begin{subfigure}{\bargraphwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/etna/rocq/fuzz-stlc.png}
+        \vspace*{-5ex}
+        \caption{STLC}
+    \end{subfigure}
+
+    \caption{Comparison of the original FuzzChick (top) with the tuned one (bottom).}
+    \label{fig:fuzzercomp}
+\end{figure}
+
+The second improvement came from the feedback mechanism. FuzzChick, like
+Zest~\cite{Zest}, maintains separate seed pools for valid and invalid inputs. Running
+FuzzChick across ETNA's workloads exposed a bug that saturated the invalid-input seed
+pool with uninteresting inputs. This problem had been hidden in the original IFC
+evaluation because the variational fuzzer can quickly construct valid input pairs and
+therefore prioritizes the valid pool. The tuned version of FuzzChick outperformed the
+original across the BST, RBT, and STLC workloads, and it is the version used in the
+comparison above. Figure~\ref{fig:fuzzercomp} shows the impact of these tuning changes
+across the non-IFC Rocq workloads.
+
+\paragraph*{Hardening QuickChick} ETNA also stress-tested QuickChick in ways that
+occasional user-level testing had not. One bug came from the main fuzzing loop, which
+is written in Gallina with a natural number fuel argument and then extracted to OCaml
+integers for efficiency. The Gallina code is structurally recursive, but after
+extraction the pattern match on the fuel was translated through an eliminator in a way
+that the OCaml compiler no longer recognized as tail recursive. Large ETNA fuel values
+therefore produced stack overflows. The fix was syntactic but important: remove the
+extra level of indirection in the extracted loop so OCaml could recover tail recursion.
+
+\subsubsection{OCaml}\label{evaluating-generators-ocaml}
+
+OCaml presents a different comparison point from Rocq. Instead of working mostly within
+one mature framework, OCaml programmers can choose between several PBT tools:
+QCheck~\cite{QCheckOCaml}, which offers a standard QuickCheck-like API; Crowbar, which
+wraps random generation and AFL-style fuzzing~\cite{Crowbar}; and Base\_quickcheck,
+which is part of the Jane Street Core ecosystem~\cite{base_quickcheck}. For this
+experiment we ported the BST, RBT, and STLC workloads to OCaml. Since these frameworks
+do not provide the same automatic type-based or specification-based generator
+derivation facilities used in the Haskell and Rocq experiments, we ported both
+type-based and bespoke generators to each framework.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{\bargraphwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/etna/ocaml/bst.png}
+        \caption{BST}
+    \end{subfigure}
+    \begin{subfigure}{\bargraphwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/etna/ocaml/rbt.png}
+        \caption{RBT}
+    \end{subfigure}
+
+    \begin{subfigure}{\bargraphwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/etna/ocaml/stlc.png}
+        \caption{STLC}
+    \end{subfigure}
+    \captionsetup{justification=centering}
+    \caption[Effectiveness of OCaml generation strategies on three workloads]{Effectiveness of OCaml generation strategies on three
+        workloads. For each framework, the first and second rows represent the bespoke and
+        type-based generators respectively.\\
+        \explaincolor{chart_red}{QCheck},
+        \explaincolor{chart_green}{Crowbar (random)},\\
+        \explaincolor{gray}{Crowbar (AFL)},
+        \explaincolor{chart_black}{Base\_quickcheck}.}
+    \label{fig:ocamlcomp}
+\end{figure}
+
+\paragraph*{Controlling for Size} The earlier experiments already show that generated input
+size can significantly affect bug-finding performance. The three OCaml frameworks also
+expose quite different default size distributions, so the comparison had to control for
+them. Base\_quickcheck's default distribution was similar to the effective size
+distributions used elsewhere in ETNA, so we left it unchanged. For QCheck, we avoided
+distributions that were heavily bimodal or that generated integer ranges too large to
+expose collision-sensitive bugs, using QCheck's smaller-range integer generators
+instead. For Crowbar, the default list generator produced very small lists in practice,
+so we reimplemented a longer-list generator using Crowbar's API.
+
+Figure~\ref{fig:ocamlcomp} shows the resulting bucket charts. Across these workloads,
+Base\_quickcheck with bespoke generators outperforms the other framework/strategy
+combinations in nearly all cases. Crowbar with the best bespoke generators we could
+write through its interface performed worst among the tested strategies, but this
+should not be read as a general claim that Crowbar is less effective as a framework.
+The lesson is closer to the FuzzChick result: when effective bespoke generators already
+satisfy a property's precondition by construction, coverage-guided fuzzing can add
+overhead for little additional bug-finding benefit.
+
+\subsubsection{Cross-Language}\label{evaluating-generators-cross-language}
+
+The experiments so far compare frameworks or generation strategies within a single
+programming language. That does not cover all common PBT practice: a generator written
+in one language can be used to test a system in another. For example, a
+specification-derived generator for well-typed System~F terms written in Rocq was used
+to test a higher-order blockchain language implemented in
+OCaml~\cite{BlockchainTesting}, and bespoke generators for file-system interactions
+written in Erlang were used to test Dropbox's Python-based synchronization
+service~\cite{MysteriesOfDropbox2016}.
+
+To support this style of experiment, ETNA decouples input generation from property
+execution. A generation strategy outputs serialized inputs together with the time
+required to generate each one. On the property side, a runner for a workload reads
+serialized inputs and checks the relevant properties. ETNA can then analyze generation
+time, execution time, and bug-finding outcomes without forcing all of those costs into
+one framework-specific measurement.
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}[scale=0.85, every node/.style={scale=0.85},
+            genbox/.style={rectangle, draw=chart_blue, fill=chart_blue!10,
+                    minimum width=1.8cm, minimum height=0.8cm, font=\small\sffamily, rounded corners=2pt, thick, align=center},
+            runbox/.style={rectangle, draw=chart_green, fill=chart_green!10,
+                    minimum width=1.8cm, minimum height=0.8cm, font=\small\sffamily, rounded corners=2pt, thick, align=center},
+            serbox/.style={rectangle, draw=chart_orange, fill=chart_orange!10,
+                    minimum width=1.8cm, minimum height=0.8cm, font=\small\sffamily, rounded corners=2pt, thick, align=center},
+            resbox/.style={rectangle, draw=chart_purple, fill=chart_purple!10,
+                    minimum width=1.8cm, minimum height=0.8cm, font=\small\sffamily, rounded corners=2pt, thick, align=center},
+            arrow/.style={->, >=stealth, thick, chart_black},
+            datalabel/.style={font=\scriptsize\sffamily},
+            timelabel/.style={font=\scriptsize\sffamily, chart_red}]
+        \node[font=\sffamily\bfseries] at (-4, 1.2) {Intra-Language};
+        \node[genbox] (gen1) at (-5.5, -0.25) {Generator};
+        \node[runbox] (run1) at (-2.5, -0.25) {Runner};
+        \node[resbox] (res1) at (-4, -2) {Result};
+        \draw[arrow] (gen1) -- node[above, datalabel] {inputs} (run1);
+        \draw[arrow] (run1) -- (res1);
+        \draw[decorate, decoration={brace, amplitude=4pt, raise=2pt}, chart_red, thick]
+        (-6.3, 0.4) -- (-1.7, 0.4) node[midway, above=6pt, timelabel] {combined time};
+        \node[draw=gray!50, dashed, rounded corners=3pt, fit=(gen1)(run1), inner xsep=14pt, inner ysep=6pt] {};
+
+        \node[font=\sffamily\bfseries] at (3.75, 1.2) {Cross-Language};
+        \node[genbox] (gen2) at (0, -0.25) {Generator};
+        \node[serbox] (ser2) at (2.5, -0.25) {Serializer};
+        \node[runbox] (read2) at (5, -0.25) {Reader};
+        \node[runbox] (run2) at (7.5, -0.25) {Runner};
+        \node[resbox] (res2) at (5.5, -2) {Result};
+        \draw[arrow] (gen2) -- node[above, datalabel] {inputs} (ser2);
+        \draw[arrow] (ser2) -- node[above, datalabel] {S-expr} (read2);
+        \draw[arrow] (read2) -- node[above, datalabel] {inputs} (run2);
+        \draw[arrow] (run2) -- (res2);
+        \draw[decorate, decoration={brace, amplitude=4pt, raise=2pt}, chart_red, thick]
+        (-0.9, 0.4) -- (0.9, 0.4) node[midway, above=6pt, timelabel] {gen time};
+        \draw[decorate, decoration={brace, amplitude=4pt, raise=2pt}, chart_red, thick]
+        (6.7, 0.4) -- (8.3, 0.4) node[midway, above=6pt, timelabel] {exec time};
+        \draw[gray!50, dashed, thick] (3.75, -2.3) -- (3.75, 0.8);
+        \node[font=\scriptsize\sffamily, gray] at (3, -1) {Lang A};
+        \node[font=\scriptsize\sffamily, gray] at (4.5, -1) {Lang B};
+    \end{tikzpicture}
+    \caption{Intra-language and cross-language ETNA workflows. In the
+        intra-language workflow, generator and runner costs are measured together. In the
+        cross-language workflow, serialized inputs separate generation time from property
+        execution time.}
+    \label{fig:workflow-comparison}
+\end{figure}
+
+This decoupling also improves extensibility. Integrating a new language into ETNA no
+longer requires porting every workload into that language. A workload can be
+implemented once in a language that can deserialize ETNA inputs, while strategies in
+other languages only need to implement a generator and serializer. The same mechanism
+also validates ports: if the same generator behaves differently in intra-language and
+cross-language modes, that discrepancy points to a likely workload or strategy bug.
+Figure~\ref{fig:workflow-comparison} summarizes the two workflows.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/etna/cross-language/bst-bar-time.png}
+        \caption{BST}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/etna/cross-language/rbt-bar-time.png}
+        \caption{RBT}
+    \end{subfigure}
+
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/etna/cross-language/stlc-bar-time.png}
+        \caption{STLC}
+    \end{subfigure}
+
+    \captionsetup{justification=centering}
+    \caption[Generation time to failure for bespoke generators written in different languages]{Generation time to failure, in seconds, for bespoke generators written in different languages.\\
+        \explaincolor{chart_black}{Haskell -- QuickCheck},
+        \explaincolor{chart_red}{Rocq -- QuickChick},
+        \explaincolor{chart_orange}{OCaml -- QCheck},\\
+        \explaincolor{chart_blue}{Racket -- RackCheck},
+        \explaincolor{chart_green}{Rust -- QuickCheck}.}
+    \label{fig:large-cross}
+\end{figure}
+
+To demonstrate the cross-language mode, we compare bespoke generators written in
+Haskell, Rocq, OCaml, Racket, and Rust against the BST, RBT, and STLC workloads.
+Because these are tuned bespoke generators, bucket charts are not the best way to see
+differences: almost all generators find almost all bugs quickly.
+Figure~\ref{fig:large-cross} therefore reports total generation time to failure per
+framework and workload.
+
+Despite implementing the same broad strategy, the generators differ slightly in
+efficiency. Each framework manipulates the size of generated inputs somewhat
+differently, and each language has its own performance characteristics. Even so, the
+strategies remain relatively close. Rust's QuickCheck, for example, is fastest on BST
+and RBT but slowest on STLC, which we suspect comes from excessive creation of
+expensive closures in binds. The workload difficulty also matters: BST contains 52
+tasks, and even the slowest generator, Haskell's QuickCheck, finds all injected bugs in
+about 130ms; STLC has only 20 tasks, but the fastest generator, Rocq's QuickChick,
+takes about 300ms, and the slowest takes just over 2 seconds.
+
 \subsection{Evaluating Shrinking}\label{evaluating-shrinking}
+
+The ETNA paper evaluates how well generators find injected bugs, but PBT users also
+care about what happens after the first failing input is found. Random generation often
+produces counterexamples that are too noisy to debug directly: for example, a
+binary-search-tree insertion bug may first appear in a thirty-node tree even though a
+one-node tree already exposes the same fault. Counterexample minimization, or
+\emph{shrinking}, is the phase that turns such a failure into something usable.
+
+Shrinking is rarely evaluated quantitatively. The dominant evaluation practice in PBT
+papers is to report bug-finding performance, code coverage, mutation score, or case
+studies, while the shrinking phase is either assumed to work or evaluated with ad hoc
+examples. In the ShrinkingEval work, we extended ETNA with shrinking measurements and
+used it to compare three Haskell PBT frameworks: QuickCheck, Hedgehog, and Falsify. The
+comparison spans the four Haskell ETNA workloads available in that experiment suite:
+Binary Search Tree (BST), Red-Black Tree (RBT), Simply Typed Lambda Calculus (STLC),
+and System $F_{<:}$. The main question is not whether shrinking is useful, but which
+trade-offs different shrinking designs expose.
+
+\subsubsection{Shrinking Designs}
+
+Shrinking has a simple operational shape. Once a generated input falsifies the
+property, the framework proposes smaller candidates, tests whether each candidate still
+reproduces the failure, and repeats until no tested candidate makes further progress.
+These searches usually find a local minimum, not a guaranteed global minimum, so the
+organization of the shrink space and the order in which candidates are explored matter.
+
+QuickCheck represents the traditional \emph{structural} or \emph{external} approach.
+Users provide a generator and a shrinker separately through
+\code[language=Haskell]{Arbitrary}:
+
+\begin{code}[language=Haskell]
+class Arbitrary a where
+  arbitrary :: Gen a
+  shrink    :: a -> [a]
+\end{code}
+
+The shrinker operates directly on the generated value. Internally, QuickCheck builds a
+lazy rose tree of shrink candidates and searches it greedily, left-to-right, descending
+into the first candidate that still fails. This design gives the user direct control
+over structural simplification, but it also means that generator invariants must be
+reimplemented in the shrinker. A generator may produce only valid trees, well-typed
+terms, or API-constructed states, while a generic structural shrinker can still step
+outside that valid subset.
+
+Hedgehog and Falsify represent two forms of \emph{integrated} or \emph{internal}
+shrinking. In integrated shrinking, shrinking behavior is attached to the generator and
+the randomness consumed by the generator, rather than to a separate post-hoc function
+over values. Hedgehog generators directly produce shrink trees; Falsify uses
+\emph{SampleTrees}, a lazy tree of random samples whose shrunk variants are replayed
+through the same generator. This design can preserve generator invariants by
+construction and removes the burden of writing separate shrinkers, but it also changes
+the shrink space: a generator's control flow and random choices can constrain what
+smaller values are reachable.
+
+\subsubsection{Metrics and Setup}
+
+We evaluate shrinking along five axes. First, ETNA still records \emph{bug-finding
+    time}, the time spent before the first failing execution. Second, it records
+\emph{shrinking time}, the wall-clock time spent after the failure is found. Third, it
+records the final shrunk counterexample and compares it to a ground-truth minimum. To
+obtain those ground truths, we run LeanCheck's enumerative testing
+strategy~\cite{Matela2017ToolsFD,leancheck}; for the tasks where enumeration finds a
+minimum, we compute tree edit distance to that minimum using the Zhang-Shasha
+algorithm~\cite{zhang1989simple} as implemented by the \texttt{zss} Python
+package~\cite{zssPythonGithub}. Fourth, we measure counterexample size. Fifth, we
+report time per unit of shrinking progress: shrinking milliseconds divided by the tree
+edit distance reduced.
+
+The statistical analysis treats each ETNA task as a paired data set. Trial-level
+measurements are collapsed to per-task medians. For each workload, generator family,
+and metric, we run a Friedman test followed by Holm-corrected Wilcoxon signed-rank
+post-hoc tests, following Dem\v{s}ar's recommendations for comparing algorithms over
+multiple data sets~\cite{demsar2006statistical}. Tasks with no successful failure for
+one of the compared strategies are excluded from paired time comparisons rather than
+assigned an arbitrary penalty; bucket charts still show those tasks explicitly as
+unsolved.
+
+For BST and RBT, we evaluate three generator families: a naive type-based generator
+that rejects invalid trees, an API-based generator that builds trees by inserting
+key-value pairs, and a direct correct-by-construction generator. For STLC and $F_{<:}$,
+we evaluate type-based and correct-by-construction generators. The QuickCheck versions
+use generic structural shrinkers derived with
+\texttt{generic-random}~\cite{genericRandom}; Hedgehog and Falsify use their default
+integrated shrinking behavior. Where useful, we also include idiomatic Hedgehog or
+Falsify variants of the BST correct-by-construction generators.
+
+\begin{figure}[h!]
+    \centering
+    \resizebox{0.95\linewidth}{!}{%
+        \begin{tikzpicture}[x=2.2cm, font=\small]
+            \foreach \i/\lab in {%
+            0/{<\,0.1\,s}, 1/{0.1--1\,s}, 2/{1--10\,s},
+            3/{10--60\,s}, 4/{60--360\,s}, 5/{unsolved}}
+            \node[anchor=south, font=\bfseries\footnotesize]
+            at (\i+0.5, 0.1) {\lab};
+            \foreach \r/\C/\name in {%
+                    0/chart_quickcheck/QuickCheck,
+                    1/chart_hedgehog/Hedgehog,
+                    2/chart_falsify/Falsify} {
+                    \pgfmathsetmacro{\ytop}{-\r*0.74}
+                    \pgfmathsetmacro{\ybot}{\ytop-0.62}
+                    \node[anchor=east, font=\bfseries\footnotesize]
+                    at (-0.1, {(\ytop+\ybot)/2}) {\name};
+                    \foreach \i in {0,...,5} {
+                            \pgfmathtruncatemacro{\p}{100-20*\i}
+                            \filldraw[fill=\C!\p!bucketbg, draw=white, line width=0.6pt]
+                            (\i, \ybot) rectangle (\i+1, \ytop);
+                        }
+                }
+        \end{tikzpicture}%
+    }
+    \caption{Bucket-chart key for the shrinking evaluation. Each bar is partitioned
+        by the number of tasks in each median time-to-failure bucket. Saturated color
+        means faster bug-finding; near-white denotes unsolved tasks.}
+    \label{fig:shrinking-bucket-key}
+\end{figure}
+
+\subsubsection{Bug-Finding Performance}
+
+Before comparing final counterexamples, we first separate the cost of reaching a bug
+from the cost of shrinking it. Figure~\ref{fig:shrinking-bucket-bst} shows BST
+bug-finding performance. Correct-by-construction and API-based generators largely
+eliminate the invalid-input overhead of naive type-based generation, and the API-based
+QuickCheck generator places all BST tasks in the fastest bucket. Across the type-based
+and API-based BST comparisons, QuickCheck is significantly faster than both Hedgehog
+and Falsify ($p < 0.001$). In the direct correct-by-construction setting, the libraries
+are statistically indistinguishable for bug-finding time among the tasks solved by all
+compared strategies.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_bst_family-vanilla.png}
+        \caption{Type-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_bst_family-qbe.png}
+        \caption{API-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_bst_family-cbc.png}
+        \caption{Correct-by-construction}
+    \end{subfigure}
+    \caption{Bug-finding bucket charts on BST.
+        \explaincolor{chart_quickcheck}{QuickCheck},
+        \explaincolor{chart_hedgehog}{Hedgehog},
+        \explaincolorhatched{chart_hedgehog}{Idiomatic Hedgehog},
+        \explaincolor{chart_falsify}{Falsify},
+        \explaincolorhatched{chart_falsify}{Idiomatic Falsify}.}
+    \label{fig:shrinking-bucket-bst}
+\end{figure}
+
+RBT, shown in Figure~\ref{fig:shrinking-bucket-rbt}, exhibits a sharper separation
+between generator families. Naive type-based generation struggles to produce valid
+red-black trees, leaving about half of the tasks unsolved for all three libraries.
+API-based generation substantially improves coverage: QuickCheck solves all tasks
+within one second, while Hedgehog and Falsify miss only a few. Direct
+correct-by-construction generation improves over type-based generation but leaves more
+tasks unfound than API-based generation for Hedgehog and Falsify. The paired tests
+agree with the chart ordering: QuickCheck is significantly faster than both
+integrated-shrinking libraries in all three RBT generator families.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_rbt_family-vanilla.png}
+        \caption{Type-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_rbt_family-qbe.png}
+        \caption{API-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_rbt_family-cbc.png}
+        \caption{Correct-by-construction}
+    \end{subfigure}
+    \caption{Bug-finding bucket charts on RBT.
+        \explaincolor{chart_quickcheck}{QuickCheck},
+        \explaincolor{chart_hedgehog}{Hedgehog},
+        \explaincolor{chart_falsify}{Falsify}.}
+    \label{fig:shrinking-bucket-rbt}
+\end{figure}
+
+The language workloads follow the same broad pattern. In STLC
+(Figure~\ref{fig:shrinking-bucket-stlc-fsub}), type-based generation gives similar
+bucket profiles for the three libraries and no significant difference in bug-finding
+time, while correct-by-construction generation makes QuickCheck significantly faster
+than Hedgehog and Falsify. In $F_{<:}$, type-based generation has a larger spread:
+QuickCheck is strongest, Falsify follows, and Hedgehog places more tasks in slower
+buckets. Correct-by-construction generation removes the coverage problem entirely for
+$F_{<:}$, with all generators solving all tasks within one second and QuickCheck again
+placing every task in the fastest bucket.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{.24\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_stlc_family-vanilla.png}
+        \caption{STLC, type-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.24\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_stlc_family-cbc.png}
+        \caption{STLC, CBC}
+    \end{subfigure}
+    \begin{subfigure}[t]{.24\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_fsub_family-vanilla.png}
+        \caption{$F_{<:}$, type-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.24\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_fsub_family-cbc.png}
+        \caption{$F_{<:}$, CBC}
+    \end{subfigure}
+    \caption{Bug-finding bucket charts on STLC and $F_{<:}$.
+        \explaincolor{chart_quickcheck}{QuickCheck},
+        \explaincolor{chart_hedgehog}{Hedgehog},
+        \explaincolor{chart_falsify}{Falsify}.}
+    \label{fig:shrinking-bucket-stlc-fsub}
+\end{figure}
+
+\subsubsection{Shrinking Effectiveness}
+
+Figure~\ref{fig:shrinking-ted-to-gt} reports the post-shrink tree edit distance from
+each strategy's final counterexample to the LeanCheck ground-truth minimum. The plots
+are cumulative count plots: farther up and left is better, while a long tail to the
+right means some tasks remain far from the known minimum.
+
+Type-based campaigns show relatively little shrink movement across all four workloads.
+BST/RBT validity and STLC/$F_{<:}$ well-typedness are sparse preconditions, especially
+as input size grows, so successful first counterexamples are already biased toward
+smaller valid inputs. The measured improvement supports this explanation: for
+type-based generators, shrinking reduces the tree edit distance to ground truth by a
+median of only 3--9 edits per workload, far below the API-based and
+correct-by-construction families.
+
+The API-based and correct-by-construction campaigns are more workload-dependent. On
+direct correct-by-construction BST and RBT, QuickCheck's structural shrinker reports
+counterexamples closer to the LeanCheck minima than the integrated shrinkers; the RBT
+API-based comparison is statistically indistinguishable. On STLC, Falsify reports
+smaller counterexamples than both QuickCheck and Hedgehog. On $F_{<:}$, QuickCheck
+reports the closest counterexamples, followed by Falsify and then Hedgehog. These
+results rule out a blanket conclusion that either structural or integrated shrinking is
+always more effective.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ted-to-gt_ecdf_family-vanilla.png}
+        \caption{BST, type-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ted-to-gt_ecdf_family-qbe.png}
+        \caption{BST, API}
+    \end{subfigure}
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ted-to-gt_ecdf_family-cbc.png}
+        \caption{BST, CBC}
+    \end{subfigure}\\[0.6em]
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ted-to-gt_ecdf_family-vanilla.png}
+        \caption{RBT, type-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ted-to-gt_ecdf_family-qbe.png}
+        \caption{RBT, API}
+    \end{subfigure}
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ted-to-gt_ecdf_family-cbc.png}
+        \caption{RBT, CBC}
+    \end{subfigure}\\[0.6em]
+    \begin{subfigure}[t]{.45\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_ted-to-gt_ecdf_family-vanilla.png}
+        \caption{STLC, type-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.45\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_ted-to-gt_ecdf_family-cbc.png}
+        \caption{STLC, CBC}
+    \end{subfigure}
+    \begin{subfigure}[t]{.45\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ted-to-gt_ecdf_family-vanilla.png}
+        \caption{$F_{<:}$, type-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.45\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ted-to-gt_ecdf_family-cbc.png}
+        \caption{$F_{<:}$, CBC}
+    \end{subfigure}
+    \caption{Cumulative count plots of post-shrink tree edit distance from each
+        strategy's reported counterexample to the LeanCheck ground-truth minimum.}
+    \label{fig:shrinking-ted-to-gt}
+\end{figure}
+
+\subsubsection{Shrinking Cost}
+
+Figure~\ref{fig:shrinking-time} reports absolute shrinking time. With type-based
+generators, QuickCheck and Hedgehog have similar shrinking times across the four
+workloads, while Falsify is consistently slower and has a longer tail. For some tasks,
+Falsify's shrinking time is several orders of magnitude larger than the others. The
+libraries expose budget knobs, but those knobs are not directly comparable: QuickCheck
+bounds total executions, whereas Hedgehog and Falsify bound failing executions. The
+graphs therefore use each library's default shrinking budget. We also ran no-shrinking
+and fixed-budget configurations; those runs are useful sanity checks but do not create
+a fair constant-effort comparison because the libraries count different events.
+
+With correct-by-construction generators, RBT puts QuickCheck and Hedgehog close to one
+another and Falsify behind them. On BST, QuickCheck is significantly faster than both
+Hedgehog and Falsify. On STLC and $F_{<:}$, the ordering is clearer: QuickCheck is
+fastest, Hedgehog is next, and Falsify is slowest.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_time-shrinking_ecdf_family-vanilla.png}
+        \caption{BST, type-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_time-shrinking_ecdf_family-qbe.png}
+        \caption{BST, API}
+    \end{subfigure}
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_time-shrinking_ecdf_family-cbc.png}
+        \caption{BST, CBC}
+    \end{subfigure}\\[0.6em]
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_time-shrinking_ecdf_family-vanilla.png}
+        \caption{RBT, type-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_time-shrinking_ecdf_family-qbe.png}
+        \caption{RBT, API}
+    \end{subfigure}
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_time-shrinking_ecdf_family-cbc.png}
+        \caption{RBT, CBC}
+    \end{subfigure}\\[0.6em]
+    \begin{subfigure}[t]{.45\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_time-shrinking_ecdf_family-vanilla.png}
+        \caption{STLC, type-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.45\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_time-shrinking_ecdf_family-cbc.png}
+        \caption{STLC, CBC}
+    \end{subfigure}
+    \begin{subfigure}[t]{.45\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_time-shrinking_ecdf_family-vanilla.png}
+        \caption{$F_{<:}$, type-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.45\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_time-shrinking_ecdf_family-cbc.png}
+        \caption{$F_{<:}$, CBC}
+    \end{subfigure}
+    \caption{Cumulative count plots of per-task shrinking wall-clock time in
+        milliseconds, on a log scale.}
+    \label{fig:shrinking-time}
+\end{figure}
+
+To normalize over different starting counterexamples,
+Figure~\ref{fig:shrinking-ms-per-edit} reports milliseconds per unit of
+tree-edit-distance reduction between the pre-shrink and post-shrink counterexamples.
+For QuickCheck and Hedgehog, the per-edit results mostly match the absolute-time
+comparison. For Falsify, the normalization matters in the API-based campaigns: its
+API-based generators start from much larger pre-shrink counterexamples, so absolute
+time conflates larger shrinking effort with slower shrinking. Normalizing per edit
+reduces, but does not eliminate, the gap.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ms-per-edit_ecdf_family-vanilla.png}
+        \caption{BST, type-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ms-per-edit_ecdf_family-qbe.png}
+        \caption{BST, API}
+    \end{subfigure}
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ms-per-edit_ecdf_family-cbc.png}
+        \caption{BST, CBC}
+    \end{subfigure}\\[0.6em]
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ms-per-edit_ecdf_family-vanilla.png}
+        \caption{RBT, type-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ms-per-edit_ecdf_family-qbe.png}
+        \caption{RBT, API}
+    \end{subfigure}
+    \begin{subfigure}[t]{.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ms-per-edit_ecdf_family-cbc.png}
+        \caption{RBT, CBC}
+    \end{subfigure}\\[0.6em]
+    \begin{subfigure}[t]{.45\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_ms-per-edit_ecdf_family-vanilla.png}
+        \caption{STLC, type-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.45\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_ms-per-edit_ecdf_family-cbc.png}
+        \caption{STLC, CBC}
+    \end{subfigure}
+    \begin{subfigure}[t]{.45\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ms-per-edit_ecdf_family-vanilla.png}
+        \caption{$F_{<:}$, type-based}
+    \end{subfigure}
+    \begin{subfigure}[t]{.45\linewidth}
+        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ms-per-edit_ecdf_family-cbc.png}
+        \caption{$F_{<:}$, CBC}
+    \end{subfigure}
+    \caption{Cumulative count plots of shrinking time per unit of progress:
+        milliseconds spent shrinking divided by tree edit distance reduced, on a log
+        scale.}
+    \label{fig:shrinking-ms-per-edit}
+\end{figure}
+
+\subsubsection{Discussion and Limitations}
+
+The central lesson is that shrinking should be measured separately from bug-finding.
+Bug-finding searches for an unknown bug that may not exist; after a failure is found,
+shrinking searches a finite neighborhood around a known failing input, and the
+acceptable failure mode is simply a non-minimal but still useful counterexample. That
+distinction changes how we should interpret cost. It can be reasonable to spend more
+time minimizing a known failure than to spend that same time on random search, but it
+is less compelling to make bug-finding worse in exchange for a shrinking benefit that
+may not materialize.
+
+Across these ETNA workloads, QuickCheck-style structural shrinking remains highly
+competitive. It is often faster, and it often reports counterexamples at least as close
+to known minima as the integrated shrinkers. This is not a general argument against
+integrated shrinking. Hedgehog and Falsify remove the need to write separate shrinkers
+and can preserve generator invariants by construction; those usability benefits are
+real, but they are different from the performance and counterexample-quality metrics
+measured here.
+
+Sample-efficiency helps explain part of the trade-off. A shrinker is sample-efficient
+when many of the candidate inputs it tests still reproduce the failure and therefore
+make useful progress. For correct-by-construction generators, Hedgehog preserves a
+26--56\% failure rate across shrinking steps, compared to 5--12\% for QuickCheck and
+roughly 2--3\% for Falsify. Thus, integrated shrinking can avoid invalid candidates
+introduced by structural shrinking, but integration alone does not guarantee high
+sample-efficiency. In these workloads, Hedgehog's higher failure rate during shrinking
+also does not translate into consistently better final counterexamples or shrinking
+time.
+
+There are several threats to validity. The generators are based on ETNA's original
+QuickCheck generators, which may favor QuickCheck despite our attempts to add idiomatic
+Hedgehog and Falsify variants. Measuring performance in Haskell requires careful
+strictness in the runners, and different strictness choices could shift wall-clock
+measurements. The libraries' budget parameters count different events, making
+constant-effort shrinking comparisons hard. Finally, tree edit distance to a
+ground-truth minimum is only a proxy for debugging usefulness. It treats symmetric
+counterexamples differently, depends on the enumeration strategy used to find the
+reference input, and may be closer to the structural view of values used by QuickCheck
+than to the randomness-buffer or choice-tree search spaces used by integrated
+shrinkers.
+
+\subsubsection{Related Work}
+
+The closest prior work is the study of the Hypothesis
+reducer~\cite{HypothesisShrinking}, which evaluates test-case reduction using case
+studies, mean input size, and the number of executions in the shrinking phase. The
+ShrinkingEval work extends that perspective by measuring distance to known minima,
+separating bug-finding time from shrinking time, and comparing several Haskell
+libraries and generator families on the same ETNA workloads.
+
+Shrinking is also part of the broader family of test-case reduction techniques. Delta
+debugging introduced iterative simplification of failing
+inputs~\cite{zeller2002simplifying}, and later work exploited hierarchical
+structure~\cite{misherghi2006hdd}, formal syntax~\cite{sun2018perses}, and
+trees~\cite{herfert2017automatically}. Other reducers use
+probabilistic~\cite{wang2021probabilistic} or weighted~\cite{zhou2025wdd} search, or
+target specific domains such as compiler test
+cases~\cite{RegehrCCEEY12,donaldson2021test}, SQL queries~\cite{lin2024sqless}, and
+dependency graphs~\cite{kalhauge2019binary}. Adjacent lines of work simplify programs
+under different preservation criteria: program trimming preserves analysis-relevant
+safety behavior~\cite{ferles2017failure}, while container and program debloating
+preserve intended functionality while reducing deployed
+code~\cite{rastogi2017cimplifier,heo2018effective}.
+
+Overall, the experience report supports a methodological conclusion for ETNA: shrinking
+needs first-class measurements. Final counterexample quality, shrink time, per-edit
+cost, sample-efficiency, and generator choice expose different trade-offs, and no
+single shrinking architecture dominates all of them.
 \section{Discussion}
 \section{Future Work}

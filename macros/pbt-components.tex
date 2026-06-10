@@ -32,6 +32,22 @@
 \definecolor{statusdiscarded}{RGB}{153,99,0}
 \definecolor{statusfailed}{RGB}{163,33,40}
 
+% ETNA bucket-chart palettes.
+\definecolor{chart_black}{HTML}{000000}
+\definecolor{chart_red}{HTML}{900D0D}
+\definecolor{chart_orange}{HTML}{DC5F00}
+\definecolor{chart_blue}{HTML}{243763}
+\definecolor{chart_green}{HTML}{436E4F}
+\definecolor{chart_purple}{HTML}{6D0E56}
+\definecolor{chart_pink}{HTML}{D61C4E}
+\definecolor{chart_proplang}{HTML}{470938}
+\definecolor{chart_darkblue}{HTML}{334756}
+\definecolor{chart_darkbrown}{HTML}{290001}
+\definecolor{chart_quickcheck}{HTML}{1B7837}
+\definecolor{chart_hedgehog}{HTML}{2166AC}
+\definecolor{chart_falsify}{HTML}{B35806}
+\definecolor{bucketbg}{RGB}{240,240,240}
+
 % Proplang uses checker color for run/instrumented-runner roles.
 \colorlet{runner}{checker}
 \colorlet{ltrunner}{runner}
@@ -72,6 +88,20 @@
 \newcommand{\passed}[1]{\pbtstatuscustom{statuspassed}{PASSED}{#1}}
 \newcommand{\discarded}[1]{\pbtstatuscustom{statusdiscarded}{DISCARDED}{#1}}
 \newcommand{\failed}[1]{\pbtstatuscustom{statusfailed}{FAILED}{#1}}
+
+\newcommand{\bargraphwidth}{0.45\textwidth}
+\newcommand{\colorblob}[1]{\textcolor{#1}{\rule{1.2em}{0.8em}}}
+\newcommand{\explaincolor}[2]{%
+  {\raisebox{-.3ex}{\colorblob{#1}}}~= #2%
+}
+\newcommand{\explaincolorhatched}[2]{%
+  {\raisebox{-.3ex}{%
+    \begin{tikzpicture}
+      \fill[#1] (0,0) rectangle (1.2em,.8em);
+      \fill[pattern=north east lines, pattern color=white] (0,0) rectangle (1.2em,.8em);
+    \end{tikzpicture}%
+  }}~= #2%
+}
 
 % Overlay helpers used in proplang-paper code annotations.
 \newcommand{\overlay}[2]{%

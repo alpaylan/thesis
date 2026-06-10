@@ -1553,7 +1553,7 @@ throughout this chapter.
 \begin{figure}[t]
   \centering
   \includegraphics[scale=0.15]{figures/chartkey.png}
-  \caption{ETNA Style Bucket Chart Legend}
+  \caption{ETNA bucket-chart shading legend.}
   \label{fig:etna-legend}
 \end{figure}
 
@@ -1597,7 +1597,14 @@ tasks.
     \caption{Simply-Typed Lambda Calculus}
     \label{fig:STLC_rocq}
   \end{minipage}%
-  \caption{Comparison of shallow and deep embeddings in Rocq.}
+  \captionsetup{justification=centering}
+  \caption[Comparison of shallow and deep embeddings in Rocq]{Comparison of shallow and deep embeddings in Rocq. Within each strategy
+    color, the top row is the DBAS/deep version and the bottom row is the shallow
+    QuickChick version.\\
+    \explaincolor{chart_black}{Bespoke generator},
+    \explaincolor{chart_red}{Specification-based generator},\\
+    \explaincolor{chart_orange}{Type-based fuzzer},
+    \explaincolor{chart_blue}{Type-based generator}.}
   \label{fig:shallow_vs_deep_rocq}
 \end{figure}
 
@@ -1642,7 +1649,10 @@ shouldn’t the runners themselves be configurable?
     \caption{STLC}
     \label{fig:STLC_racket}
   \end{minipage}%
-  \caption{Comparison of shallow and deep embeddings in Racket.}
+  \captionsetup{justification=centering}
+  \caption[Comparison of shallow and deep embeddings in Racket]{Comparison of shallow and deep embeddings in Racket.\\
+    \explaincolor{chart_proplang}{DBAS-style Racket},
+    \explaincolor{chart_green}{RackCheck}.}
   \label{fig:shallow_vs_deep_racket}
 \end{figure}
 
@@ -1771,7 +1781,10 @@ that were not solved within 60 seconds.
     \caption{Static Singleton \\ Seed Pool}
     \label{fig:staticsingletonpool}
   \end{minipage}%
-  \caption{Comparison of seedpool strategies in Rocq.}
+  \caption[Comparison of seedpool strategies in Rocq]{Comparison of seedpool strategies in Rocq. Within each subfigure, rows show
+    maximum seed energies 1, 10, 100, and 1000 from top to bottom; the static
+    singleton pool has only one configuration. Bucket shading follows
+    Figure~\ref{fig:etna-legend}.}
   \label{fig:seedpool_rocq}
 \end{figure}
 

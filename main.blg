@@ -12,45 +12,46 @@ Warning--entry type for "bolero" isn't style-file defined
 --line 4885 of file bib/pbtbenchmark/pbtbenchmark-merged.bib
 Database file #3: bib/dirt/references.bib
 Warning--empty booktitle in Tlon
-You've used 93 entries,
+Warning--empty booktitle in Matela2017ToolsFD
+You've used 119 entries,
             1791 wiz_defined-function locations,
-            1168 strings with 25366 characters,
-and the built_in function-call counts, 25035 in all, are:
-= -- 2302
-> -- 1129
-< -- 36
-+ -- 412
-- -- 319
-* -- 1445
-:= -- 3629
-add.period$ -- 309
-call.type$ -- 93
-change.case$ -- 90
+            1295 strings with 30601 characters,
+and the built_in function-call counts, 32601 in all, are:
+= -- 3011
+> -- 1439
+< -- 49
++ -- 526
+- -- 407
+* -- 1858
+:= -- 4683
+add.period$ -- 399
+call.type$ -- 119
+change.case$ -- 116
 chr.to.int$ -- 0
-cite$ -- 94
-duplicate$ -- 1318
-empty$ -- 2433
-format.name$ -- 319
-if$ -- 5988
+cite$ -- 121
+duplicate$ -- 1716
+empty$ -- 3204
+format.name$ -- 407
+if$ -- 7823
 int.to.chr$ -- 0
-int.to.str$ -- 93
-missing$ -- 76
-newline$ -- 459
-num.names$ -- 101
-pop$ -- 391
+int.to.str$ -- 119
+missing$ -- 98
+newline$ -- 588
+num.names$ -- 126
+pop$ -- 523
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 867
+skip$ -- 1121
 stack$ -- 0
-substring$ -- 1221
-swap$ -- 526
-text.length$ -- 36
+substring$ -- 1674
+swap$ -- 694
+text.length$ -- 49
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
-warning$ -- 1
-while$ -- 191
-width$ -- 95
-write$ -- 1061
-(There were 4 warnings)
+warning$ -- 2
+while$ -- 257
+width$ -- 122
+write$ -- 1349
+(There were 5 warnings)
