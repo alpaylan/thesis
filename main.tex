@@ -61,8 +61,11 @@
 \usepackage{indentfirst}
 \usepackage{latexsym}
 \usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{longtable}
 \usepackage{epstopdf}
 \usepackage{tabls}
+\usepackage{array}
 \usepackage{wrapfig}
 \usepackage{slashbox}
 \usepackage{subeqn}
@@ -97,6 +100,7 @@
 \input{macros/dirt}
 % Proplang-paper compatibility: this thesis uses \cite but imported prose uses \citet.
 \providecommand{\citet}[1]{\cite{#1}}
+\providecommand{\text}[1]{\mbox{#1}}
 
 \newcommand{\tbsp}{\rule{0pt}{18pt}} %used to get a vertical distance after \hline
 \renewcommand{\baselinestretch}{2}

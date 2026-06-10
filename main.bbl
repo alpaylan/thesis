@@ -287,6 +287,10 @@ Jessica Shi, Alperen Keles, Harrison Goldstein, Benjamin~C. Pierce, and Leonidas
 \newblock Etna: An evaluation platform for property-based testing (experience report).
 \newblock {\em Proc. ACM Program. Lang.}, 7(ICFP), August 2023.
 
+\bibitem{etna-jfp}
+Alperen Keles, Jessica Shi, Nikhil Kamath, Tin~Nam Liu, Ceren Mert, Harrison Goldstein, Benjamin~C. Pierce, and Leonidas Lampropoulos.
+\newblock Etna: An evaluation platform for property-based testing, 2026.
+
 \bibitem{Lava}
 Brendan Dolan-Gavitt, Patrick Hulin, Engin Kirda, Tim Leek, Andrea Mambretti, Wil Robertson, Frederick Ulrich, and Ryan Whelan.
 \newblock Lava: Large-scale automated vulnerability addition.
@@ -378,29 +382,35 @@ Catalin Hritcu, John Hughes, Benjamin~C. Pierce, Antal Spector-Zabusky, Dimitrio
 \newblock Testing noninterference, quickly.
 \newblock In {\em Proceedings of the ACM SIGPLAN International Conference on Functional Programming (ICFP)}, 2013.
 
-\bibitem{QCheckOCaml}
-Simon Cruanes.
-\newblock Quickcheck inspired property-based testing for ocaml.
-\newblock \url{https://github.com/c-cube/qcheck/}, 2017.
-
-\bibitem{base_quickcheck}
-Jane Street.
-\newblock Random testing framework for ocaml.
-\newblock \url{https://opensource.janestreet.com/base_quickcheck/}, 2019.
+\bibitem{Pierce:SF}
+Benjamin~C. Pierce.
+\newblock {\em Software Foundations}.
+\newblock Software Foundations series, volume 4. Electronic textbook, August 2018.
 
 \bibitem{MysteriesOfDropbox2016}
 John Hughes, Benjamin~C. Pierce, Thomas Arts, and Ulf Norell.
 \newblock Mysteries of {D}ropbox: {P}roperty-based testing of a distributed synchronization service.
 \newblock In {\em International Conference on Software Testing, Verification and Validation (ICST)}, April 2016.
 
+\bibitem{ScalaCheck}
+Rickard Nilsson.
+\newblock Scalacheck: Property-based testing for scala.
+\newblock \url{https://scalacheck.org/}, 2019.
+
+\bibitem{QCheckOCaml}
+Simon Cruanes.
+\newblock Quickcheck inspired property-based testing for ocaml.
+\newblock \url{https://github.com/c-cube/qcheck/}, 2017.
+
+\bibitem{quickcheck-rs}
+Andrew Gallant.
+\newblock quickcheck: Automated property based testing for rust (with shrinking).
+\newblock \url{https://github.com/BurntSushi/quickcheck}, 2014.
+
 \bibitem{Matela2017ToolsFD}
 Rudy Matela.
 \newblock Tools for discovery, refinement and generalization of functional properties by enumerative testing.
 \newblock 2017.
-
-\bibitem{leancheck}
-leancheck: Enumerative property-based testing.
-\newblock \url{https://hackage.haskell.org/package/leancheck}.
 
 \bibitem{zhang1989simple}
 Kaizhong Zhang and Dennis Shasha.
@@ -411,6 +421,10 @@ Kaizhong Zhang and Dennis Shasha.
 Tim Henderson.
 \newblock Zhang-shasha: Tree edit distance in python.
 \newblock \url{https://github.com/timtadh/zhang-shasha}, 2016.
+
+\bibitem{leancheck}
+leancheck: Enumerative property-based testing.
+\newblock \url{https://hackage.haskell.org/package/leancheck}.
 
 \bibitem{demsar2006statistical}
 Janez Dem{\v{s}}ar.
@@ -471,6 +485,12 @@ Vaibhav Rastogi, Drew Davidson, Lorenzo De~Carli, Somesh Jha, and Patrick McDani
 Kihong Heo, Woosuk Lee, Pardis Pashakhanloo, and Mayur Naik.
 \newblock Effective program debloating via reinforcement learning.
 \newblock In {\em Proceedings of the 2018 ACM SIGSAC Conference on Computer and Communications Security}, pages 380--394. ACM, 2018.
+
+\bibitem{hedgehogRecursive}
+Hedgehog.internal.gen.html\#recursive.
+
+\bibitem{falsifyBSTGenerator}
+Test.falsify.reexported.generator.compound.html\#bst.
 
 \bibitem{dirt-dbtest26}
 Alperen Keles, Ethan Chou, Harrison Goldstein, and Leonidas Lampropoulos.
