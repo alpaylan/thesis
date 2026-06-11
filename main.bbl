@@ -397,21 +397,6 @@ John Hughes, Benjamin~C. Pierce, Thomas Arts, and Ulf Norell.
 \newblock Mysteries of {D}ropbox: {P}roperty-based testing of a distributed synchronization service.
 \newblock In {\em International Conference on Software Testing, Verification and Validation (ICST)}, April 2016.
 
-\bibitem{ScalaCheck}
-Rickard Nilsson.
-\newblock Scalacheck: Property-based testing for scala.
-\newblock \url{https://scalacheck.org/}, 2019.
-
-\bibitem{QCheckOCaml}
-Simon Cruanes.
-\newblock Quickcheck inspired property-based testing for ocaml.
-\newblock \url{https://github.com/c-cube/qcheck/}, 2017.
-
-\bibitem{quickcheck-rs}
-Andrew Gallant.
-\newblock quickcheck: Automated property based testing for rust (with shrinking).
-\newblock \url{https://github.com/BurntSushi/quickcheck}, 2014.
-
 \bibitem{Matela2017ToolsFD}
 Rudy Matela.
 \newblock Tools for discovery, refinement and generalization of functional properties by enumerative testing.
@@ -427,14 +412,23 @@ Tim Henderson.
 \newblock Zhang-shasha: Tree edit distance in python.
 \newblock \url{https://github.com/timtadh/zhang-shasha}, 2016.
 
-\bibitem{leancheck}
-leancheck: Enumerative property-based testing.
-\newblock \url{https://hackage.haskell.org/package/leancheck}.
-
 \bibitem{demsar2006statistical}
 Janez Dem{\v{s}}ar.
 \newblock Statistical comparisons of classifiers over multiple data sets.
 \newblock {\em Journal of Machine Learning Research}, 7:1--30, 2006.
+
+\bibitem{richey2025failfasterstagingfast}
+Cynthia Richey, Joseph~W. Cutler, Harrison Goldstein, and Benjamin~C. Pierce.
+\newblock Fail faster: Staging and fast randomness for high-performance pbt, 2026.
+
+\bibitem{tjoa2025tuning}
+Ryan Tjoa, Poorva Garg, Harrison Goldstein, Todd Millstein, Benjamin~C. Pierce, and Guy Van~den Broeck.
+\newblock Tuning random generators: Property-based testing as probabilistic programming.
+\newblock {\em Proc. ACM Program. Lang.}, 9(OOPSLA2), October 2025.
+
+\bibitem{goldsteinTycheSituExploration2023}
+Harrison Goldstein.
+\newblock Tyche: {In} {Situ} {Exploration} of {Random} {Testing} {Effectiveness} ({Demo}), October 2023.
 
 \bibitem{misherghi2006hdd}
 Ghassan Misherghi and Zhendong Su.
@@ -490,12 +484,6 @@ Vaibhav Rastogi, Drew Davidson, Lorenzo De~Carli, Somesh Jha, and Patrick McDani
 Kihong Heo, Woosuk Lee, Pardis Pashakhanloo, and Mayur Naik.
 \newblock Effective program debloating via reinforcement learning.
 \newblock In {\em Proceedings of the 2018 ACM SIGSAC Conference on Computer and Communications Security}, pages 380--394. ACM, 2018.
-
-\bibitem{hedgehogRecursive}
-Hedgehog.internal.gen.html\#recursive.
-
-\bibitem{falsifyBSTGenerator}
-Test.falsify.reexported.generator.compound.html\#bst.
 
 \bibitem{turso}
 {Turso Contributors}.

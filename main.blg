@@ -11,47 +11,48 @@ Warning--entry type for "HypoFuzz" isn't style-file defined
 Warning--entry type for "bolero" isn't style-file defined
 --line 4885 of file bib/pbtbenchmark/pbtbenchmark-merged.bib
 Database file #3: bib/dirt/references.bib
+Warning--I didn't find a database entry for "kaamer2025bennet"
 Warning--empty booktitle in Tlon
 Warning--empty booktitle in Matela2017ToolsFD
-You've used 124 entries,
+You've used 121 entries,
             1791 wiz_defined-function locations,
-            1313 strings with 31167 characters,
-and the built_in function-call counts, 33282 in all, are:
-= -- 3057
-> -- 1475
+            1303 strings with 31116 characters,
+and the built_in function-call counts, 33109 in all, are:
+= -- 3036
+> -- 1498
 < -- 49
-+ -- 541
-- -- 417
-* -- 1881
-:= -- 4779
-add.period$ -- 410
-call.type$ -- 124
-change.case$ -- 120
++ -- 546
+- -- 425
+* -- 1909
+:= -- 4781
+add.period$ -- 404
+call.type$ -- 121
+change.case$ -- 117
 chr.to.int$ -- 0
-cite$ -- 126
-duplicate$ -- 1746
-empty$ -- 3295
-format.name$ -- 417
-if$ -- 7985
+cite$ -- 123
+duplicate$ -- 1734
+empty$ -- 3238
+format.name$ -- 425
+if$ -- 7923
 int.to.chr$ -- 0
-int.to.str$ -- 124
-missing$ -- 100
-newline$ -- 608
+int.to.str$ -- 121
+missing$ -- 101
+newline$ -- 596
 num.names$ -- 129
-pop$ -- 553
+pop$ -- 532
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 1146
+skip$ -- 1127
 stack$ -- 0
 substring$ -- 1674
-swap$ -- 699
+swap$ -- 696
 text.length$ -- 49
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 2
 while$ -- 260
-width$ -- 127
-write$ -- 1388
-(There were 5 warnings)
+width$ -- 124
+write$ -- 1368
+(There were 6 warnings)

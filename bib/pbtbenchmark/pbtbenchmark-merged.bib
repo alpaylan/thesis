@@ -6515,3 +6515,42 @@
   url     = {https://web.archive.org/save/https://hackage-content.haskell.org/package/hedgehog-1.7/docs/src/Hedgehog.Internal.Gen.html\#recursive},
   urldate = {2026-05-17}
 }
+
+@article{aamer2025bennet,
+  author     = {Aamer, Zain K and Pierce, Benjamin C.},
+  title      = {Bennet: Randomized Specification Testing for Heap-Manipulating Programs},
+  year       = {2025},
+  issue_date = {October 2025},
+  publisher  = {Association for Computing Machinery},
+  address    = {New York, NY, USA},
+  volume     = {9},
+  number     = {OOPSLA2},
+  url        = {https://doi.org/10.1145/3764115},
+  doi        = {10.1145/3764115},
+  abstract   = {Property-based testing (PBT), widely used in functional languages and   interactive theorem provers, works by randomly generating many inputs   to a system under test. While PBT has also seen some use in   low-level languages like C, users in this setting must craft   all their own generators by hand, rather than letting the tool   synthesize most generators automatically from types or logical   specifications. For low-level code with complex memory ownership   patterns, writing such generators can waste significant amounts of   time.    CN, a specification and verification framework for C, features a   streamlined presentation of separation logic that is specially tuned   to present only "easy" logical problems to an underlying constraint   solver. Prior work on the Fulminate testing framework has shown that   CN's streamlined specifications can also be checked effectively at run   time, providing an oracle for testing whether a memory state satisfies   a pre- or postcondition.    We show that the restricted syntax of CN is also a good basis for   deriving generators for random inputs satisfying   separation-logic preconditions. We formalize the semantics for a DSL   describing these generators, as well as optimizations that reorder   when values are generated and propagate arithmetic constraints. Using   this DSL, we implement a property-based testing tool, Bennet,   that generates and runs random tests for C functions annotated with CN   specifications. We evaluate Bennet on a corpus of programs with   CN specifications and show that it can efficiently generate   bug-revealing inputs for heap-manipulating programs with complex   preconditions.},
+  journal    = {Proc. ACM Program. Lang.},
+  month      = oct,
+  articleno  = {413},
+  numpages   = {30},
+  keywords   = {Property-based Testing, Random Testing, Separation Logic}
+}
+
+
+@article{tjoa2025tuning,
+author = {Tjoa, Ryan and Garg, Poorva and Goldstein, Harrison and Millstein, Todd and Pierce, Benjamin C. and Van den Broeck, Guy},
+title = {Tuning Random Generators: Property-Based Testing as Probabilistic Programming},
+year = {2025},
+issue_date = {October 2025},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {9},
+number = {OOPSLA2},
+url = {https://doi.org/10.1145/3763082},
+doi = {10.1145/3763082},
+abstract = {Property-based testing validates software against an executable specification by evaluating it on randomly generated inputs. The standard way that PBT users generate test inputs is via generators that describe how to sample test inputs through random choices. To achieve a good distribution over test inputs, users must tune their generators, i.e., decide on the weights of these individual random choices. Unfortunately, it is very difficult to understand how to choose individual generator weights in order to achieve a desired distribution, so today this process is tedious and limits the distributions that can be practically achieved.    In this paper, we develop techniques for the automatic and offline tuning of generators. Given a generator with undetermined symbolic weights and an objective function, our approach automatically learns values for these weights that optimize for the objective. We describe useful objective functions that allow users to (1) target desired distributions and (2) improve the diversity and validity of their test cases. We have implemented our approach in a novel discrete probabilistic programming system, Loaded Dice, that supports differentiation and parameter learning, and use it as a language for generators. We empirically demonstrate that our approach is effective at optimizing generator distributions according to the specified objective functions. We also perform a thorough evaluation on PBT benchmarks, demonstrating that, when automatically tuned for diversity and validity, the generators exhibit a 3.1-7.4x speedup in bug finding.},
+journal = {Proc. ACM Program. Lang.},
+month = oct,
+articleno = {304},
+numpages = {28},
+keywords = {Automatic Differentiation, Probabilistic Programming, Property-Based Testing, Random Generation}
+}

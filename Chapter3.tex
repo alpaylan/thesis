@@ -562,7 +562,7 @@ specification-based (in the style of Rocq's QuickChick) generators, we also port
 type-based and a bespoke generator to each framework.
 
 \renewcommand{\bargraphwidth}{0.45\textwidth}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \begin{subfigure}{\bargraphwidth}
         \centering
@@ -622,6 +622,7 @@ by construction, coverage-guided fuzzing only adds overhead for minimal gain.
 
 \subsubsection{Cross-Language Comparison of PBT Frameworks}
 \label{evaluating-generators-cross-language}
+\label{sec:cross}
 
 ETNA allows for running complex experiments that can provide powerful insights to
 property-based testing practitioners or framework developers. However, the scope of
@@ -780,6 +781,7 @@ frameworks available for experimention.
 \end{figure}
 
 \subsection{Evaluating Shrinking}\label{evaluating-shrinking}
+\label{sec:haskell}
 
 So far, we have spent quite a bit of column inches discussing random generation, its
 effect to bug finding performance, mean time to failure, mean inputs to failure... I've
@@ -790,39 +792,22 @@ our work on comparing the shrinking effectiveness and performance of three diffe
 frameworks in Haskell: \emph{Structural shrinking} in QuickCheck, \emph{integrated
     shrinking} in Hedgehog~\cite{Hedgehog} and Falsify~\cite{falsify}.
 
-Property-based testing is a well-established paradigm for gaining confidence in the
-correctness of programs. Popularized by Haskell's QuickCheck~\cite{ClaessenH00}, there
-has been an explosion of property-based testing frameworks in the last 25 years across
-languages~\cite{Hypothesis,ScalaCheck,QCheckOCaml,quickcheck-rs}.
-
-Across all these frameworks, some key characteristics stay the same. First, users must
-provide {\em properties} of the system under test in the form of executable predicates
-over universally quantified inputs. For example, to test the correctness of a binary
-search tree implementation using Haskell's QuickCheck, one could write the following
-property that dictates that if a given binary search tree is valid, i.e. that it
-satisfies the standard search tree invariant, then a correct implementation of
-\code[language=Haskell]{insert} will preserve this invariant:
+We can start by remembering a variant of the binary-search tree insertion property from
+the last two chapters:
 
 \begin{code}[language=Haskell]
 		prop_insert :: Tree -> Key -> Value -> Maybe Bool
 		prop_insert t k v = isBST t ==> isBST (insert t k v)
 \end{code}
 
-To test this property, users must also specify how to generate test inputs. There are
-plenty of ways to achieve that, and even more literature on that matter: one can
-generate trees based on the type of the predicate and filter out those that are
-invalid~\cite{ClaessenH00}; one can write a specialized generator that only produces
-valid trees~\cite{Hughes2019HowTS}; one could devise automatic procedures that derive
-such generators automatically~\cite{GeneratingGoodGenerators,Luck}. In all those cases,
-the framework takes such a generator plus the property above as an input and embarks on
-a straightforward generate-and-test loop that repeatedly generates inputs, randomly
-exploring the large space of possible inputs until a counterexample is found.
-
-However, the very same randomness that tames the exponentially large search space also
-means that most of the time the first counterexample found is unusable for debugging:
-it simply contains too much noise. For example, leveraging a random tree generator to
-test the \code[language=Haskell]{prop_insert} property above, often yields
-counterexamples like the following:
+To test this property, users specify how to generate test inputs, run the
+property-based testing loop, the random generation exhausts the search space to detect
+behaviors that is otherwise unexplored. However, the very same randomness that tames
+the exponentially large search space also means that most of the time the first
+counterexample found is unusable for debugging: it simply contains too much noise. For
+example, leveraging a random tree generator to test the
+\code[language=Haskell]{prop_insert} property above, often yields counterexamples like
+the following:
 
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize, breaklines=true,
 	breakatwhitespace=true, breakautoindent=false, breakindent=0pt,
@@ -876,31 +861,12 @@ space. Ideally, the users should have an informed view of the trade-offs present
 selecting between different approaches.
 
 The PBT literature, however, overwhelmingly focuses on evaluating bug-finding
-performance with little quantitative evaluation of the shrinking process. There are a
-number of metrics in comparing bug-finding performances for different generation
-strategies such as measuring code coverage~\cite{FuzzChick} or running mutations
-tests~\cite{TestingNIjfp}; ETNA~\cite{ETNA} evaluation platform provides the users with
-a diverse set of workloads as well as measurement tools for bug-finding performance,
-but it provides no support in evaluating shrinking.
-%
-This surprising lack of evaluation of shrinking approaches is exactly the motivation
-for this paper: we set out to develop a comparative understanding of existing
-minimization approaches. In order to keep the comparison fair in terms of usability, we
-have opted for minimum effort generic shrinkers in all our evaluations.
-
-Concretely, we offer the following contributions:
-
-\vspace{-2mm}
-
-\begin{itemize}
-    \item We define quantitative metrics for shrinking effectiveness and cost, including tree
-          edit distance to a ground-truth minimum and time per unit of shrinking progress.
-    \item We extend the ETNA PBT evaluation platform with shrinking measurements and apply it to
-          QuickCheck, Hedgehog, and Falsify across four Haskell workloads.
-    \item We report how shrinking behavior changes across type-based, API-based, and
-          correct-by-construction generators, and discuss the implications for PBT library
-          design.
-\end{itemize}
+performance with little quantitative evaluation of the shrinking process. The rest of
+this section presents our work on extending ETNA to support evaluation for shrinking.
+This extension entails defining quantitative metrics for shrinking effectiveness and
+cost, including tree edit distance to a ground-truth minimum and time per unit of
+shrinking progress; extending the current ETNA workloads in Haskell with the reporting
+of shrinking related metrics as well as implementing Hedgehog and Falsify adapters.
 
 % So which approach should we take? In the land of random generation,
 % there is an abundance of literature on how to evaluate and reason
@@ -1125,9 +1091,9 @@ attached to the choices made by that generator instead of a separate function.
 \subsubsection{Evaluation}
 \label{shrinkeval:sec:eval}
 
-In our evaluation, we ask two questions, (1) how \emph{effective} is the shrinker via
+In our evaluation, we asked two questions, (1) how \emph{effective} is the shrinker via
 measuring the distance to the truly minimal input, and (2) how \emph{performant} is the
-shrinker via measuring the time it takes to shrink. Concretely, we measure the
+shrinker via measuring the time it takes to shrink. Concretely, we measured the
 following metrics for answering our questions:
 
 \begin{itemize}
@@ -1157,80 +1123,80 @@ following metrics for answering our questions:
           in our evaluation.
 \end{itemize}
 
-\paragraph*{Background: ETNA} \label{shrinkeval:sec:background}
+% \paragraph*{Background: ETNA} \label{shrinkeval:sec:background}
 
-ETNA~\cite{etna-icfp23} is an evaluation and analysis platform for Property-Based
-Testing frameworks. It hosts \emph{workloads}, programs with injected mutations
-constituting bugs, as well as properties violated by these mutations, with each
-property-mutation pair that can be violated serving as a {\em task}.
-%
-These mutations are hand-written providing a ground truth evaluation, following a
-%ETNA uses, in contrast to prior evaluation strategies, hand-written manual mutations. Prior
-%work in the literature had relied on code coverage and automated mutation testing, both of
-%which are \emph{proxies} for bug-finding capability, lacking a ground truth evaluation. ETNA follows a
-Magma~\cite{Hazimeh:2020:Magma} style historical bug injection methodology across its
-workloads.
-%
-Workloads are available in multiple languages, including Haskell and its diverse PBT
-landscape. The Haskell-specific part of ETNA includes 4 workloads, Binary-Search Tree
-with 53 tasks, Red-Black Tree with 58 tasks, Simply-Typed Lambda Calculus with 20
-tasks, and System $F_{<:}$ with 36 tasks.
-%
-The workloads are also accessible over a simple command-line interface that allows for
-creating and running experiments; adding, inspecting and manipulating workloads and
-tests; and generating reports on the collected results.
+% ETNA~\cite{etna-icfp23} is an evaluation and analysis platform for Property-Based
+% Testing frameworks. It hosts \emph{workloads}, programs with injected mutations
+% constituting bugs, as well as properties violated by these mutations, with each
+% property-mutation pair that can be violated serving as a {\em task}.
+% %
+% These mutations are hand-written providing a ground truth evaluation, following a
+% %ETNA uses, in contrast to prior evaluation strategies, hand-written manual mutations. Prior
+% %work in the literature had relied on code coverage and automated mutation testing, both of
+% %which are \emph{proxies} for bug-finding capability, lacking a ground truth evaluation. ETNA follows a
+% Magma~\cite{Hazimeh:2020:Magma} style historical bug injection methodology across its
+% workloads.
+% %
+% Workloads are available in multiple languages, including Haskell and its diverse PBT
+% landscape. The Haskell-specific part of ETNA includes 4 workloads, Binary-Search Tree
+% with 53 tasks, Red-Black Tree with 58 tasks, Simply-Typed Lambda Calculus with 20
+% tasks, and System $F_{<:}$ with 36 tasks.
+% %
+% The workloads are also accessible over a simple command-line interface that allows for
+% creating and running experiments; adding, inspecting and manipulating workloads and
+% tests; and generating reports on the collected results.
 
-Testing strategies from different libraries are embedded within each workload. The
-Haskell workloads originally had QuickCheck~\cite{ClaessenH00},
-SmallCheck~\cite{RuncimanNL08}, LeanCheck~\cite{leancheck}; we extended them with
-Hedgehog~\cite{Hedgehog} and Falsify~\cite{falsify} for our evaluation.
+% Testing strategies from different libraries are embedded within each workload. The
+% Haskell workloads originally had QuickCheck~\cite{ClaessenH00},
+% SmallCheck~\cite{RuncimanNL08}, LeanCheck~\cite{leancheck}; we extended them with
+% Hedgehog~\cite{Hedgehog} and Falsify~\cite{falsify} for our evaluation.
 
-\begin{figure}[h!]
-    \centering
-    \resizebox{\linewidth}{!}{%
-        \begin{tikzpicture}[x=2.2cm, font=\small]
-            % time-bucket column headers
-            \foreach \i/\lab in {%
-            0/{<\,0.1\,s}, 1/{0.1--1\,s}, 2/{1--10\,s},
-            3/{10--60\,s}, 4/{60--360\,s}, 5/{unsolved}}
-            \node[anchor=south, font=\bfseries\footnotesize]
-            at (\i+0.5, 0.1) {\lab};
-            % one gradient bar per framework, stacked
-            \foreach \r/\C/\name in {%
-                    0/chart_quickcheck/QuickCheck,
-                    1/chart_hedgehog/Hedgehog,
-                    2/chart_falsify/Falsify} {
-                    \pgfmathsetmacro{\ytop}{-\r*0.74}
-                    \pgfmathsetmacro{\ybot}{\ytop-0.62}
-                    \node[anchor=east, font=\bfseries\footnotesize]
-                    at (-0.1, {(\ytop+\ybot)/2}) {\name};
-                    \foreach \i in {0,...,5} {
-                            \pgfmathtruncatemacro{\p}{100-20*\i}
-                            \filldraw[fill=\C!\p!bucketbg, draw=white, line width=0.6pt]
-                            (\i, \ybot) rectangle (\i+1, \ytop);
-                        }
-                }
-        \end{tikzpicture}%
-    }
-    \caption{ETNA-style bucket-chart key}
-    \label{shrinkeval:fig:etna-legend}
-\end{figure}
+% \begin{figure}[h!]
+%     \centering
+%     \resizebox{\linewidth}{!}{%
+%         \begin{tikzpicture}[x=2.2cm, font=\small]
+%             % time-bucket column headers
+%             \foreach \i/\lab in {%
+%             0/{<\,0.1\,s}, 1/{0.1--1\,s}, 2/{1--10\,s},
+%             3/{10--60\,s}, 4/{60--360\,s}, 5/{unsolved}}
+%             \node[anchor=south, font=\bfseries\footnotesize]
+%             at (\i+0.5, 0.1) {\lab};
+%             % one gradient bar per framework, stacked
+%             \foreach \r/\C/\name in {%
+%                     0/chart_quickcheck/QuickCheck,
+%                     1/chart_hedgehog/Hedgehog,
+%                     2/chart_falsify/Falsify} {
+%                     \pgfmathsetmacro{\ytop}{-\r*0.74}
+%                     \pgfmathsetmacro{\ybot}{\ytop-0.62}
+%                     \node[anchor=east, font=\bfseries\footnotesize]
+%                     at (-0.1, {(\ytop+\ybot)/2}) {\name};
+%                     \foreach \i in {0,...,5} {
+%                             \pgfmathtruncatemacro{\p}{100-20*\i}
+%                             \filldraw[fill=\C!\p!bucketbg, draw=white, line width=0.6pt]
+%                             (\i, \ybot) rectangle (\i+1, \ytop);
+%                         }
+%                 }
+%         \end{tikzpicture}%
+%     }
+%     \caption{ETNA-style bucket-chart key}
+%     \label{shrinkeval:fig:etna-legend}
+% \end{figure}
 
-ETNA reports bug-finding performance using \emph{bucket charts}. Each strategy is drawn
-as a single horizontal bar, partitioned into segments whose widths are proportional to
-the number of \emph{tasks} that fall into each time bucket. A task is placed in a
-bucket by the median time-to-failure across its trials; tasks for which any trial
-failed to find the bug within the timeout are counted as \emph{unsolved}. Each
-framework keeps a fixed hue---green for QuickCheck, blue for Hedgehog, orange for
-Falsify---and its segments are shaded from that full hue (solved fastest) to near-white
-(unsolved), so a bar dominated by saturated color denotes a strategy that finds bugs
-quickly. Figure~\ref{shrinkeval:fig:etna-legend} shows the bucket key used throughout
-this paper; unlike the original ETNA experiments, we use a 360-second timeout and
-therefore an additional \texttt{60--360\,s} bucket.
+% ETNA reports bug-finding performance using \emph{bucket charts}. Each strategy is drawn
+% as a single horizontal bar, partitioned into segments whose widths are proportional to
+% the number of \emph{tasks} that fall into each time bucket. A task is placed in a
+% bucket by the median time-to-failure across its trials; tasks for which any trial
+% failed to find the bug within the timeout are counted as \emph{unsolved}. Each
+% framework keeps a fixed hue---green for QuickCheck, blue for Hedgehog, orange for
+% Falsify---and its segments are shaded from that full hue (solved fastest) to near-white
+% (unsolved), so a bar dominated by saturated color denotes a strategy that finds bugs
+% quickly. Figure~\ref{shrinkeval:fig:etna-legend} shows the bucket key used throughout
+% this paper; unlike the original ETNA experiments, we use a 360-second timeout and
+% therefore an additional \texttt{60--360\,s} bucket.
 
 \paragraph*{Experiments} \label{shrinkeval:sec:experiments}
 
-In our evaluation, we measure bug-finding time (time spent before a failing execution)
+In our evaluation, we measured bug-finding time (time spent before a failing execution)
 and shrinking time (time spent after a failing execution) as performance metrics. The
 libraries provide shrinking budget controllers, albeit not very well documented, that
 we use to turn off shrinking as well as tune it with different parameters to measure
@@ -1244,18 +1210,25 @@ generates key-value pairs that are inserted to the trees; we will refer to the l
 as an API-based generator, as it leverages the API of the structure under test to
 generate instances that satisfy its invariants. In all three frameworks--QuickCheck,
 Hedgehog and Falsify--we tried to create the same generator design as closely as each
-API allowed. Specifically for the correct-by-construction BST generators (as can be
-seen in Appendix~\ref{shrinkeval:app:bst-generators}), we created additional idiomatic
-variants for Hedgehog (that uses \texttt{HH.recursive}) and Falsify (that mimics
-\texttt{Falsify.Generator.bst}) and evaluated the effects of the changes. For STLC and
-$F_{<:}$, we ported the existing naive and correct-by-construction QuickCheck
-generators. A notable usability advantage of integrated shrinking is that it relieves
-the user of the requirement to write shrinkers~\cite{falsify,HypothesisShrinking}. In
-order to keep the comparison fair, we used the \texttt{genericShrink} from
-\texttt{generic-random}~\cite{genericRandom} library that automatically derives
-shrinkers for Haskell types.
+API allowed. Specifically for the correct-by-construction BST generators, we created
+additional idiomatic variants for Hedgehog (that uses \texttt{HH.recursive}) and
+Falsify (that mimics \texttt{Falsify.Generator.bst}) and evaluated the effects of the
+changes. For STLC and $F_{<:}$, we ported the existing naive and
+correct-by-construction QuickCheck generators. A notable usability advantage of
+integrated shrinking is that it relieves the user of the requirement to write
+shrinkers~\cite{falsify,HypothesisShrinking}. In order to keep the comparison fair, we
+used the \texttt{genericShrink} from \texttt{generic-random}~\cite{genericRandom}
+library that automatically derives shrinkers for Haskell types.
 
 \paragraph*{Comparison of Bug-Finding Performances}
+
+The BST results in Figure~\ref{shrinkeval:fig:bucket_bst} match the intuitive
+expectation that correct-by-construction generators largely eliminate the wasted effort
+of naive type-based generation, which spends substantial effort producing invalid
+trees. In the bucket charts, almost all API-based and correct-by-construction
+generators solve every BST task, while the type-based generators fail several tasks
+(\texttt{not found} bucket); API-based QuickCheck generator has the strongest
+bug-finding profile, placing all tasks in the fastest bucket.
 
 \begin{figure}[h!]
     \centering
@@ -1286,14 +1259,6 @@ shrinkers for Haskell types.
     \label{shrinkeval:fig:bucket_bst}
 \end{figure}
 
-The BST results in Figure~\ref{shrinkeval:fig:bucket_bst} match the intuitive
-expectation that correct-by-construction generators largely eliminate the wasted effort
-of naive type-based generation, which spends substantial effort producing invalid
-trees. In the bucket charts, almost all API-based and correct-by-construction
-generators solve every BST task, while the type-based generators fail several tasks
-(\texttt{not found} bucket); API-based QuickCheck generator has the strongest
-bug-finding profile, placing all tasks in the fastest bucket.
-
 Across libraries, QuickCheck is significantly faster for bug-finding in both the
 type-based and API-based settings. We model the experiments as a paired
 repeated-measures design following Dem\v{s}ar~\cite{demsar2006statistical}: each task
@@ -1309,7 +1274,7 @@ tasks.\footnote{To avoid assigning arbitrary penalties, the paired statistical
     with successful failed trials for all compared strategies. This can differ from the
     visual impression of the bucket charts, where \texttt{not found} is shown explicitly.}
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \begin{subfigure}[t]{.30\linewidth}
         \centering
@@ -1352,16 +1317,15 @@ three generator families. Falsify is also significantly faster than Hedgehog for
 type-based and correct-by-construction generation, while the Hedgehog and Falsify
 comparison for API-based is not significant after Holm correction.
 
-\begin{wrapfigure}{r}{0.60\textwidth}
+\begin{figure}[H]
     \centering
-    \vspace*{-1em}
-    \begin{subfigure}[t]{.48\linewidth}
+    \begin{subfigure}[t]{.40\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_stlc_family-vanilla.png}
         \caption{Type-based generation}
         \label{shrinkeval:fig:bucket_stlc_vanilla}
     \end{subfigure}\hfill
-    \begin{subfigure}[t]{.48\linewidth}
+    \begin{subfigure}[t]{.40\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_stlc_family-cbc.png}
         \caption{Correct-by-construction}
@@ -1373,7 +1337,7 @@ comparison for API-based is not significant after Holm correction.
         \explaincolor{chart_falsify}{Falsify}}
     \label{shrinkeval:fig:bucket_stlc}
     \vspace*{-1em}
-\end{wrapfigure}
+\end{figure}
 
 The STLC results in Figure~\ref{shrinkeval:fig:bucket_stlc} follow the
 type-based/correct-by-construction pattern in BST/RBT: the bucket charts show slower
@@ -1385,16 +1349,15 @@ the difference is significant ($p < 0.001$): QuickCheck is significantly faster 
 both Hedgehog and Falsify, while Hedgehog and Falsify are statistically
 indistinguishable from each other after Holm correction.
 
-\begin{wrapfigure}{r}{0.60\textwidth}
+\begin{figure}[H]
     \centering
-    \vspace*{-1em}
-    \begin{subfigure}[t]{.48\linewidth}
+    \begin{subfigure}[t]{.40\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_fsub_family-vanilla.png}
         \caption{Type-based generation}
         \label{shrinkeval:fig:bucket_fsub_vanilla}
     \end{subfigure}\hfill
-    \begin{subfigure}[t]{.48\linewidth}
+    \begin{subfigure}[t]{.40\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_fsub_family-cbc.png}
         \caption{Correct-by-construction}
@@ -1406,7 +1369,7 @@ indistinguishable from each other after Holm correction.
         \explaincolor{chart_falsify}{Falsify}.}
     \label{shrinkeval:fig:bucket_fsub}
     \vspace*{-1em}
-\end{wrapfigure}
+\end{figure}
 
 The $F_{<:}$ results in Figure~\ref{shrinkeval:fig:bucket_fsub} mirror STLC but with a
 larger gap among the naive type-based generators. Among the successful runs, QuickCheck
@@ -1462,22 +1425,22 @@ for the corresponding workload (top-left is the best, top-right indicates a long
         \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ted-to-gt_ecdf_family-cbc.png}
         \caption{RBT, CBC}
     \end{subfigure}\\[0.6em]
-    \begin{subfigure}[t]{.24\linewidth}
+    \begin{subfigure}[t]{.40\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_ted-to-gt_ecdf_family-vanilla.png}
         \caption{STLC, type-based}
     \end{subfigure}
-    \begin{subfigure}[t]{.24\linewidth}
+    \begin{subfigure}[t]{.40\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_ted-to-gt_ecdf_family-cbc.png}
         \caption{STLC, CBC}
-    \end{subfigure}
-    \begin{subfigure}[t]{.24\linewidth}
+    \end{subfigure}\\[0.6em]
+    \begin{subfigure}[t]{.40\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ted-to-gt_ecdf_family-vanilla.png}
         \caption{$F_{<:}$, type-based}
     \end{subfigure}
-    \begin{subfigure}[t]{.24\linewidth}
+    \begin{subfigure}[t]{.40\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ted-to-gt_ecdf_family-cbc.png}
         \caption{$F_{<:}$, CBC}
@@ -1514,9 +1477,9 @@ and post-hoc Wilcoxon tables.\footnote{For RBT, LeanCheck found ground-truth min
 
 % Our results validate the recent findings 
 
-We follow up with another performance measurement, this time on shrinking itself. We
-show both absolute shrinking time in Figure~\ref{shrinkeval:fig:ecdf_time_shrinking} as
-well as time per edit distance between the original counterexample and the reported
+Following up with another performance measurement, this time on shrinking itself. I
+present both absolute shrinking time in Figure~\ref{shrinkeval:fig:ecdf_time_shrinking}
+as well as time per edit distance between the original counterexample and the reported
 shrinking result in Figure~\ref{shrinkeval:fig:ecdf_ms_per_edit} to normalize over
 different counterexamples reported by each library.
 
@@ -1552,22 +1515,22 @@ different counterexamples reported by each library.
         \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_time-shrinking_ecdf_family-cbc.png}
         \caption{RBT, CBC}
     \end{subfigure}\\[0.6em]
-    \begin{subfigure}[t]{.24\linewidth}
+    \begin{subfigure}[t]{.40\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_time-shrinking_ecdf_family-vanilla.png}
         \caption{STLC, type-based}
     \end{subfigure}
-    \begin{subfigure}[t]{.24\linewidth}
+    \begin{subfigure}[t]{.40\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_time-shrinking_ecdf_family-cbc.png}
         \caption{STLC, CBC}
-    \end{subfigure}
-    \begin{subfigure}[t]{.24\linewidth}
+    \end{subfigure}\\[0.6em]
+    \begin{subfigure}[t]{.40\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_time-shrinking_ecdf_family-vanilla.png}
         \caption{$F_{<:}$, type-based}
     \end{subfigure}
-    \begin{subfigure}[t]{.24\linewidth}
+    \begin{subfigure}[t]{.40\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_time-shrinking_ecdf_family-cbc.png}
         \caption{$F_{<:}$, CBC}
@@ -1630,22 +1593,22 @@ fastest, Hedgehog is next, and Falsify is slowest.
         \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ms-per-edit_ecdf_family-cbc.png}
         \caption{RBT, CBC}
     \end{subfigure}\\[0.6em]
-    \begin{subfigure}[t]{.24\linewidth}
+    \begin{subfigure}[t]{.40\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_ms-per-edit_ecdf_family-vanilla.png}
         \caption{STLC, type-based}
     \end{subfigure}
-    \begin{subfigure}[t]{.24\linewidth}
+    \begin{subfigure}[t]{.40\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_ms-per-edit_ecdf_family-cbc.png}
         \caption{STLC, CBC}
-    \end{subfigure}
-    \begin{subfigure}[t]{.24\linewidth}
+    \end{subfigure}\\[0.6em]
+    \begin{subfigure}[t]{.40\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ms-per-edit_ecdf_family-vanilla.png}
         \caption{$F_{<:}$, type-based}
     \end{subfigure}
-    \begin{subfigure}[t]{.24\linewidth}
+    \begin{subfigure}[t]{.40\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ms-per-edit_ecdf_family-cbc.png}
         \caption{$F_{<:}$, CBC}
@@ -1667,7 +1630,7 @@ with slower shrinking. Normalizing per edit collapses Falsify's gap to QuickChec
 campaigns, where Falsify does not start from larger counterexamples, the per-edit and
 absolute comparisons agree.
 
-\paragraph*{Discussion}\label{shrinkeval:sec:discussion}
+\section{Discussion}
 
 We now discuss the implications of these results in context of real world PBT usage.
 Namely, an important shortcoming of the original ETNA experiments is the lack of
@@ -1764,10 +1727,48 @@ used by integrated shrinkers. The ultimate measure of shrinking effectiveness is
 debugging time, which would require a comprehensive user study that we deemed way out
 of scope for this paper.
 
-\subsubsection{Related Work}
-\label{shrinkeval:sec:related}
+\section{Related and Future Work}\label{sec:relwork}
 
-The closest related work on PBT shrinking is the study of the Hypothesis
+ETNA, as I mentioned in the beginning of the chapter, is a reference to every
+crossword-puzzler's favorite Italian volcano. The design was heavily inspired by two
+existing benchmark suites in the fuzzing space: LAVA~\citep{Lava} and
+Magma~\citep{Hazimeh:2020:Magma}. Both provide a suite of workloads that can be used to
+compare different fuzzing tools: LAVA's workloads consist of programs with illegal
+memory accesses that are automatically injected, while Magma relies on real bugs
+forward-ported to the current versions of libraries. More recently,
+FixReverter~\citep{FixReverter} offered a middle ground, generalizing real bug-fixes
+into patterns and applying them to multiple locations in a program.
+
+Since we published ETNA, a number of studies on PBT have used it for evaluation. ``Fail
+Faster''~\cite{richey2025failfasterstagingfast} has used the OCaml workloads for
+optimizing OCaml PBT libraries, Bennet~\cite{kaamer2025bennet} has extended ETNA for C
+for evaluation of random testing for separation logic, ``Testing Theorems''~\cn and
+``Tuning Random Generators''~\cite{tjoa2025tuning} use Rocq workloads,
+``QuickerCheck''~\cite{QuickerCheck} uses the Haskell workloads. In addition to works
+presented in this thesis, I have also worked with Ivan Mladenov on ``QuickerChick'',
+his student research competition submission on optimizing QuickChick.
+
+As these studies were performed, we've kept working on both making ETNA more usable by
+doing the required engineering, and also getting feedback from the people using ETNA. I
+have also spent time horizontally growing ETNA as much as possible, porting the
+existing workloads in Haskell and Rocq to OCaml, Racket, Rust, and Python. There are a
+number of future directions I see ETNA going forward.
+
+The first is improving presentation of results and analysis. The statistical tests and
+cumulative count graphs in the shrinking evaluation are one such step, the detailed
+HTML report produced by \code{etna report} is another avenue. An important missing
+aspect is the ability to do in-depth analysis by providing information at multiple
+granularities. Ideally, ETNA should be directly integrated with a
+Tyche~\cite{goldsteinTycheSituExploration2023} style visualization framework. We are
+yet to integrated code coverage analysis in any shape, which can be especially useful
+when we start evaluating more fuzzing tools.
+
+Another is a breadth-oriented study for horizontally growing ETNA. Large language
+models (LLMs) show promising results for automated bug injection from historical bug
+fixes. Several studies~\cn{} have investigated using LLMs to generate properties or
+propose bugs, but reinjection of historical bugs is left unexplored.
+
+The closest related work in terms of PBT shrinking is the study of the Hypothesis
 reducer~\cite{HypothesisShrinking}. That work evaluates test-case reduction using case
 studies, mean input size, and the number of executions in the shrinking step. We build
 on that perspective by measuring distance to known minima, separating bug-finding time
@@ -1790,135 +1791,5 @@ analyzers~\cite{ferles2017failure}, while \emph{program and container debloating
 preserves intended functionality to reduce attack
 surface~\cite{rastogi2017cimplifier,heo2018effective}. Across these settings,
 evaluation typically reports size reduction and reduction time on benchmark suites of
-recorded failures or programs.
-
-% ETNA~\cite{etna-icfp23} provides the experimental foundation for our study: workloads,
-% mutation-based tasks, generators, and bug-finding analyses for PBT frameworks. We extend
-% that style of evaluation to the shrinking phase by recording pre-shrink and post-shrink
-% counterexamples, shrink costs, and distance to independently discovered minima.
-
-\subsubsection{Conclusion and Future Work}
-\label{shrinkeval:sec:conc}
-
-We presented an experience report on evaluating shrinking across QuickCheck, Hedgehog,
-and Falsify on four ETNA workloads. The main empirical lesson is that integrated
-shrinking does not automatically dominate structural shrinking. In these experiments,
-QuickCheck-style structural shrinking is usually faster and often competitive in final
-counterexample quality, while integrated shrinking shows workload- and
-generator-dependent behavior. The main methodological lesson is that shrinking should
-be evaluated separately from bug-finding: final counterexample quality, shrink time,
-per-edit cost, sample-efficiency, and generator choice expose different trade-offs.
-
-Future work should broaden the benchmark suite beyond ETNA's Haskell workloads, and
-perhaps investigate alternative algorithms for shrinking. In this paper, we focused on
-evaluating the out-of-the-box shrinking behavior; each system allows for different
-degrees of customizing shrinking, and evaluating the effect (and effort) of those is
-particularly interesting future work. Finally, a user study measuring debugging time
-would also help connect structural metrics, such as tree edit distance, shrinking ratio
-or counterexample size to the outcome developers ultimately care about.
-
-\subsubsection{Binary-Search Tree Generators} \label{shrinkeval:app:bst-generators}
-
-\begin{code}[language=Haskell]
-gen_bst_falsify :: Int -> Int -> Int -> Gen BST
-gen_bst_falsify depth lo hi
-  | depth <= 0 || lo + 1 >= hi = pure E
-  | otherwise =
-      Gen.frequency
-        [ (1, pure E)
-        , ( 3
-          , do
-              k <- Gen.int (Range.withOrigin (lo + 1, hi - 1) 0)
-              v <- Gen.int (Range.withOrigin (-1000, 1000) 0)
-              left <- gen_bst_falsify (depth - 1) lo k
-              right <- gen_bst_falsify (depth - 1) k hi
-              pure (T left (Key k) (Val v) right)
-          )
-        ]
-\end{code}
-
-\begin{code}[language=Haskell]
-gen_bst_hedgehog :: Int -> Int -> Int -> HH.Gen BST
-gen_bst_hedgehog depth lo hi
-  | depth <= 0 || lo + 1 >= hi = pure E
-  | otherwise =
-      Gen.frequency
-        [ (1, pure E)
-        , ( 3
-          , do
-              k <- Gen.int (Range.linearFrom 0 (lo + 1) (hi - 1))
-              v <- Gen.int (Range.linearFrom 0 (-1000) 1000)
-              left <- gen_bst_hedgehog (depth - 1) lo k
-              right <- gen_bst_hedgehog (depth - 1) k hi
-              pure (T left (Key k) (Val v) right)
-          )
-        ]
-\end{code}
-
-\begin{code}[language=Haskell]
-gen_bst_quickcheck :: Int -> Int -> Int -> Gen BST
-gen_bst_quickcheck depth lo hi
-  | depth <= 0 || lo + 1 >= hi = pure E
-  | otherwise =
-      frequency
-        [ (1, pure E)
-        , ( 3
-          , do
-              k <- chooseInt (lo + 1, hi - 1)
-              v <- chooseInt (-1000, 1000)
-              left <- gen_bst_quickcheck (depth - 1) lo k
-              right <- gen_bst_quickcheck (depth - 1) k hi
-              pure (T left (Key k) (Val v) right)
-          )
-        ]
-\end{code}
-
-The two \emph{idiomatic} variants use each framework's native recursive combinator
-instead of a manual depth counter. The Hedgehog variant uses
-\texttt{Gen.recursive}\cite{hedgehogRecursive}, which gates the recursion on Hedgehog's
-own \texttt{Size} parameter:
-
-\begin{code}[language=Haskell]
-gen_bst_hedgehog_idiomatic :: Int -> Int -> HH.Gen BST
-gen_bst_hedgehog_idiomatic lo hi
-  | lo + 1 >= hi = pure E
-  | otherwise =
-      Gen.recursive Gen.choice
-        [ pure E ]
-        [ do
-            k <- Gen.int (Range.linearFrom 0 (lo + 1) (hi - 1))
-            v <- Gen.int (Range.linearFrom 0 (-1000) 1000)
-            left  <- gen_bst_hedgehog_idiomatic lo k
-            right <- gen_bst_hedgehog_idiomatic k hi
-            pure (T left (Key k) (Val v) right)
-        ]
-\end{code}
-
-The Falsify variant mimics
-\texttt{Test.Falsify.Generator.bst}\cite{falsifyBSTGenerator}: it keeps the same
-generation distribution as \texttt{gen\_bst\_falsify}, but wraps every recursive
-subtree with the canonical \texttt{firstThen id (const E)} subtree-promotion pattern,
-so the shrinker has an explicit subtree-collapse candidate at each level.
-
-\begin{code}[language=Haskell]
-collapseSubtree :: Gen BST -> Gen BST
-collapseSubtree g = Gen.firstThen id (const E) <*> g
-
-gen_bst_falsify_idiomatic :: Int -> Int -> Int -> Gen BST
-gen_bst_falsify_idiomatic depth lo hi
-  | depth <= 0 || lo + 1 >= hi = pure E
-  | otherwise =
-      Gen.frequency
-        [ (1, pure E)
-        , ( 3
-          , do
-              k <- Gen.int (Range.between (lo + 1, hi - 1))
-              v <- Gen.int (Range.withOrigin (-1000, 1000) 0)
-              left  <- collapseSubtree (gen_bst_falsify_idiomatic (depth - 1) lo k)
-              right <- collapseSubtree (gen_bst_falsify_idiomatic (depth - 1) k hi)
-              pure (T left (Key k) (Val v) right)
-          )
-        ]
-\end{code}
-\section{Discussion}
-\section{Future Work}
+recorded failures or programs. Future work should broaden the benchmark suite beyond
+ETNA's Haskell workloads, and perhaps investigate alternative algorithms for shrinking.
