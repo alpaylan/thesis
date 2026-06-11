@@ -30,11 +30,12 @@ such as \code{sort([]) == []}, \code{sort([1, 0]) == [0, 1]}, \code{sort(3,2,-1)
 Another form of specification, the one that will be of focus to this whole thesis, is
 \emph{properties}. A property is a universally quantified predicate function. A fact
 about the program under test that must hold for any possible input. The universality of
-properties allows for relieving the user of the responsibility of supplying inputs.
-Once a property is written as specification of a particular program behavior, there are
-different strategies for producing inputs, systematic exhaustive search, random
-sampling, perhaps even user-supplied inputs. The combination of these methods are
-typically gathered under the umbrella of \emph{Property-Based Testing}.
+properties allows for relieving the user of the responsibility of specifying singular,
+individual behaviors. Once a property is written as specification of a particular
+program behavior, there are different strategies for producing inputs, systematic
+exhaustive search, random sampling, perhaps even user-supplied inputs. The combination
+of these methods are typically gathered under the umbrella of \emph{Property-Based
+    Testing}.
 
 Property-Based Testing (PBT) was pioneered by Koen Claessen and John Hughes in their
 ICFP 2000 paper ``QuickCheck: a lightweight tool for random testing of Haskell
@@ -188,10 +189,10 @@ General purpose tools grow as they redraw the lines of their approach to accommo
 for such extensions. In a thesis focusing on consolidation, it is only natural that I
 take the time to focus on what we can not, at least for the moment, consolidate. In
 Chapter~\ref{chap:dirt}, I present and discuss a domain-specific property-based testing
-paradigm for databases, ``DIRT: Database-Integrated Random Testing''~\cn. Modern
-databases have enjoyed the results of fuzzing, at times with property-based testing
-flavored approaches, in strenghtening their reliability and correctness. However, a
-major challenge that is yet to be solved is the ability to evolve a property-based
-testing suite alongside the database, which we attempted to solve in our \todo{DBTest}
-paper. The chapter discusses various other domain-specific tools and techniques as well
-as their potential inclusion to general purpose PBT frameworks.
+paradigm for databases, ``DIRT: Database-Integrated Random
+Testing''~\cite{dirt-dbtest26}. Modern databases have enjoyed the results of fuzzing,
+at times with property-based testing flavored approaches, in strenghtening their
+reliability and correctness. However, a major challenge that is yet to be solved is the
+ability to evolve a property-based testing suite alongside the database, which we
+attempted to solve. The chapter discusses various other domain-specific tools and
+techniques as well as their potential inclusion to general purpose PBT frameworks.

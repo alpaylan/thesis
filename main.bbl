@@ -41,6 +41,11 @@ Jessica Shi, Alperen Keles, Harrison Goldstein, Benjamin~C. Pierce, and Leonidas
 \newblock Etna: An evaluation platform for property-based testing (experience report).
 \newblock {\em Proc. ACM Program. Lang.}, 7(ICFP), aug 2023.
 
+\bibitem{dirt-dbtest26}
+Alperen Keles, Ethan Chou, Harrison Goldstein, and Leonidas Lampropoulos.
+\newblock {DIRT}: Database-integrated random testing.
+\newblock In {\em Testing Database Systems (DBTest '26)}. Association for Computing Machinery, 2026.
+
 \bibitem{Hughes2019HowTS}
 John Hughes.
 \newblock How to specify it! - a guide to writing properties of pure functions.
@@ -491,11 +496,6 @@ Hedgehog.internal.gen.html\#recursive.
 
 \bibitem{falsifyBSTGenerator}
 Test.falsify.reexported.generator.compound.html\#bst.
-
-\bibitem{dirt-dbtest26}
-Alperen Keles, Ethan Chou, Harrison Goldstein, and Leonidas Lampropoulos.
-\newblock {DIRT}: Database-integrated random testing.
-\newblock In {\em Testing Database Systems (DBTest '26)}. Association for Computing Machinery, 2026.
 
 \bibitem{turso}
 {Turso Contributors}.

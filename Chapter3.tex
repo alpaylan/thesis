@@ -144,9 +144,9 @@ results and the persistent messaging format for \emph{capabilities}. Currently, 
 workloads have four possible capabilities: \emph{solve} for running a full testing
 campaign for a given \emph{testing strategy}; \emph{sample} for sampling a random
 generator; \emph{test} for testing a given set of inputs against the strategy
-(sample-test pairing is used in the cross-language experimentation in \todo{ref
-    section}); and finally \emph{shrink} for shrinking a given input with a shrinking
-algorithm.
+(sample-test pairing is used in the cross-language experimentation in
+\S~\ref{evaluating-generators-cross-language}); and finally \emph{shrink} for
+minimizing a given input with a shrinking algorithm.
 
 The testing strategies can be across \emph{frameworks}, such as implementing the same
 generator in Hedgehog~\cite{Hedgehog} and QuickCheck~\cite{quickcheck} as we have done
@@ -266,14 +266,16 @@ are especially useful for evaluating feedback-guided generation strategies.
 
 \subsection{Analysis and Presentation}
 
-Before presenting the individual experiments, I will fix the common measurement and
-presentation conventions used throughout this chapter. ETNA supports customizable
-experiments, but the experiments here use a standard setup unless explicitly noted
-otherwise: each strategy is run on each task for a fixed number of trials, usually 10,
-with a 60-second timeout. A strategy \emph{solves} a task when it finds the injected
-bug within the timeout in every trial. Multiple trials account for the nondeterminism
-of random generation strategies, and aggregate measurements are simple averages unless
-a figure or paragraph says otherwise.
+ETNA is configurable in terms of timeout, number of trials, and different ways of the
+results of the experiments. However, most of the work I present in this thesis uses a
+configuration we argue is realistic in terms of running a PBT workload, and a common
+presentation technique we found useful.
+
+All the experiments, unless explicitly noted, uses 10 trials with a 60-second external
+timeout. A strategy is said to have \emph{solved} a task if it succeeds in solving it
+in all 10 trials under the timeout. We use \emph{task-bucket charts}, a type of
+stacked-bar chart that adds up to the total number of tasks, marking progressively
+larger mean time buckets, as presented in Figure~\ref{fig:etna-presentation}.
 
 \begin{figure}[h]
     \centering
@@ -287,22 +289,26 @@ a figure or paragraph says otherwise.
     \label{fig:etna-presentation}
 \end{figure}
 
-Raw averages are not always the right way to communicate these results. If one strategy
-takes two seconds on average and another takes three, the practical difference depends
-on which bugs are found, how quickly they are found, and which tasks remain unsolved. I
-therefore use \emph{task-bucket charts} as the main visual representation. A row in
-such a chart groups tasks by the time required to solve them: the darkest bucket
-denotes tasks solved within 0.1 seconds, and the remaining buckets denote tasks solved
-within 1, 10, and 60 seconds. The lightest bucket denotes tasks that were not solved
-within the timeout. For example, Figure~\ref{fig:etna-presentation} shows a
-strategy/workload result where 14 tasks are solved almost immediately and 4 tasks
-remain unsolved.
+We mark a task \emph{unsolved} if any of the 10 trials fail to solve it within the
+timeout, this is configurable in the visualization tool (\code{etna visualize}) command
+under the flag \code{any/all}, where \code{any} means a task is solved if at least one
+trial has found the bug, and \code{all} means a task is solved if all trials have
+solved it.
+
+The thesis typically uses a number of bucket charts for different strategies on the
+same workload for easy visual comparison. Each row stacks up to 5 buckets in
+generation, and 6 buckets in shrinking experiments (which adds another bucket of
+60-360s). The darkest bucket denotes tasks solved within 0.1 seconds, and the remaining
+buckets denote tasks solved within 1, 10, 60, and 360 seconds. The lightest bucket
+denotes tasks that were not solved within the timeout. For example,
+Figure~\ref{fig:etna-presentation} shows a strategy/workload result where 14 tasks are
+solved almost immediately and 4 tasks remain unsolved.
 
 Some comparisons need more detail than a task-bucket chart alone can show. In those
-cases, I either use alternate bucket definitions, such as counting tasks solved in at
-least one trial, or supplement the bucket chart with statistical comparisons. When a
-figure departs from the default ``solved in every trial'' interpretation, its caption
-states that explicitly.
+cases, I either use alternate bucket definitions, such as the \code{any} configuration,
+or supplement the bucket chart with statistical comparisons. When a figure departs from
+the default ``solved in every trial'' interpretation, its caption states that
+explicitly.
 
 \subsection{Evaluating Random Generation}
 

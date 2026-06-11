@@ -55,10 +55,12 @@ if [[ ! -f "$tex_source" ]]; then
   exit 1
 fi
 
+mkdir -p build
 rm -f build/main.pdf
 
 build_jobname="main-build-temp"
 build_output_pdf="build/${build_jobname}.pdf"
+rm -f "build/${build_jobname}".*
 
 latexmk_args=(-pdf -interaction=nonstopmode -jobname="$build_jobname" "$tex_source")
 if [[ "$font" == "tgpagella" ]]; then
