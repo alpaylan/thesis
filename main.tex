@@ -18,33 +18,53 @@
 
 \documentclass[12pt]{thesis}  %12pt is larger than 11pt
 \usepackage[margin=1cm]{caption}
-\usepackage{titlesec}
+\usepackage[explicit]{titlesec}
 \usepackage{xcolor}
 \usepackage{listings}
 \usepackage[scaled=0.95]{inconsolata}
-\definecolor{thesisheading}{HTML}{123B66}
+\definecolor{thesisheading}{HTML}{1F1F1F}
 \definecolor{thesissubheading}{HTML}{2F2F2F}
+\colorlet{thesisghost}{thesisheading!22} %faint tint for the oversized chapter numeral
 \newcommand{\chapterlabelname}{Chapter}
 \newcommand{\setchapterlabel}[1]{\renewcommand{\chapterlabelname}{#1}}
-\titleformat{\chapter}[display]
+% Oversized ghost chapter numeral: a large faint numeral overhangs into the
+% left margin, beside a small-caps label + title (vertically centred), with a
+% rule beneath the title.
+\newlength{\ghostnumwidth}\setlength{\ghostnumwidth}{2.7cm}
+\newlength{\ghostnumgap}\setlength{\ghostnumgap}{0.8cm}
+\newlength{\ghostnumoverhang}\setlength{\ghostnumoverhang}{0.6cm}
+\newcommand{\ghostchapterhead}[1]{%
+  \hspace*{-\ghostnumoverhang}%
+  \begin{minipage}[c]{\ghostnumwidth}%
+    \raggedleft\textcolor{thesisghost}{\fontsize{2.7cm}{2.7cm}\selectfont\bfseries\thechapter}%
+  \end{minipage}%
+  \hspace{\ghostnumgap}%
+  \begin{minipage}[c]{\dimexpr\textwidth-\ghostnumwidth-\ghostnumgap+\ghostnumoverhang\relax}%
+    \setstretch{1}%
+    {\color{thesisheading}\normalfont\large\scshape\chapterlabelname}\\[0.15ex]%
+    {\color{thesisheading}\Huge\bfseries\raggedright #1\par}%
+    \vspace{1.0ex}%
+    {\color{thesisheading}\titlerule[1.2pt]}%
+  \end{minipage}%
+}
+\titleformat{\chapter}
   {\normalfont}
-  {\color{thesisheading}\Large\bfseries\chapterlabelname\ \thechapter}
-  {0.5ex}
-  {\Huge\bfseries}
-  [\vspace{0.5ex}\color{thesisheading}\titlerule]
-\titlespacing*{\chapter}{0pt}{0pt}{1.5em}
+  {}
+  {0pt}
+  {\ghostchapterhead{#1}}
+\titlespacing*{\chapter}{0pt}{0pt}{1.6em}
 \titleformat{\section}
   {\normalfont\Large\bfseries\color{thesissubheading}}
-  {\thesection}{0.8em}{}
+  {\thesection}{0.8em}{#1}
 \titleformat{\subsection}
   {\normalfont\large\bfseries\color{thesissubheading}}
-  {\thesubsection}{0.8em}{}
+  {\thesubsection}{0.8em}{#1}
 \titleformat{\subsubsection}
   {\normalfont\normalsize\bfseries\color{thesissubheading}}
-  {\thesubsubsection}{0.8em}{}
+  {\thesubsubsection}{0.8em}{#1}
 \titleformat{\paragraph}[hang]
   {\normalfont\small\bfseries\color{thesissubheading}}
-  {\theparagraph}{0.8em}{}
+  {\theparagraph}{0.8em}{#1}
 \titlespacing*{\section}{0pt}{1.4em}{0.6em}
 \titlespacing*{\subsection}{0pt}{1.2em}{0.5em}
 \titlespacing*{\subsubsection}{0pt}{1em}{0.4em}

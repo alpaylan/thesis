@@ -1,4 +1,47 @@
 
 \renewcommand{\thechapter}{5}
 
-\chapter{Conclusion}\label{chap:conclusion}
+\chapter{Conclusions and Future Work}\label{chap:conclusion}
+
+The work I present in this thesis aims to enable reliable, scalable, reproducible
+experimentation and research for the next generation of random testing tools. We were
+able to undertake experiments that would otherwise have taken weeks to setup in a
+matter of hours and days due to the combination of tools and techniques I've worked
+during the development of this thesis.
+
+We are in the midst of a paradigm shift in the development of software. Program
+synthesis from natural language specifications via generative AI has given rise to a
+proliferation of code generation. The leverage one gains from such generation, however,
+is bounded by their ability to verify it, putting verification of correctness to the
+center of this debate. I wrote this thesis in the midst of this shift, and I have seen
+the rising interest in random testing during these last 5 years.
+
+Property-Based Testing is precisely interesting within this new paradigm of code
+synthesis because it emphasizes specifications as a central concept. Given a complete
+specification of a system, the futurist in me wants to claim we could synthesize the
+system from scratch. In addition to developing property-based testing tools themselves,
+I would like to use random testing for autonomous systems optimization, translation,
+and synthesis; develop tools and theories advancing these layers on top of testing. I
+believe, however, we are far from this reality, not due to model capabilities, but
+rather due to our lack of understanding what makes property-based testing effective.
+
+During my thesis work, I have worked on building the infrastructure for collecting
+metrics and measuring statistics, devising which metrics to collect and statistics to
+compute and empirically validating them. Today, we can measure the quality of a
+generator produced by an algorithm for an ETNA workload; can we go further to
+understand the quality of a generator written for an arbitrary project using PBT? Can
+we automatically tune internal parameters of a generator as needed? We produced
+measures for evaluating shrinking strategies, can we generalize them, use them to find
+better algorithms across different ecosystems? Our measurements treat mutation-based
+random testing as a direct alternative to blackbox generation-based random testing,
+what kind of fine granular metrics can we devise for better understanding the
+effectiveness of the former? Finally, how can we leverage Programmable PBT to augment
+the current property runners, can we have fault localization in PBT, can we switch
+between symbolic and concrete inputs, can we parallelize work only when needed?
+
+We may be able to do all of these things, devise metrics, develop new techniques and
+algorithms only if we are able to evaluate them properly. I plan to horizontally grow
+ETNA to as many languages, ecosystems and workloads as possible; to make
+experimentation across the board as seamless as possible, evaluate any and all features
+of a PBT framework, supercharge the development for the future of property-based
+testing.
