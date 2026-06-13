@@ -1,0 +1,29 @@
+name: Deploy diff viewer to Fly
+
+# Redeploy the thesis diff viewer whenever main changes, so the deployed site
+# always reflects your latest pushed commits.
+on:
+  push:
+    branches: [main]
+    # Skip pointless rebuilds for changes that don't affect the rendered thesis
+    # or the app itself.
+    paths-ignore:
+      - "README*"
+      - "paper-pull-tracker.md"
+      - ".gitignore"
+
+concurrency:
+  group: fly-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history: the diff viewer needs every commit
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

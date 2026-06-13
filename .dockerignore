@@ -1,0 +1,21 @@
+# Build the smallest useful context.
+# KEEP .git (git log + git-latexdiff need full history) and figures/ (incl. the
+# untracked figures/dirt/analysis.pdf that --ln-untracked symlinks in).
+textidote/
+build/
+scratch/
+.vscode/
+.githooks/
+tools/
+*.synctex.gz
+main.pdf
+main.aux
+main.fdb_latexmk
+main.fls
+main.log
+main.lof
+main.lot
+main.out
+main.toc
+.DS_Store
+**/.DS_Store
