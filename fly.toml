@@ -13,10 +13,11 @@ primary_region = "iad"
 [http_service]
   internal_port = 8080
   force_https = true
-  # Scale to zero when idle; wake on the next request (advisor visits rarely).
-  auto_stop_machines = "suspend"
+  # Keep one machine always running: builds run in a background thread with no
+  # open HTTP connection, so scale-to-zero/suspend would freeze them mid-compile.
+  auto_stop_machines = "off"
   auto_start_machines = true
-  min_machines_running = 0
+  min_machines_running = 1
   processes = ["app"]
 
 [[vm]]
