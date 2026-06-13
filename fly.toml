@@ -10,6 +10,12 @@ primary_region = "iad"
   # Timestamps (commit dates + diff "created" times) render in this zone.
   TZ = "America/New_York"
 
+# Persist generated diff/full PDFs + index.json across deploys (build/ is
+# otherwise ephemeral and wiped on every redeploy).
+[mounts]
+  source = "diffs_data"
+  destination = "/app/build/diffs"
+
 [http_service]
   internal_port = 8080
   force_https = true
