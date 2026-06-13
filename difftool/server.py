@@ -17,6 +17,7 @@ Two kinds of build:
 from __future__ import annotations
 
 import argparse
+import glob
 import json
 import os
 import queue
@@ -41,6 +42,10 @@ CONFIG = {
     "build_dir": "build",  # matches $out_dir in latexmkrc
     "out_dir": os.path.join(REPO_ROOT, "build", "diffs"),
 }
+
+# A hung build (e.g. latex/git waiting on a prompt) is killed after this and
+# marked as an error, so it never blocks the worker forever.
+BUILD_TIMEOUT = 420  # seconds
 
 # ---------------------------------------------------------------------------
 # Job state
@@ -123,9 +128,31 @@ def load_index() -> None:
 # Git helpers
 # ---------------------------------------------------------------------------
 
-def git(*args: str) -> str:
+def git(*args: str, timeout: int = 120) -> str:
+    env = dict(os.environ)
+    env["GIT_TERMINAL_PROMPT"] = "0"   # never block on a credential prompt
     return subprocess.check_output(
-        ["git", *args], cwd=REPO_ROOT, text=True, stderr=subprocess.STDOUT)
+        ["git", *args], cwd=REPO_ROOT, text=True, stderr=subprocess.STDOUT,
+        env=env, timeout=timeout)
+
+
+CHGMETA_RE = re.compile(r"\\difchgmeta\{(\d+)\}\{(add|del)\}\{(\d+)\}\{([^}]*)\}")
+
+
+def parse_changes(aux_path: str) -> list[dict]:
+    """Read the \\difchgmeta records the diff filter wrote into the .aux:
+    one per change, with physical page (for jumping) and printed page (label)."""
+    try:
+        with open(aux_path, encoding="utf-8", errors="replace") as fh:
+            text = fh.read()
+    except OSError:
+        return []
+    by_n: dict[int, dict] = {}
+    for m in CHGMETA_RE.finditer(text):
+        n = int(m.group(1))
+        by_n[n] = {"n": n, "type": m.group(2),
+                   "abspage": int(m.group(3)), "page": m.group(4)}
+    return sorted(by_n.values(), key=lambda c: (c["abspage"], c["n"]))
 
 
 def list_commits(limit: int = 200) -> list[dict]:
@@ -199,14 +226,38 @@ def build_worker() -> None:
             BUILD_QUEUE.task_done()
 
 
-def _stream(proc: subprocess.Popen, jid: str) -> list[str]:
+def _run_streamed(cmd: list[str], cwd: str, jid: str,
+                  timeout: int = BUILD_TIMEOUT) -> tuple[int, list[str]]:
+    """Run cmd, stream its output into the job log, kill it if it hangs."""
+    env = dict(os.environ)
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    proc = subprocess.Popen(cmd, cwd=cwd, text=True, env=env,
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    timed_out = {"v": False}
+
+    def _kill():
+        timed_out["v"] = True
+        try:
+            proc.kill()
+        except Exception:  # noqa: BLE001
+            pass
+
+    watchdog = threading.Timer(timeout, _kill)
+    watchdog.start()
     log_lines: list[str] = []
-    assert proc.stdout is not None
-    for line in proc.stdout:
-        log_lines.append(line.rstrip("\n"))
-        with JOBS_LOCK:
-            JOBS[jid]["log"] = "\n".join(log_lines[-400:])
-    return log_lines
+    try:
+        assert proc.stdout is not None
+        for line in proc.stdout:
+            log_lines.append(line.rstrip("\n"))
+            with JOBS_LOCK:
+                JOBS[jid]["log"] = "\n".join(log_lines[-400:])
+        rc = proc.wait()
+    finally:
+        watchdog.cancel()
+    if timed_out["v"]:
+        log_lines.append(f"[diff-viewer] build exceeded {timeout}s and was killed.")
+        rc = -99
+    return rc, log_lines
 
 
 def _start(jid: str) -> dict:
@@ -245,13 +296,22 @@ def run_diff_build(jid: str) -> None:
     if os.path.exists(out_pdf):
         os.remove(out_pdf)
 
+    # --ln-untracked symlinks the (untracked) build/ dir from the working tree
+    # back into the checkout, so latexmk writes its .aux into the *real* build/.
+    # That file survives git-latexdiff's cleanup, so we read the change records
+    # the filter wrote there after the build (and use -o for a reliable PDF).
+    aux_path = os.path.join(REPO_ROOT, CONFIG["build_dir"], "main.aux")
+    for p in (out_pdf, aux_path):
+        if os.path.exists(p):
+            os.remove(p)
+
     cmd = [
         "git", "latexdiff",
         "--main", CONFIG["main"],
         "--latexmk",
         "--build-dir", CONFIG["build_dir"],   # latexmkrc sets $out_dir = 'build'
         "--ln-untracked",                      # pull in gitignored figures (*.pdf)
-        "--filter", f"python3 {BOOKMARK_FILTER} {CONFIG['main']}",  # per-change bookmarks
+        "--filter", f"python3 {BOOKMARK_FILTER} {CONFIG['main']}",
         "--ignore-latex-errors",
         "--no-view",
         "--quiet",
@@ -259,10 +319,16 @@ def run_diff_build(jid: str) -> None:
         old, new,
     ]
     start = time.time()
-    proc = subprocess.Popen(cmd, cwd=REPO_ROOT, text=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    log_lines = _stream(proc, jid)
-    rc = proc.wait()
+    rc, log_lines = _run_streamed(cmd, REPO_ROOT, jid)
+    changes = parse_changes(aux_path) if os.path.exists(out_pdf) else []
+    with JOBS_LOCK:
+        JOBS[jid]["changes"] = changes
+    # tidy the compile artifacts the symlink left in build/ (keep build/diffs/).
+    for f in glob.glob(os.path.join(REPO_ROOT, CONFIG["build_dir"], "main.*")):
+        try:
+            os.remove(f)
+        except OSError:
+            pass
     _finish(jid, out_pdf, rc, log_lines, round(time.time() - start, 1),
             "git-latexdiff")
 
@@ -282,11 +348,9 @@ def run_full_build(jid: str) -> None:
         git("worktree", "add", "--detach", "--force", wt, commit)
         copy_untracked_assets(wt)
         # Same engine as build.sh: latexmk + the repo's latexmkrc (out_dir=build).
-        proc = subprocess.Popen(
+        rc, log_lines = _run_streamed(
             ["latexmk", "-pdf", "-f", "-interaction=nonstopmode", CONFIG["main"]],
-            cwd=wt, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        log_lines = _stream(proc, jid)
-        rc = proc.wait()
+            wt, jid)
         built = os.path.join(wt, CONFIG["build_dir"], "main.pdf")
         if os.path.exists(built):
             shutil.copy2(built, out_pdf)
@@ -480,7 +544,9 @@ class Handler(BaseHTTPRequestHandler):
         with open(full, "rb") as fh:
             body = fh.read()
         self._send_bytes(body, "application/pdf", extra={
-            "Content-Disposition": f'inline; filename="{pdf}"'})
+            "Content-Disposition": f'inline; filename="{pdf}"',
+            # Cache so jumping to a change (#page=N) reloads from cache, not net.
+            "Cache-Control": "private, max-age=600"})
 
 
 def main():

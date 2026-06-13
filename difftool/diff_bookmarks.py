@@ -1,33 +1,47 @@
 #!/usr/bin/env python3
-"""git-latexdiff --filter hook: inject a PDF bookmark at every change.
+"""git-latexdiff --filter hook: record every change for an in-app change index.
 
 git-latexdiff runs this inside the diff checkout with the flattened diff file
 as the only argument; it must rewrite that file in place.
 
 We add a small preamble block (just before \\begin{document}) that hooks
-latexdiff's own \\DIFaddbegin / \\DIFdelbegin markers so each change drops a
-top-level PDF bookmark "Change N (p. X)".  The thesis already loads hyperref,
-so the bookmarks show up as a clickable outline/index in any PDF viewer.
+latexdiff's own \\DIFaddbegin / \\DIFdelbegin markers (defined with
+\\DeclareRobustCommand, so we patch them with etoolbox's \\pretocmd).  At every
+change we:
+
+  * write a record to the .aux:  \\difchgmeta{N}{add|del}{abspage}{printedpage}
+    -> the server parses these to build a clickable list of changes.
+  * drop a PDF bookmark too (harmless bonus for viewers that show an outline).
+
+`abspage` (physical page, via atbegshi) is what the UI uses to jump the embedded
+viewer; `printedpage` (\\thepage) is shown as the human label.
 """
 
 import sys
 
 INJECT = r"""
-% --- diff-viewer: per-change PDF bookmarks (injected) -----------------------
-% latexdiff defines \DIFaddbegin / \DIFdelbegin with \DeclareRobustCommand, so
-% we patch them with etoolbox's \pretocmd (which handles robust commands) to
-% drop a top-level PDF bookmark at the start of every change.
+% --- diff-viewer: per-change index data (injected) --------------------------
+\makeatletter
 \usepackage{etoolbox}
+\usepackage{atbegshi}
+\providecommand{\difchgmeta}[4]{}% defined as no-op so reading .aux never errors
 \newcounter{difchg}
-\newcommand{\difchgmark}{%
+\newcounter{difabspage}
+\AtBeginShipout{\stepcounter{difabspage}}
+\newcommand{\difchgmark}[1]{%
   \ifmmode\else
     \stepcounter{difchg}%
+    % record first, so a stray \pdfbookmark error can never drop a change
+    \immediate\write\@auxout{%
+      \string\difchgmeta{\arabic{difchg}}{#1}%
+      {\the\numexpr\value{difabspage}+1\relax}{\thepage}}%
     \pdfbookmark[0]{Change \thedifchg\space(p.\thepage)}{difchg.\arabic{difchg}}%
   \fi}
 \AtBeginDocument{%
-  \ifdef{\DIFaddbegin}{\pretocmd{\DIFaddbegin}{\difchgmark}{}{}}{}%
-  \ifdef{\DIFdelbegin}{\pretocmd{\DIFdelbegin}{\difchgmark}{}{}}{}%
+  \ifdef{\DIFaddbegin}{\pretocmd{\DIFaddbegin}{\difchgmark{add}}{}{}}{}%
+  \ifdef{\DIFdelbegin}{\pretocmd{\DIFdelbegin}{\difchgmark{del}}{}{}}{}%
 }
+\makeatother
 % --- end diff-viewer block --------------------------------------------------
 """
 

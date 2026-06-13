@@ -30,10 +30,15 @@ Added text is blue + underlined, removed text is red + struck through.
 
 ### Change index
 
-Every diff PDF gets a **PDF bookmark at each change**, labelled `Change N (p. X)`.
-Open the viewer's *bookmarks / outline* panel to get a clickable index of every
-change and jump straight to it. (Implemented by `diff_bookmarks.py`, injected via
-git-latexdiff's `--filter`.)
+When you view a diff, a **Changes** list appears beside the PDF: one entry per
+change (⊕ added / ⊖ removed, with its page). Click an entry to jump the viewer
+straight to it — no PDF-viewer panel needed.
+
+How it works: `diff_bookmarks.py` (injected via git-latexdiff's `--filter`) hooks
+latexdiff's change markers and writes a `\difchgmeta{n}{type}{abspage}{page}`
+record into the `.aux` for each change; the server parses those and the UI jumps
+the embedded viewer via `#page=`. (A PDF bookmark per change is also added as a
+bonus for anyone who prefers the viewer's outline.)
 
 Generated PDFs are cached in `build/diffs/` (gitignored), keyed by commit pair,
 so re-viewing is instant and they survive a server restart.
