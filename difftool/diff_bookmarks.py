@@ -37,9 +37,13 @@ INJECT = r"""
       {\the\numexpr\value{difabspage}+1\relax}{\thepage}}%
     \pdfbookmark[0]{Change \thedifchg\space(p.\thepage)}{difchg.\arabic{difchg}}%
   \fi}
+% Hook \DIFadd / \DIFdel (which wrap the actual coloured/struck *text*) rather
+% than \DIFaddbegin / \DIFdelbegin: the begin-markers also wrap structural,
+% non-rendering changes (e.g. an edit inside a \chapter title), which would
+% index entries that jump to a page with nothing visibly changed.
 \AtBeginDocument{%
-  \ifdef{\DIFaddbegin}{\pretocmd{\DIFaddbegin}{\difchgmark{add}}{}{}}{}%
-  \ifdef{\DIFdelbegin}{\pretocmd{\DIFdelbegin}{\difchgmark{del}}{}{}}{}%
+  \ifdef{\DIFadd}{\pretocmd{\DIFadd}{\difchgmark{add}}{}{}}{}%
+  \ifdef{\DIFdel}{\pretocmd{\DIFdel}{\difchgmark{del}}{}{}}{}%
 }
 \makeatother
 % --- end diff-viewer block --------------------------------------------------

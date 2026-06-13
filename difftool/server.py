@@ -140,19 +140,29 @@ CHGMETA_RE = re.compile(r"\\difchgmeta\{(\d+)\}\{(add|del)\}\{(\d+)\}\{([^}]*)\}
 
 
 def parse_changes(aux_path: str) -> list[dict]:
-    """Read the \\difchgmeta records the diff filter wrote into the .aux:
-    one per change, with physical page (for jumping) and printed page (label)."""
+    """Read the \\difchgmeta records the diff filter wrote into the .aux and
+    collapse them to one entry per changed page (a change in a heading fires
+    several times — body, TOC, running head — so per-record entries are noisy).
+    Each entry has the physical page (for jumping), printed page (label), and a
+    type of add / del / both, renumbered 1..N in page order."""
     try:
         with open(aux_path, encoding="utf-8", errors="replace") as fh:
             text = fh.read()
     except OSError:
         return []
-    by_n: dict[int, dict] = {}
+    pages: dict[int, dict] = {}
     for m in CHGMETA_RE.finditer(text):
-        n = int(m.group(1))
-        by_n[n] = {"n": n, "type": m.group(2),
-                   "abspage": int(m.group(3)), "page": m.group(4)}
-    return sorted(by_n.values(), key=lambda c: (c["abspage"], c["n"]))
+        typ, abspage, page = m.group(2), int(m.group(3)), m.group(4)
+        e = pages.setdefault(abspage, {"abspage": abspage, "page": page,
+                                       "types": set()})
+        e["types"].add(typ)
+    out = []
+    for i, e in enumerate(sorted(pages.values(), key=lambda x: x["abspage"]), 1):
+        types = e["types"]
+        typ = "both" if len(types) > 1 else next(iter(types))
+        out.append({"n": i, "type": typ,
+                    "abspage": e["abspage"], "page": e["page"]})
+    return out
 
 
 def list_commits(limit: int = 200) -> list[dict]:

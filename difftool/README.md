@@ -30,15 +30,17 @@ Added text is blue + underlined, removed text is red + struck through.
 
 ### Change index
 
-When you view a diff, a **Changes** list appears beside the PDF: one entry per
-change (⊕ added / ⊖ removed, with its page). Click an entry to jump the viewer
-straight to it — no PDF-viewer panel needed.
+When you view a diff, a **Changed pages** list appears beside the PDF: one entry
+per page that changed (`+` added / `−` removed / `±` both). Click an entry to
+jump the viewer straight to that page — no PDF-viewer panel needed.
 
 How it works: `diff_bookmarks.py` (injected via git-latexdiff's `--filter`) hooks
-latexdiff's change markers and writes a `\difchgmeta{n}{type}{abspage}{page}`
-record into the `.aux` for each change; the server parses those and the UI jumps
-the embedded viewer via `#page=`. (A PDF bookmark per change is also added as a
-bonus for anyone who prefers the viewer's outline.)
+latexdiff's `\DIFadd` / `\DIFdel` (the commands that wrap actually-rendered
+changed text — *not* the `\DIFaddbegin` markers, which also wrap invisible
+structural edits like a tweak inside a `\chapter` title) and writes a
+`\difchgmeta{n}{type}{abspage}{page}` record into the `.aux`. The server groups
+those by page and the UI jumps the embedded viewer via `#page=`. (A PDF bookmark
+per change is also added for anyone who prefers the viewer's outline.)
 
 Generated PDFs are cached in `build/diffs/` (gitignored), keyed by commit pair,
 so re-viewing is instant and they survive a server restart.

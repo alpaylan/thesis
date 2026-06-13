@@ -66,6 +66,7 @@
   .chg .sym { font-weight: 800; width: 10px; text-align: center; }
   .chg.add .sym { color: var(--add); }
   .chg.del .sym { color: var(--del); }
+  .chg.both .sym { color: #6f42c1; }
   .chg .pg { margin-left: auto; color: var(--muted); font-size: 12px; white-space: nowrap; }
   .changes .none { color: var(--muted); font-size: 12px; padding: 8px; }
   .viewer { flex: 1; min-width: 0; background: #525659; position: relative; }
@@ -272,13 +273,12 @@ function renderChanges(d) {
   const items = (d && d.kind !== "full" && d.changes) ? d.changes : [];
   if (!items.length) { panel.hidden = true; panel.innerHTML = ""; return; }
   panel.hidden = false;
-  let html = `<h3>Changes (${items.length})</h3>`;
+  const SYM = { add: "+", del: "−", both: "±" };
+  let html = `<h3>Changed pages (${items.length})</h3>`;
   for (const c of items) {
-    const sym = c.type === "del" ? "−" : "+";
-    html += `<div class="chg ${esc(c.type)}" data-page="${c.abspage}" title="Jump to change ${c.n}">
-      <span class="sym">${sym}</span>
-      <span>Change ${c.n}</span>
-      <span class="pg">p.${esc(String(c.page))}</span></div>`;
+    html += `<div class="chg ${esc(c.type)}" data-page="${c.abspage}" title="Jump to page ${esc(String(c.page))}">
+      <span class="sym">${SYM[c.type] || "+"}</span>
+      <span>Page ${esc(String(c.page))}</span></div>`;
   }
   panel.innerHTML = html;
   panel.querySelectorAll(".chg").forEach(el =>
