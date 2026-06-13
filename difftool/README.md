@@ -18,6 +18,10 @@ No dependencies beyond what you already have: `python3`, `git-latexdiff`,
 
 ## Use
 
+0. A **Current draft** card is pinned at the top-left: the full (no-diff) PDF of
+   the latest commit, built automatically on startup so it's always ready, and
+   opened automatically when you first load the page. It rebuilds itself each
+   time a new commit is deployed.
 1. Pick a **Base** and a **Compare** commit (the dropdowns show date + commit
    subject).
 2. **Generate diff** renders the latexdiff between them. **Full PDF** renders the

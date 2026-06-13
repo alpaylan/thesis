@@ -52,6 +52,7 @@ BUILD_TIMEOUT = 420  # seconds
 # ---------------------------------------------------------------------------
 
 JOBS_LOCK = threading.Lock()
+INDEX_IO_LOCK = threading.Lock()    # serialise index.json writes across threads
 JOBS: dict[str, dict] = {}          # id -> job dict
 BUILD_QUEUE: "queue.Queue[str]" = queue.Queue()
 
@@ -97,10 +98,11 @@ def save_index() -> None:
     with JOBS_LOCK:
         data = {jid: {k: v for k, v in j.items() if k != "log"}
                 for jid, j in JOBS.items()}
-    tmp = index_path() + ".tmp"
-    with open(tmp, "w") as fh:
-        json.dump(data, fh, indent=2)
-    os.replace(tmp, index_path())
+    with INDEX_IO_LOCK:   # unique tmp + serialised replace: no cross-thread race
+        fd, tmp = tempfile.mkstemp(dir=CONFIG["out_dir"], suffix=".tmp")
+        with os.fdopen(fd, "w") as fh:
+            json.dump(data, fh, indent=2)
+        os.replace(tmp, index_path())
 
 
 def load_index() -> None:
@@ -408,6 +410,44 @@ def enqueue_full(commit: str) -> dict:
     })
 
 
+def ensure_current_full() -> None:
+    """Pin a 'current draft' = the full PDF of HEAD, auto-built on startup so it
+    is ready to view.  Drops the previous auto-current (an older HEAD) to avoid
+    piling up stale drafts; manually-built full PDFs and diffs are left alone."""
+    try:
+        head = git("rev-parse", "HEAD").strip()
+    except Exception:  # noqa: BLE001
+        return
+    cur_id = full_id(head)
+
+    # Remove stale auto-current drafts (older HEADs).
+    stale = []
+    with JOBS_LOCK:
+        for jid, j in list(JOBS.items()):
+            if j.get("auto") and jid != cur_id:
+                stale.append((jid, j.get("pdf")))
+                JOBS.pop(jid, None)
+        for j in JOBS.values():
+            j.pop("current", None)
+        existing = JOBS.get(cur_id)
+    for _, pdf in stale:
+        if pdf:
+            try:
+                os.remove(os.path.join(CONFIG["out_dir"], pdf))
+            except OSError:
+                pass
+
+    have = bool(existing and existing.get("status") == "done"
+                and existing.get("pdf")
+                and os.path.exists(os.path.join(CONFIG["out_dir"], existing["pdf"])))
+    if not have:
+        enqueue_full(head)
+    with JOBS_LOCK:
+        JOBS[cur_id]["current"] = True
+        JOBS[cur_id]["auto"] = True
+    save_index()
+
+
 # ---------------------------------------------------------------------------
 # HTTP handler
 # ---------------------------------------------------------------------------
@@ -573,6 +613,7 @@ def main():
 
     worker = threading.Thread(target=build_worker, daemon=True)
     worker.start()
+    ensure_current_full()   # auto-build the latest full PDF as the "current draft"
 
     httpd = ThreadingHTTPServer((args.host, args.port), Handler)
     url = f"http://{args.host}:{args.port}"

@@ -82,6 +82,9 @@
   }
   .card:hover { border-color: #c5cbd3; }
   .card.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(37,99,235,.15); }
+  .card.current { background: linear-gradient(180deg,#f5f8ff,#fff); border-color: #c7d6f7; }
+  #current h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .5px;
+    color: var(--muted); margin: 4px 4px 10px; }
   .card .row1 { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
   .badge {
     font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 20px;
@@ -139,6 +142,7 @@
 </header>
 <main>
   <aside>
+    <div id="current"></div>
     <h2>Diffs</h2>
     <div id="list"></div>
   </aside>
@@ -162,6 +166,7 @@ let commits = [];
 let activeId = null;
 let currentPdfBase = null;
 let pollTimer = null;
+let autoViewed = false;
 
 function toast(msg) {
   const t = $("#toast");
@@ -268,6 +273,26 @@ function view(d) {
   refresh();
 }
 
+function renderCurrent(d) {
+  const el = $("#current");
+  if (!d) { el.innerHTML = ""; return; }
+  const building = d.status === "building" || d.status === "queued";
+  const spin = building ? '<span class="spinner"></span> ' : "";
+  const subj = d.subject || "latest commit";
+  let inner = `<h2>Current draft</h2>
+    <div class="card current ${d.id === activeId ? "active" : ""}" id="current-card" title="Full PDF of the latest commit">
+      <div class="row1">
+        <span class="badge ${d.status}">${spin}${d.status}</span>
+        <span class="kind full">full pdf</span>
+      </div>
+      <div class="subj big">📄 Latest draft</div>
+      <div class="subj sub">${esc(subj)}${d.date ? " · " + esc(d.date) : ""}</div>`;
+  if (d.status === "error" && d.error) inner += `<div class="err">${esc(d.error)}</div>`;
+  inner += `</div>`;
+  el.innerHTML = inner;
+  $("#current-card").addEventListener("click", () => { if (d.status === "done") view(d); });
+}
+
 function renderChanges(d) {
   const panel = $("#changes");
   const items = (d && d.kind !== "full" && d.changes) ? d.changes : [];
@@ -292,12 +317,20 @@ function jumpTo(page) {
 async function refresh() {
   const r = await fetch("/api/diffs");
   const data = await r.json();
-  renderList(data.diffs || []);
+  const all = data.diffs || [];
+  const current = all.find(d => d.current);
+  renderCurrent(current);
+  renderList(all.filter(d => !d.current));
   if (activeId) {
-    const cur = (data.diffs || []).find(x => x.id === activeId);
+    const cur = all.find(x => x.id === activeId);
     if (cur) renderChanges(cur);
   }
-  const anyBuilding = (data.diffs || []).some(d => d.status === "building" || d.status === "queued");
+  // On first load, auto-open the current draft once it's ready.
+  if (!autoViewed && !activeId && current && current.status === "done") {
+    autoViewed = true;
+    view(current);
+  }
+  const anyBuilding = all.some(d => d.status === "building" || d.status === "queued");
   if (anyBuilding && !pollTimer) {
     pollTimer = setInterval(refresh, 1500);
   } else if (!anyBuilding && pollTimer) {
