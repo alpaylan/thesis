@@ -4,55 +4,45 @@ The top-level auxiliary file: main.aux
 The style file: unsrt.bst
 Database file #1: Bibliography.bib
 Database file #2: bib/pbtbenchmark/pbtbenchmark-merged.bib
-Warning--entry type for "sqlancer" isn't style-file defined
---line 4869 of file bib/pbtbenchmark/pbtbenchmark-merged.bib
-Warning--entry type for "HypoFuzz" isn't style-file defined
---line 4877 of file bib/pbtbenchmark/pbtbenchmark-merged.bib
-Warning--entry type for "bolero" isn't style-file defined
---line 4885 of file bib/pbtbenchmark/pbtbenchmark-merged.bib
 Database file #3: bib/dirt/references.bib
-Warning--I didn't find a database entry for "kaamer2025bennet"
-Warning--empty booktitle in Tlon
-Warning--empty booktitle in Matela2017ToolsFD
-You've used 121 entries,
+You've used 122 entries,
             1791 wiz_defined-function locations,
-            1303 strings with 31116 characters,
-and the built_in function-call counts, 33109 in all, are:
-= -- 3036
-> -- 1498
-< -- 49
-+ -- 546
-- -- 425
-* -- 1909
-:= -- 4781
-add.period$ -- 404
-call.type$ -- 121
-change.case$ -- 117
+            1305 strings with 31223 characters,
+and the built_in function-call counts, 33201 in all, are:
+= -- 3048
+> -- 1506
+< -- 48
++ -- 549
+- -- 427
+* -- 1916
+:= -- 4804
+add.period$ -- 406
+call.type$ -- 122
+change.case$ -- 118
 chr.to.int$ -- 0
-cite$ -- 123
-duplicate$ -- 1734
-empty$ -- 3238
-format.name$ -- 425
-if$ -- 7923
+cite$ -- 122
+duplicate$ -- 1733
+empty$ -- 3239
+format.name$ -- 427
+if$ -- 7940
 int.to.chr$ -- 0
-int.to.str$ -- 121
+int.to.str$ -- 122
 missing$ -- 101
-newline$ -- 596
-num.names$ -- 129
-pop$ -- 532
+newline$ -- 600
+num.names$ -- 130
+pop$ -- 526
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 1127
+skip$ -- 1133
 stack$ -- 0
 substring$ -- 1674
 swap$ -- 696
-text.length$ -- 49
+text.length$ -- 48
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
-warning$ -- 2
-while$ -- 260
-width$ -- 124
-write$ -- 1368
-(There were 6 warnings)
+warning$ -- 0
+while$ -- 261
+width$ -- 125
+write$ -- 1379

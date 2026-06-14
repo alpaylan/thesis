@@ -245,8 +245,6 @@ choices~\cite{FuzzChick} instead of experimenting with new options in the higher
 setting; in part, because each option in such an experimentation would effectively
 require a new framework.
 
-%% HERE HERE HERE %%
-
 \subsection{Custom-Feedback Guided (Targeted) Property Runner}\label{sec:loops:tpr}
 
 There are other forms of feedback than coverage information that can be used to guide
@@ -351,7 +349,7 @@ quickCheck :: Testable prop => prop -> IO ()
 quickCheck p = quickCheckWith stdArgs p
 \end{code}
 
-Something is \code{Testable} is it can be turned into a \code{Property}:
+Something is \code{Testable} if it can be turned into a \code{Property}:
 
 \begin{code}[language=Haskell]
 class Testable prop where
@@ -402,7 +400,7 @@ instance (Arbitrary a, Show a, Testable prop) => Testable (a -> prop) where
       (uncurry f)
 \end{code}
 
-The automatic currying allows this typeclass instance to recursively handlf functions
+The automatic currying allows this typeclass instance to recursively handle functions
 of any arity as long as the input type can be randomly generated (implements
 \code{Arbitrary}) and can be printed (implements \code{Show}). The automation goes
 further by allowing the users to automatically derive random generators for any Haskell
@@ -687,7 +685,7 @@ property: <avl>.check_balanced()
 
 The advantage of such an embedding is that any consumer of this template can
 theoretically write another interpretation for the same property, its flexibility is
-unparallelled. However, it also means that the users of the testing framework have to
+unparalleled. However, it also means that the users of the testing framework have to
 learn \emph{yet another} language in which to write their specifications and
 generators, foregoing all of the convenience that host-language binders provide.
 Unsurprisingly, almost no frameworks have taken this route: it is hard enough to
@@ -841,7 +839,7 @@ Specifically, the \code{env} in the definition of the inductive \code{Prop} whic
 the type \code{[Type]}, a list of types, is tricky to implement and manage in static
 type systems. Each layer of the property is parameterized by a context of the variables
 introduced in the upper layers, and therefore has access to them. In a
-dynamically-typed setitng, we can solve this by simply hijacking the variable bindings
+dynamically-typed setting, we can solve this by simply hijacking the variable bindings
 of the host language.
 
 We define a property as follows, almost verbatim equivalent to the existing
@@ -1433,7 +1431,7 @@ the targeted property runner is illustrated in Fig.~\ref{fig:targeted-property-r
 
 In Fig.~\ref{fig:targetloop}, I provide an annotated Rocq implementation of the
 custom-feedback guided (targeted) property runner in Rocq. Similar to the simple
-generational runner or coverage-guided (fuzzing) runner in the previos section, this
+generational runner or coverage-guided (fuzzing) runner in the previous section, this
 runner reuses the building blocks we have provided for writing novel property runners.
 
 \begin{code}[language=Rocq,mathescape=true]
@@ -1614,7 +1612,7 @@ In the Racket experiments, we focused on comparing the DBAS-style Racket library
 the shallow embedding implemented by RackCheck. We have conducted our experiments on
 the same BST, RBT, and STLC workloads by porting the existing workloads in Haskell to
 Racket. In the process of porting these workloads, we have also discovered and reported
-\hyperlink{https://web.archive.org/web/20260510181513/https://github.com/Bogdanp/rackcheck/issues/14}{a
+\href{https://web.archive.org/web/20260510181513/https://github.com/Bogdanp/rackcheck/issues/14}{a
   bug in the RackCheck core}, which the authors have fixed in the latest version of the
 library.
 

@@ -196,7 +196,7 @@ Adam Chlipala.
 \bibitem{Tlon}
 Yao Li and Stephanie Weirich.
 \newblock Program adverbs and tl\"on embeddings.
-\newblock volume~6, 07 2022.
+\newblock {\em Proceedings of the ACM on Programming Languages}, 6, 07 2022.
 
 \bibitem{ClaessenP13}
 Koen Claessen and Micha{\l} Pa{\l}ka.
@@ -399,8 +399,7 @@ John Hughes, Benjamin~C. Pierce, Thomas Arts, and Ulf Norell.
 
 \bibitem{Matela2017ToolsFD}
 Rudy Matela.
-\newblock Tools for discovery, refinement and generalization of functional properties by enumerative testing.
-\newblock 2017.
+\newblock Tools for discovery, refinement and generalization of functional properties by enumerative testing, 2017.
 
 \bibitem{zhang1989simple}
 Kaizhong Zhang and Dennis Shasha.
@@ -420,6 +419,11 @@ Janez Dem{\v{s}}ar.
 \bibitem{richey2025failfasterstagingfast}
 Cynthia Richey, Joseph~W. Cutler, Harrison Goldstein, and Benjamin~C. Pierce.
 \newblock Fail faster: Staging and fast randomness for high-performance pbt, 2026.
+
+\bibitem{aamer2025bennet}
+Zain~K Aamer and Benjamin~C. Pierce.
+\newblock Bennet: Randomized specification testing for heap-manipulating programs.
+\newblock {\em Proc. ACM Program. Lang.}, 9(OOPSLA2), October 2025.
 
 \bibitem{tjoa2025tuning}
 Ryan Tjoa, Poorva Garg, Harrison Goldstein, Todd Millstein, Benjamin~C. Pierce, and Guy Van~den Broeck.

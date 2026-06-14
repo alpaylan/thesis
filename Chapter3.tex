@@ -20,7 +20,7 @@ This lack of common comparative analysis surely contributes to a lack of underst
 in the effects of these new techniques and changes; but the problem is persistent
 beyond the literature and into the libraries themselves. All the property-based testing
 libraries I have read in the course of developing this thesis are full of bespoke
-decisions accummulated in the last 25 years. The choice of which sizing function to
+decisions accumulated in the last 25 years. The choice of which sizing function to
 use, the shrinking algorithm, the default settings on budgets and parameters... Many of
 these decisions have never been subject to quantitative judgement beyond the initial
 discussions, never been evaluated at scale, or understood in the broader context of PBT
@@ -38,7 +38,7 @@ ETNA platform and horizontally grown it for OCaml with Nikhil Kamath, Racket wit
 Mert and Justine Frank, for Haskell with George Miao, and for Rust by myself. The
 initial implementation as a library has been replaced with a standalone tool that could
 be easily run cross-platform on many machines, eventually to the point we can start to
-run our experiments as Github Actions. Many of these changes have found their ways into
+run our experiments as GitHub Actions. Many of these changes have found their ways into
 publications, our JFP extension~\cite{etna-jfp} for the ICFP23 paper has incorporated
 the work by Ceren and Nikhil as well as Tin from UPenn working together with Jessica.
 
@@ -126,14 +126,14 @@ mark the set of \emph{tasks} and the corresponding parameters such as timeout, n
 of trials, or any other runtime injected parameter to the running test. Experiments are
 created by \emph{etna experiment new}, reproduction and collaboration is as seamless as
 possible, a user can upload the automatically committed repository to a version control
-tool such as Github, the collaborator can clone the repository; run \emph{etna
+tool such as GitHub, the collaborator can clone the repository; run \emph{etna
     experiment register} to start tracking the experiment.
 
 Another importance concept is a \emph{workload}, a workload is a program with a set of
 injected bugs; and properties that define correctness for some behaviors of the
 workload. Bugs are paired with the subset of properties they invalidate to constitute
 \emph{tasks}, targets for the property-based testing tools to evaluate on. Each ETNA
-workload is hosted on its own Github repository, and the \code{etna-cli} hosts an
+workload is hosted on its own GitHub repository, and the \code{etna-cli} hosts an
 index~\cite{etna-index} to all currently validated workloads.
 
 Workloads, in addition to defining tasks for the PBT tools, define a set of
@@ -168,7 +168,7 @@ test with an external timeout. \code{--parallel} allows running multiple tests i
 parallel, which is especially useful as many PBT tools are single threaded so multicore
 execution enables faster experimentation with minimal interference.
 
-The test is ran via the command \code{etna experiment run --tests <test-name>}, after
+The test is run via the command \code{etna experiment run --tests <test-name>}, after
 which ETNA reads the workload running procedure from the provided steps file; runs the
 configuration, \emph{activates the mutation}, builds the project, and runs the test for
 the given number of trials. One point I am yet to talk about is how the mutations are
@@ -550,7 +550,7 @@ when ETNA used large fuel values, it led to stack overflows!
 
 \subsubsection{OCaml}\label{evaluating-generators-ocaml}
 
-Whereas QuickChick is the defacto property-based testing framework in Rocq, programmers
+Whereas QuickChick is the de facto property-based testing framework in Rocq, programmers
 in OCaml have a choice of frameworks: QCheck, offering a standard QuickCheck-like
 monadic API for writing generators; Crowbar, offering fuzzing capabilities as a wrapper
 around AFL; and Base\_quickcheck, leveraging the Core standard library replacement.
@@ -628,7 +628,7 @@ ETNA allows for running complex experiments that can provide powerful insights t
 property-based testing practitioners or framework developers. However, the scope of
 these experiments were initially limited to the level of a single programming language.
 Given two testing frameworks or generation strategies within the same language, we
-could measure and compare their bugfinding performance across the different ETNA
+could measure and compare their bug-finding performance across the different ETNA
 workloads implemented for that language.
 
 Yet, such inter-language experimentation does not encompass the current practice of
@@ -733,11 +733,11 @@ Despite all bespoke generators implementing the same strategy in principle, ther
 slight differences in efficiency: the way each framework manipulates the size of
 generated inputs across runs and the performance characteristics of the language both
 affect the end result. Still, all strategies are relatively close, with Rust's
-QuickCheck, for example, being simultanously the fastest in the BST and RBT workloads,
+QuickCheck, for example, being simultaneously the fastest in the BST and RBT workloads,
 and the slowest in STLC (we conjecture because of excessive creation of expensive
 closure's in binds).
 
-Another takeway from Figure~\ref{fig:large-cross} is the difficulty of the workloads
+Another takeaway from Figure~\ref{fig:large-cross} is the difficulty of the workloads
 themselves: BST is comprised of 52 tasks, and the slowest generator (Haskell's
 QuickCheck) still finds all 52 injected bugs in 130ms; on the other hand, STLC is
 comprised of only 20 tasks, but the fastest generator (Rocq's QuickChick) takes 300ms,
@@ -745,7 +745,7 @@ where the slowest takes just over 2 seconds.
 
 Moving forward, armed with cross-language evaluation capabilities and only needing to
 implement runners once, we hope to rapidly expand the number of workloads and
-frameworks available for experimention.
+frameworks available for experimentation.
 
 \renewcommand{\bargraphwidth}{0.48\textwidth}
 
@@ -1706,13 +1706,12 @@ CBC generators for BST that we report on.
 
 Measuring performance in Haskell requires forcing strictness in the runners, which
 might result in scenarios where our measurements do not completely agree with empirical
-real world usage without the forced strictness. We will release the whole
-experimentation suite with the deanonymized submission as a reproducible benchmark in
-order to allow for outside contribution to correct any measurement errors that might
-have been the result of an oversight on the measurements. It is also very hard to
-control for effort across libraries, we simply could not set constant shrinking effort
-across libraries, and therefore opted for the default configurations for our final
-experiments.
+real world usage without the forced strictness. The whole experimentation suite is
+available as a reproducible benchmark in order to allow for outside contribution to
+correct any measurement errors that might have been the result of an oversight on the
+measurements. It is also very hard to control for effort across libraries, we simply
+could not set constant shrinking effort across libraries, and therefore opted for the
+default configurations for our final experiments.
 
 Lastly, tree edit distance to ground truth minimums can be a noisy metric. For
 instance, it treats symmetric counterexamples (A-B vs B-A) differently, when they might
@@ -1741,7 +1740,7 @@ into patterns and applying them to multiple locations in a program.
 
 Since we published ETNA, a number of studies on PBT have used it for evaluation. ``Fail
 Faster''~\cite{richey2025failfasterstagingfast} has used the OCaml workloads for
-optimizing OCaml PBT libraries, Bennet~\cite{kaamer2025bennet} has extended ETNA for C
+optimizing OCaml PBT libraries, Bennet~\cite{aamer2025bennet} has extended ETNA for C
 for evaluation of random testing for separation logic, ``Testing Theorems''~\cn and
 ``Tuning Random Generators''~\cite{tjoa2025tuning} use Rocq workloads,
 ``QuickerCheck''~\cite{QuickerCheck} uses the Haskell workloads. In addition to works
@@ -1760,7 +1759,7 @@ HTML report produced by \code{etna report} is another avenue. An important missi
 aspect is the ability to do in-depth analysis by providing information at multiple
 granularities. Ideally, ETNA should be directly integrated with a
 Tyche~\cite{goldsteinTycheSituExploration2023} style visualization framework. We are
-yet to integrated code coverage analysis in any shape, which can be especially useful
+yet to integrate code coverage analysis in any shape, which can be especially useful
 when we start evaluating more fuzzing tools.
 
 Another is a breadth-oriented study for horizontally growing ETNA. Large language
