@@ -9,7 +9,8 @@ tested by the testing framework. In this chapter, I will walk the reader through
 exposition of the rough edges of the existing APIs for writing properties, followed by
 an identification of a core problem in the design of existing PBT libraries. I will
 present the ramifications of the problem followed by a solution from our paper with the
-same title as the chapter, ``Programmable Property-Based Testing''~\cn. This is the
+same title as the chapter, ``Programmable Property-Based
+Testing''~\cite{keles2026programmablepropertybasedtesting}. This is the
 result of joint work with Justine, who is the main designer and implementer of the
 Racket Programmable PBT library; Ceren, who has worked on the reimplementation of the
 existing ETNA workloads in Rocq and Haskell for evaluating our approach; Harry and Leo,
@@ -101,17 +102,16 @@ flexibility we get from the testing library. The more pressing question is, \emp
 Property-based testing landscape tells us it is not. Looking at
 Table~\ref{tab:pbt-frameworks}, we see significant fragmentation within languages;
 Haskell hosts QuickCheck, SmallCheck~\cite{RuncimanNL08}, Hedgehog~\cite{Hedgehog} as
-well as LeanCheck~\cite{leancheck}, and falsify~\cite{falsify} that is not mentioned
-in the table.
-These new frameworks emerge as a response to the limits of flexibility in the existing
-ones\cn. These limitations arise at points that surpass the prescience of the library
-authors in the requirements of the users, because the dominant design paradigm of the
-property languages for PBT libraries fundamentally \emph{fixes} the underlying property
-runner, albeit with a wide range of configurations for the user. All possible behaviors
-and configuration options must be programmed into the library internals with no ability
-to change or extend them in the user space. In the next section, I will introduce a
-variety of property runners from the literature that diverges from the original
-property runner of QuickCheck illustrated in
+well as LeanCheck~\cite{leancheck}, and falsify~\cite{falsify} that is not mentioned in
+the table. These new frameworks emerge as a response to the limits of flexibility in
+the existing ones. These limitations arise at points that surpass the prescience of the
+library authors in the requirements of the users, because the dominant design paradigm
+of the property languages for PBT libraries fundamentally \emph{fixes} the underlying
+property runner, albeit with a wide range of configurations for the user. All possible
+behaviors and configuration options must be programmed into the library internals with
+no ability to change or extend them in the user space. In the next section, I will
+introduce a variety of property runners from the literature that diverges from the
+original property runner of QuickCheck illustrated in
 Figure~\ref{fig:quickcheck-property-runner-intro} that demonstrates the motivation for
 a programmable PBT framework.
 
@@ -504,7 +504,11 @@ is generated independently from a fresh seed, here each generation step depends 
 accumulated effects of the prior actions, and the shrinking loop operates over action
 \emph{sequences} rather than a single value.
 
-\todo{citations: ethan's stuff, database testing, the stateful testing thesis}
+This style of model-based stateful random testing has a long history in PBT, including
+PropEr's stateful testing interface~\cite{arvaniti-thesis-11}. It is also the natural
+shape of recent database-testing work, where tools build databases through sequences of
+operations and then check relational or metamorphic oracles over the resulting
+state~\cite{SQLancer,rigger.pqs,rigger.norec,rigger.tlp,dirt-dbtest26,chou2025modelfree}.
 
 \begin{figure}[h!]
   \centering
@@ -666,9 +670,9 @@ a compiled setting, the boundary between the host and the object is very strict,
 leaving only the option of staged compilation for such an implementation. In
 interpreted settings, it is possible to manipulate the host language terms without
 explicit staging, however cumbersome. To my knowledge, there is only one tool
-experimenting with the deep approach, TSTL\cn, TSTL is ``the Template Scripting Testing
-Language'' that allows for writing templates in an EBNF-like syntax that can include
-arbitrary Python expressions which denotes a generative grammar. Below is a TSTL
+experimenting with the deep approach, TSTL~\cite{holmes2018tstl}. TSTL is ``the
+Template Scripting Testing Language'' that allows for writing templates in an EBNF-like
+syntax that can include arbitrary Python expressions which denotes a generative grammar. Below is a TSTL
 template for testing an AVL tree in Python:
 
 \begin{code}[language=TSTL]
@@ -705,9 +709,10 @@ we create must be ergonomic enough for people to use, otherwise the potential of
 flexibility is never realized. \emph{Mixed embeddings} emerge as optimal points in the
 spectrum where parts of the object language is reified as deeply embedded data
 structures while the rest is kept as shallowly embedded combinators. Perhaps the most
-famous of such embeddings is \emph{Higher-Order Abstract Syntax (HOAS)}~\cite{PfenningElliott1988HOAS}, a popular
-approach to defining languages where the variable bindings in lambdas reuse host
-language binders instead of redefining substitution at the object level.
+famous of such embeddings is \emph{Higher-Order Abstract Syntax
+  (HOAS)}~\cite{PfenningElliott1988HOAS}, a popular approach to defining languages where
+the variable bindings in lambdas reuse host language binders instead of redefining
+substitution at the object level.
 
 \begin{figure}[h]
   \centering
@@ -1204,12 +1209,11 @@ In this section I evaluate our approach and implementation:
         reusable runners and runner components, rather than as changes to the property language
         or framework internals. We carry out three new experiments: In \S~\ref{sec:seedpool} we
         explore how different design choices with respect to the representation and sampling of
-        the seed pool affect testing performance, improving FuzzChick~\cite{FuzzChick}
-        in the process; in
-        \S~\ref{sec:shrink-comp}, we compare the default integrated shrinking capabilities of
-        RackCheck{} with a simple external shrinker we implemented for a DBAS-style Racket
-        library; in \S~\ref{sec:parallel-experiment}, we implement and benchmark a parallel
-        property-runner inspired by a recent work on parallelizing
+        the seed pool affect testing performance, improving FuzzChick~\cite{FuzzChick} in the
+        process; in \S~\ref{sec:shrink-comp}, we compare the default integrated shrinking
+        capabilities of RackCheck{} with a simple external shrinker we implemented for a
+        DBAS-style Racket library; in \S~\ref{sec:parallel-experiment}, we implement and
+        benchmark a parallel property-runner inspired by a recent work on parallelizing
         QuickCheck~\cite{ParallelTesting}.
 \end{enumerate}
 
