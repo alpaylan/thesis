@@ -1887,29 +1887,20 @@ representation or the core framework. Our implementation uses worker threads wit
 shared atomic variables, one keeping the current number of tests across threads, and
 one indicating if the process of testing is finished or not.
 
-We have compared this parallel runner with 4 threads against the single threaded runner
-across 131 tasks (53 BST, 58 RBT, 20 STLC). As the results of the simple generational
-property runner evaluation in Racket (\S~\ref{sec:shallow_vs_deep-racket}) shows, the
-majority of the tasks in ETNA~\cite{ETNA} are trivial for bespoke generators, they can
-be solved within 0.1 seconds. In order to measure the impact of the parallelization in
-the presence of such variation across tasks, we apply a set of cutoffs of time
-differences between task solving performance, and report the average ratio of time to
-solve for each cutoff.
-
-\begin{itemize}
-  \item For all tasks where the difference between time-to-failure for single and parallel
-        runners is greater than a millisecond, the average of their ratios is 1.2, where the
-        parallel runner takes 20\% more time {\it on average} than the single threaded runner
-        across 49 of the 131 tasks.
-  \item For all tasks where the difference between time-to-failure for single and parallel
-        runners is greater than 0.1 seconds, the average of their ratios is 0.33, where the
-        parallel runner is {\it on average} 3 times faster than the single threaded runner
-        across 10 of the 131 tasks.
-  \item Only 1 task has a difference of more than 1 second, which the average time-to-failure
-        for single threaded runner is 3.56 seconds, and the average time-to-failure for the
-        parallel runner is 1.16 seconds, resulting in again a 3 times speed-up due to
-        parallelization.
-\end{itemize}
+We compared this 4-thread parallel runner against the single-threaded runner across 131
+tasks (53 BST, 58 RBT, 20 STLC). The result is mixed, which is expected for these
+workloads: most ETNA tasks are solved by bespoke Racket generators within 0.1 seconds
+(\S~\ref{sec:shallow_vs_deep-racket}), leaving little room for parallelism to overcome
+thread-management overhead. Among the 49 tasks where the single-threaded and parallel
+times differ by more than one millisecond, the parallel runner is slower on average
+(the average time ratio is 1.2, i.e., 20\% more time). On the 10 tasks where the
+difference exceeds 0.1 seconds, the parallel runner is faster by roughly 3x on average
+(the average time ratio is 0.33). The only task with a difference above one second
+takes 3.56 seconds with the single-threaded runner and 1.16 seconds with the parallel
+runner. These numbers should not be read as evidence that this naive Racket
+implementation matches QuickerCheck's optimized runtime; rather, they show that DBAS
+lets a user implement and evaluate a new runner design directly, exposing the expected
+trade-off between parallel overhead on tiny tasks and speedup on longer-running ones.
 
 \section{Related Work}\label{sec:related}
 

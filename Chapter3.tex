@@ -801,14 +801,16 @@ frameworks available for experimentation.
 \subsection{Evaluating Shrinking}\label{evaluating-shrinking}
 \label{sec:haskell}
 
-So far, we have spent quite a bit of column inches discussing random generation, its
-effect to bug finding performance, mean time to failure, mean inputs to failure... I've
-compared different generators in the same PBT framework, generators across frameworks,
-even generators across languages; with only a brief touch into the other major
-component of a property-based testing runner, \emph{shrinking}. This section details
-our work on comparing the shrinking effectiveness and performance of three different
-frameworks in Haskell: \emph{Structural shrinking} in QuickCheck, \emph{integrated
-  shrinking} in Hedgehog~\cite{Hedgehog} and Falsify~\cite{falsify}.
+The generation experiments above show why ETNA is useful as shared evaluation
+infrastructure: it lets us compare strategies, frameworks, and implementation languages
+against the same workloads and bug corpus. But bug finding is only the first half of a
+property-based testing run. Once a strategy finds a failure, the framework still has to
+turn the original random input into a counterexample that a programmer can understand.
+That second phase has its own design choices and costs, so an evaluation methodology
+that stops at time-to-failure gives an incomplete picture of a PBT framework. This
+section extends the ETNA perspective from generation to shrinking by comparing
+QuickCheck's structural shrinking with the integrated shrinking approaches used by
+Hedgehog~\cite{Hedgehog} and Falsify~\cite{falsify}.
 
 We can start by remembering a variant of the binary-search tree insertion property from
 the last two chapters:
@@ -885,49 +887,6 @@ cost, including tree edit distance (TED) to a ground-truth minimum and time per 
 shrinking progress; extending the current ETNA workloads in Haskell with the reporting
 of shrinking related metrics as well as implementing Hedgehog and Falsify adapters.
 
-% So which approach should we take? In the land of random generation,
-% there is an abundance of literature on how to evaluate and reason
-% about the trade-offs between different generation approaches. From
-% code coverage metrics~\leo{cite} to mutation testing~\leo{cite}, a
-% plethora of diverse tools exist in the arsenal of an interested user
-% to inversting which approach suits them best. Most recentely, the
-% ETNA~\cite{ETNA} evaluation platform was developed, offering a
-% comprehensive testbed for such evaluations: it contains {\em
-% 		workloads}, i.e. implementations of programs together with injectable
-% buggy variations; {\em strategies}, i.e. already defined sample
-% generators for input data for these workloads; and {\em analysis
-% 		tools}, which provide helpful visualizations to compare strategies in
-% one or more workloads.
-
-% Surprisingly, there is a total dearth of literature on evaluating and
-% reasoning about different shrinking approaches. In most cases, newly
-% proposed approaches carry out case studies demonstrating the
-% effectiveness of the approach, but there does not exist an analogue of
-% ETNA for shrinking. \leo{Maybe we need to tease the particular
-% 	metrics/visualizations here} That is precisely the point of this
-% paper.
-
-% In particular, we extend ETNA with support for evaluating shrinking,
-% repurposing much of its workload and analysis infrastructure to
-% analyze different minimization approaches. We specifically focus our
-% attention to three different Haskell property-based testing
-% frameworks, QuickCheck, Hedgehog, and Falsify, and use our ETNA
-% extension to carry out an extensive evaluation of the shrinking
-% approaches in these systems: How effective are they in minimizing
-% counterexamples? How efficient are they in minimizing them? Does the
-% choice of shrinking method impact generation efficiency? These are the
-% kinds of questions we set out to answer with this paper.
-
-% In particular, we offer the following contributions:
-% \begin{itemize}
-% 	\item We extend ETNA with support for analyzing the behaviors
-% 	      of property-based testing shrinkers. \leo{Clarify}
-% 	\item We apply our extended evaluation platform to analyze three
-% 	      existing Haskell frameworks, QuickCheck, Hedgehog, and Falsify, each
-% 	      with competing shrinking approaches. We find that \leo{expand}
-% \end{itemize}
-
-% \subsubsection{Evaluating Shrinking}
 \subsubsection{Background: Understanding Shrinking}
 \label{shrinkeval:sec:technical}
 
@@ -1019,42 +978,6 @@ the input: it replaces one or more samples with smaller values. When a
 property fails, Falsify re-runs the generator on each shrunk tree until no
 candidate produces a smaller failing input.
 
-% \paragraph{Sample Trees}
-
-% A \code[language=Haskell]{SampleTree} is a binary tree:
-
-% \begin{code}[language=Haskell]
-%     data SampleTree =
-%         SampleTree Sample SampleTree SampleTree
-%       | Minimal
-
-%     data Sample = NotShrunk Word64 | Shrunk Word64
-% \end{code}
-
-% \noindent Each node holds a \code[language=Haskell]{Word64} sample tagged with \code[language=Haskell]{NotShrunk} or
-% \code[language=Haskell]{Shrunk} to track whether it has been reduced and two children. The
-% \code[language=Haskell]{Minimal} constructor represents an infinite tree of zeros. Generators
-% consume samples from the tree using \code[language=Haskell]{prim}:
-
-% \begin{code}[language=Haskell]
-%     prim :: Gen Word64
-%     prim = SampleTree.sampleValue <$>
-%              primWith (binarySearch . SampleTree.sampleValue)
-% \end{code}
-
-% \noindent \code[language=Haskell]{prim} extracts the sample at the current node and returns a
-% list of shrunk trees, each with the sample replaced by a value from
-% \code[language=Haskell]{binarySearch}:
-
-% \begin{code}[language=Haskell]
-%     binarySearch :: Word64 -> [Word64]
-%     binarySearch n = [0, n - n/2, n - n/4, ..., n - 1]
-% \end{code}
-
-% \noindent For $n = 100$, \code[language=Haskell]{binarySearch 100 = [0, 50, 75, 88, 94, 97, 99]}.
-% Like QuickCheck's \code[language=Haskell]{shrinkIntegral}, zero appears first, ensuring the most
-% aggressive reduction is tried earliest.
-
 \paragraph*{Shrink Tree---Hedgehog}
 
 Hedgehog also uses integrated shrinking, but exposes it through a generator that
@@ -1074,35 +997,6 @@ is the generated test case and children are the shrink candidates.
 Discarded inputs are represented by the \code[language=Haskell]{MaybeT} layer. As
 with Falsify, the user writes only a generator; the shrink behavior is
 attached to the choices made by that generator instead of a separate function.
-
-% \paragraph{Choice Trees}
-
-% Primitive Hedgehog generators construct their own shrink trees. For
-% example, integral generation samples a value from a \code[language=Haskell]{Range} and then
-% builds a binary-search tree of candidates toward the range's origin:
-
-% \begin{code}[language=Haskell]
-%     integral :: (MonadGen m, Integral a) => Range a -> m a
-
-%     shrinkPath n =
-%       origin : Shrink.towards origin n
-% \end{code}
-
-% \noindent If the generated value is already the origin, the tree has no
-% children. Otherwise, the origin is added as the first child and the
-% remaining children bisect the distance from the generated value back to
-% the origin. Thus \code[language=Haskell]{Range.linearFrom 0 (-100) 100} shrinks towards 0,
-% while still preserving the range invariant during shrinking.
-
-% Compound generators combine these primitive trees monadically. When a
-% generator binds a value and uses it to choose the rest of the structure,
-% Hedgehog maps the continuation across the shrunk choices, rebuilding the
-% dependent suffixes with split seeds. As a result, a shrink of an early
-% choice is replayed through the later generation code, so invariants
-% encoded by the generator are preserved by construction. Once a property
-% fails, Hedgehog searches the resulting tree with the same greedy
-% left-to-right strategy: it descends into the first child that still fails
-% and stops at a local minimum when no child does.
 
 \subsubsection{Evaluation}
 \label{shrinkeval:sec:eval}
@@ -1138,77 +1032,6 @@ following metrics for answering our questions:
         the difference in shrinking performance and effectiveness in the context of different generation strategies
         in our evaluation.
 \end{itemize}
-
-% \paragraph*{Background: ETNA} \label{shrinkeval:sec:background}
-
-% ETNA~\cite{etna-icfp23} is an evaluation and analysis platform for Property-Based
-% Testing frameworks. It hosts \emph{workloads}, programs with injected mutations
-% constituting bugs, as well as properties violated by these mutations, with each
-% property-mutation pair that can be violated serving as a {\em task}.
-% %
-% These mutations are hand-written providing a ground truth evaluation, following a
-% %ETNA uses, in contrast to prior evaluation strategies, hand-written manual mutations. Prior
-% %work in the literature had relied on code coverage and automated mutation testing, both of
-% %which are \emph{proxies} for bug-finding capability, lacking a ground truth evaluation. ETNA follows a
-% Magma~\cite{Hazimeh:2020:Magma} style historical bug injection methodology across its
-% workloads.
-% %
-% Workloads are available in multiple languages, including Haskell and its diverse PBT
-% landscape. The Haskell-specific part of ETNA includes 4 workloads, Binary-Search Tree
-% with 53 tasks, Red-Black Tree with 58 tasks, Simply-Typed Lambda Calculus with 20
-% tasks, and System $F_{<:}$ with 36 tasks.
-% %
-% The workloads are also accessible over a simple command-line interface that allows for
-% creating and running experiments; adding, inspecting and manipulating workloads and
-% tests; and generating reports on the collected results.
-
-% Testing strategies from different libraries are embedded within each workload. The
-% Haskell workloads originally had QuickCheck~\cite{ClaessenH00},
-% SmallCheck~\cite{RuncimanNL08}, LeanCheck~\cite{leancheck}; we extended them with
-% Hedgehog~\cite{Hedgehog} and Falsify~\cite{falsify} for our evaluation.
-
-% \begin{figure}[h!]
-%     \centering
-%     \resizebox{\linewidth}{!}{%
-%         \begin{tikzpicture}[x=2.2cm, font=\small]
-%             % time-bucket column headers
-%             \foreach \i/\lab in {%
-%             0/{<\,0.1\,s}, 1/{0.1--1\,s}, 2/{1--10\,s},
-%             3/{10--60\,s}, 4/{60--360\,s}, 5/{unsolved}}
-%             \node[anchor=south, font=\bfseries\footnotesize]
-%             at (\i+0.5, 0.1) {\lab};
-%             % one gradient bar per framework, stacked
-%             \foreach \r/\C/\name in {%
-%                     0/chart_quickcheck/QuickCheck,
-%                     1/chart_hedgehog/Hedgehog,
-%                     2/chart_falsify/Falsify} {
-%                     \pgfmathsetmacro{\ytop}{-\r*0.74}
-%                     \pgfmathsetmacro{\ybot}{\ytop-0.62}
-%                     \node[anchor=east, font=\bfseries\footnotesize]
-%                     at (-0.1, {(\ytop+\ybot)/2}) {\name};
-%                     \foreach \i in {0,...,5} {
-%                             \pgfmathtruncatemacro{\p}{100-20*\i}
-%                             \filldraw[fill=\C!\p!bucketbg, draw=white, line width=0.6pt]
-%                             (\i, \ybot) rectangle (\i+1, \ytop);
-%                         }
-%                 }
-%         \end{tikzpicture}%
-%     }
-%     \caption{ETNA-style bucket-chart key}
-%     \label{shrinkeval:fig:etna-legend}
-% \end{figure}
-
-% ETNA reports bug-finding performance using \emph{bucket charts}. Each strategy is drawn
-% as a single horizontal bar, partitioned into segments whose widths are proportional to
-% the number of \emph{tasks} that fall into each time bucket. A task is placed in a
-% bucket by the median time-to-failure across its trials; tasks for which any trial
-% failed to find the bug within the timeout are counted as \emph{unsolved}. Each
-% framework keeps a fixed hue---green for QuickCheck, blue for Hedgehog, orange for
-% Falsify---and its segments are shaded from that full hue (solved fastest) to near-white
-% (unsolved), so a bar dominated by saturated color denotes a strategy that finds bugs
-% quickly. Figure~\ref{shrinkeval:fig:etna-legend} shows the bucket key used throughout
-% this paper; unlike the original ETNA experiments, we use a 360-second timeout and
-% therefore an additional \texttt{60--360\,s} bucket.
 
 \paragraph*{Experiments} \label{shrinkeval:sec:experiments}
 
@@ -1705,11 +1528,6 @@ integrated shrinking alone does not guarantee high sample-efficiency. Moreover, 
 only one part of the trade-off; in these workloads, Hedgehog's higher failure rate
 during shrinking does not translate into better shrinking time or consistently better
 final counterexamples.
-
-% A perhaps useful thought experiment is that if we artificially slowed down the ETNA workload execution 10 times,\leo{Cite Emery's profiler here?} shrinking
-% search would now be bound by the execution time, hence sample-efficiency might have changed the performance results. We posit
-% that instead of such thought experiments, pushing for more complex case studies in PBT evaluations will be more effectful and
-% insightful for the future.
 
 \paragraph*{Limitations and Threats to Validity}\label{shrinkeval:threats}
 
