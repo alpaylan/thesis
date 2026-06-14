@@ -606,11 +606,11 @@ to their code.
 \noindent\emph{Related work on adaptive DBMS testing.}
 
 Although we compared \tool{} mainly against SQLancer as the basis of our oracles,
-SQLRight, Griffin, and SQLancer++ also
-adapt testing to DBMS behavior~\cite{sqlright,griffin,zhong2026scalingautomateddatabasetesting}.
-These systems primarily approach adaptation from the perspective of an external testing
-framework, with evaluations centered on broad effectiveness across multiple databases and
-minimal manual intervention. In contrast, \tool{} studies adaptation as a
+SQLRight, Griffin, and SQLancer++ also adapt testing to DBMS
+behavior~\cite{sqlright,griffin,zhong2026scalingautomateddatabasetesting}. These
+systems primarily approach adaptation from the perspective of an external testing
+framework, with evaluations centered on broad effectiveness across multiple databases
+and minimal manual intervention. In contrast, \tool{} studies adaptation as a
 database-integrated process: the testing infrastructure evolves together with a single
 DBMS under development, and developers directly shape generators, properties, and fault
 models as the implementation changes.
@@ -620,34 +620,34 @@ models as the implementation changes.
 \begin{itemize}
     \item \sql{UPDATE t SET (c0, c0)=(0, 0)}
 
-    This expression results in a ``Column specified more than once'' error that was fixed
-    soon after we reported it.
+          This expression results in a ``Column specified more than once'' error that was fixed
+          soon after we reported it.
     \item \sql{SELECT (0x0)}
 
-    There was a parsing error for hexadecimals that resulted in an ``invalid float
-    literal'' error that had been fixed before our experiments with SQLancer.
+          There was a parsing error for hexadecimals that resulted in an ``invalid float
+          literal'' error that had been fixed before our experiments with SQLancer.
     \item \sql{SELECT * FROM t WHERE c0 GLOB c0}
 
-    There was a logic bug in the \sql{GLOB} that panicked when the values passed were not
-    \sql{TEXT}. Executing this statement after inserting a \sql{NULL} triggered the bug,
-    which was fixed soon after we reported it.
+          There was a logic bug in the \sql{GLOB} that panicked when the values passed were not
+          \sql{TEXT}. Executing this statement after inserting a \sql{NULL} triggered the bug,
+          which was fixed soon after we reported it.
     \item \sql{INSERT INTO t VALUES ("a")}
 
-    Using double quotes for string literals is discouraged, and SQLite3 even provides a
-    runtime flag for disabling it. We reported this bug as \db{} panicked for the provided
-    statement.
+          Using double quotes for string literals is discouraged, and SQLite3 even provides a
+          runtime flag for disabling it. We reported this bug as \db{} panicked for the provided
+          statement.
     \item \sql{INSERT INTO t VALUES ((0 BETWEEN 0 AND 0)), (0)}
 
-    Constant \sql{BETWEEN} expressions were not rewritten when used within \sql{INSERT},
-    but the query compiler expected them to be rewritten. We reported this bug as \db{}
-    panicked for the provided statement.
+          Constant \sql{BETWEEN} expressions were not rewritten when used within \sql{INSERT},
+          but the query compiler expected them to be rewritten. We reported this bug as \db{}
+          panicked for the provided statement.
     \item \sql{INSERT INTO t(c2, c0) VALUES (0, 0), (0, 0)}
 
-    There was a bug in calculating the column indexes when inserting values to a table in
-    reverse order. SQLancer discovered the bug when the initial table \sql{t} had a
-    \sql{NOT NULL} clause for the column \sql{c0}, which promptly failed after executing
-    the statement. We reported this bug after manually inspecting the result of the
-    failure.
+          There was a bug in calculating the column indexes when inserting values to a table in
+          reverse order. SQLancer discovered the bug when the initial table \sql{t} had a
+          \sql{NOT NULL} clause for the column \sql{c0}, which promptly failed after executing
+          the statement. We reported this bug after manually inspecting the result of the
+          failure.
 \end{itemize}
 
 In all six cases, we saw the benefit of generating the entire possible input space for

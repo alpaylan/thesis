@@ -41,9 +41,9 @@ The property \code{InsertPost} states that for a binary-search tree, inserting a
 element should, if the keys are equal (which should happen rarely but sometimes), let
 us find the newly inserted element (which checks if any immediate insertion can fail);
 if the keys aren't equal, it shouldn't change the resulting value we get for any of the
-other possible keys. This property fails with \todo{K} different bugs we will go into
-detail in the next chapter. For now, we will focus on how to test it rather than what
-those tests would reveal.
+other possible keys. This property fails with a number of different bugs breaking
+insertion in different ways, which we will go into detail in the next chapter. For now,
+we will focus on how to test it rather than what those tests would reveal.
 
 Let us initially consider how we would write the property to be tested by QuickChick:
 
@@ -516,7 +516,7 @@ state~\cite{SQLancer,rigger.pqs,rigger.norec,rigger.tlp,dirt-dbtest26,chou2025mo
 \begin{figure}[h!]
   \centering
   \resizebox{0.95\linewidth}{!}{\input{figures/interaction/stateful.tex}}
-  \caption{An abstract representation of the stateful property runner. The
+  \caption[An abstract representation of the stateful property runner.]{An abstract representation of the stateful property runner. The
     \code{State} box is read by the generator (\code{state}) and advanced by the
     checker after each action (\code{step act}); the shrinking loop minimises the
     sequence of actions \code{acts} that led to a failure rather than a single
@@ -735,7 +735,7 @@ data Exp
   | Lam Type (Exp -> Exp)
     \end{code}
   \end{minipage}
-  \caption{STLC encodings with and without HOAS. Non-HOAS (on left) stores binders explicitly; HOAS (on right) reuses host-language binders.}
+  \caption[STLC encodings with and without HOAS.]{STLC encodings with and without HOAS. Non-HOAS (on left) stores binders explicitly; HOAS (on right) reuses host-language binders.}
   \label{fig:stlc-hoas-vs-non-hoas}
 \end{figure}
 
@@ -1861,7 +1861,7 @@ provides the necessary configurability.
     \centering
     \includegraphics[width=0.9\linewidth]{figures/shrinking/scatter_plot_rackcheck.png}
   \end{minipage}%
-  \caption{Original sizes (continuous) and shrunk sizes (dashed) across tasks (x axis)
+  \caption[Comparison of shrinking in DBAS vs RackCheck.]{Comparison of shrinking in DBAS vs RackCheck.\\ Original sizes (continuous) and shrunk sizes (dashed) across tasks (x axis)
     for the external shrinker (left) and internal shrinker (right).}
   \label{fig:shrinking_line}
 \end{figure}

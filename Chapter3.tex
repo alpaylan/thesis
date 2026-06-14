@@ -278,7 +278,7 @@ results of the experiments. However, most of the work I present in this thesis u
 configuration we argue is realistic in terms of running a PBT workload, and a common
 presentation technique we found useful.
 
-All the experiments, unless explicitly noted, uses 10 trials with a 60-second external
+All the experiments, unless explicitly noted, use 10 trials with a 60-second external
 timeout. A strategy is said to have \emph{solved} a task if it succeeds in solving it
 in all 10 trials under the timeout. We use \emph{task-bucket charts}, a type of
 stacked-bar chart that adds up to the total number of tasks, marking progressively
@@ -313,9 +313,8 @@ solved almost immediately and 4 tasks remain unsolved.
 
 Some comparisons need more detail than a task-bucket chart alone can show. In those
 cases, I either use alternate bucket definitions, such as the \code{any} configuration,
-or supplement the bucket chart with statistical comparisons. When a figure departs from
-the default ``solved in every trial'' interpretation, its caption states that
-explicitly.
+or supplement the bucket chart with statistical comparisons. To keep the figures
+self-contained, bucket-chart captions state the aggregation rule they use.
 
 \subsection{Evaluating Random Generation}
 
@@ -394,7 +393,10 @@ of~\cite{GeneratingGoodGenerators} do not apply.
   \end{subfigure}
 
   \captionsetup{justification=centering}
-  \caption{Effectiveness of Rocq generation strategies on four workloads.\\
+  \caption[Effectiveness of Rocq generation strategies on four workloads]{
+  Effectiveness of Rocq generation strategies on four workloads.\\
+  Buckets use the all-trials rule: a task is solved only if all 10 trials finish within
+  60 seconds.\\
   \explaincolor{chart_blue}{Type-based generator},
   \explaincolor{chart_orange}{Type-based fuzzer},\\
   \explaincolor{chart_red}{Specification-based generator ((a) - (c) only)},
@@ -442,7 +444,8 @@ reach.
   \includegraphics[width=0.5\textwidth]{figures/etna/rocq/ifc-atleastonce.png}
   \vspace*{-3ex}
   \captionsetup{justification=centering}
-  \caption{IFC Tasks solved within the timeout in one or more trials.\\
+  \caption[IFC tasks solved in at least one trial]{
+    IFC Tasks solved within the timeout in one or more trials.\\
     Empty = Type-based generator.\\
     \explaincolor{chart_orange}{Type-based fuzzer},\\
     \explaincolor{chart_green}{Variational fuzzer},\\
@@ -515,7 +518,10 @@ what was used in the previous section.
     \caption{STLC}
   \end{subfigure}
 
-  \caption{Comparison of the original FuzzChick (top) with the tuned one (bottom).}
+  \caption[Comparison of the original FuzzChick with the tuned one]{
+    Comparison of the original FuzzChick (top) with the tuned one (bottom).
+    Buckets use the all-trials rule: a task is solved only if all 10 trials finish
+    within 60 seconds.}
   \label{fig:fuzzercomp}
 \end{figure}
 
@@ -588,10 +594,11 @@ type-based and a bespoke generator to each framework.
     \includegraphics[width=\linewidth]{figures/etna/ocaml/stlc.png}
     \caption{STLC}
   \end{subfigure}
-  \caption{
+  \caption[Effectiveness of OCaml generation strategies on three workloads]{
     Effectiveness of OCaml generation strategies on three
     workloads. The first and second buckets for each framework represent the
-    bespoke and type-based generators respectively.\\
+    bespoke and type-based generators respectively. Buckets use the all-trials rule:
+    a task is solved only if all 10 trials finish within 60 seconds.\\
     \explaincolor{chart_red}{QCheck},
     \explaincolor{chart_green}{Crowbar (Random)},
     \explaincolor{gray}{Crowbar (AFL)},
@@ -726,7 +733,10 @@ cross-language workflows of ETNA are presented in Figure~\ref{fig:workflow-compa
     \node[font=\scriptsize\sffamily, gray] at (4.5, -1) {Lang B};
 
   \end{tikzpicture}
-  \caption{Intra-language vs cross-language workflows. Left: generator and runner in same language with combined timing. Right: generator serializes inputs; separate reader/runner enables decoupled timing metrics across language boundaries.}
+  \caption[Intra-language vs cross-language workflows]{Intra-language vs
+    cross-language workflows. Left: generator and runner in same language with combined
+    timing. Right: generator serializes inputs; separate reader/runner enables decoupled
+    timing metrics across language boundaries.}
   \label{fig:workflow-comparison}
 \end{figure}
 
@@ -777,7 +787,7 @@ frameworks available for experimentation.
   \end{subfigure}
 
   \captionsetup{justification=centering}
-  \caption{
+  \caption[Generation time to failure for bespoke cross-language generators]{
     Generation time to failure (in seconds) for bespoke generators written in different languages.\\
     \explaincolor{chart_black}{Haskell -- QuickCheck},
     \explaincolor{chart_red}{Rocq -- QuickChick},
@@ -871,7 +881,7 @@ The PBT literature, however, overwhelmingly focuses on evaluating bug-finding
 performance with little quantitative evaluation of the shrinking process. The rest of
 this section presents our work on extending ETNA to support evaluation for shrinking.
 This extension entails defining quantitative metrics for shrinking effectiveness and
-cost, including tree edit distance to a ground-truth minimum and time per unit of
+cost, including tree edit distance (TED) to a ground-truth minimum and time per unit of
 shrinking progress; extending the current ETNA workloads in Haskell with the reporting
 of shrinking related metrics as well as implementing Hedgehog and Falsify adapters.
 
@@ -1256,7 +1266,9 @@ bug-finding profile, placing all tasks in the fastest bucket.
     \caption{Correct-by-construction}
     \label{shrinkeval:fig:bucket_bst_cbc}
   \end{subfigure}
-  \caption{Bug-finding bucket charts on BST \\
+  \caption[Bug-finding bucket charts on BST]{Bug-finding bucket charts on BST \\
+    Buckets use per-task median time-to-failure; \texttt{not found} means at least one
+    trial failed to find the bug within the timeout.\\
     \explaincolor{chart_quickcheck}{QuickCheck},
     \explaincolor{chart_hedgehog}{Hedgehog},
     \explaincolorhatched{chart_hedgehog}{Idiomatic Hedgehog},\\
@@ -1300,7 +1312,9 @@ tasks.\footnote{To avoid assigning arbitrary penalties, the paired statistical
     \caption{Correct-by-construction}
     \label{shrinkeval:fig:bucket_rbt_cbc}
   \end{subfigure}
-  \caption{Bug-finding bucket charts on RBT \\
+  \caption[Bug-finding bucket charts on RBT]{Bug-finding bucket charts on RBT \\
+    Buckets use per-task median time-to-failure; \texttt{not found} means at least one
+    trial failed to find the bug within the timeout.\\
     \explaincolor{chart_quickcheck}{QuickCheck},
     \explaincolor{chart_hedgehog}{Hedgehog},
     \explaincolor{chart_falsify}{Falsify}}
@@ -1337,7 +1351,9 @@ significant after Holm correction.
     \caption{Correct-by-construction}
     \label{shrinkeval:fig:bucket_stlc_cbc}
   \end{subfigure}
-  \caption{Bug-finding bucket charts on STLC \\
+  \caption[Bug-finding bucket charts on STLC]{Bug-finding bucket charts on STLC \\
+    Buckets use per-task median time-to-failure; \texttt{not found} means at least one
+    trial failed to find the bug within the timeout.\\
     \explaincolor{chart_quickcheck}{QuickCheck},
     \explaincolor{chart_hedgehog}{Hedgehog},
     \explaincolor{chart_falsify}{Falsify}}
@@ -1368,7 +1384,9 @@ Falsify are statistically indistinguishable from each other after Holm correctio
     \caption{Correct-by-construction}
     \label{shrinkeval:fig:bucket_fsub_cbc}
   \end{subfigure}
-  \caption{Bug-finding bucket charts on $F_{<:}$ \\
+  \caption[Bug-finding bucket charts on $F_{<:}$]{Bug-finding bucket charts on $F_{<:}$ \\
+    Buckets use per-task median time-to-failure; \texttt{not found} means at least one
+    trial failed to find the bug within the timeout.\\
     \explaincolor{chart_quickcheck}{QuickCheck},
     \explaincolor{chart_hedgehog}{Hedgehog},
     \explaincolor{chart_falsify}{Falsify}.}
@@ -1450,7 +1468,7 @@ for the corresponding workload (top-left is the best, top-right indicates a long
     \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ted-to-gt_ecdf_family-cbc.png}
     \caption{$F_{<:}$, CBC}
   \end{subfigure}
-  \caption{CCP of the post-shrink tree edit distance from each strategy's
+  \caption[Post-shrink distance to ground-truth minima]{CCP of the post-shrink tree edit distance from each strategy's
     minimal counterexample to the ground-truth minimum found by LeanCheck.}
   \label{shrinkeval:fig:ecdf_ted_to_gt}
 \end{figure}
@@ -1472,12 +1490,13 @@ comparison is statistically indistinguishable. On STLC, Falsify reports smaller
 counterexamples than both QuickCheck and Hedgehog. On $F_{<:}$, QuickCheck reports the
 closest counterexamples, followed by Falsify and then Hedgehog. These results do not
 support a blanket claim that either structural or integrated shrinking is always more
-effective; the generator family and workload both matter. Due to space constraints, we
-provide the detailed statistical comparisons in Appendix~\ref{shrinkeval:app:stats},
-including the full per-family, per-metric Friedman and post-hoc Wilcoxon
-tables.\footnote{For RBT, LeanCheck found ground-truth minima for only 34 tasks in
-  reasonable time. We exclude the remaining 24 tasks from distance-to-ground-truth
-  comparisons and leave ground-truth-free shrinking evaluation as future work.}
+effective; the generator family and workload both matter. The detailed statistical
+comparisons are available in Appendix~\ref{shrinkeval:app:stats}
+(Tables~\ref{shrinkeval:tab:stats-bst}--\ref{shrinkeval:tab:stats-fsub}), including the
+full per-family, per-metric Friedman and post-hoc Wilcoxon tables.\footnote{For RBT,
+  LeanCheck found ground-truth minima for only 34 tasks in reasonable time. We exclude
+  the remaining 24 tasks from distance-to-ground-truth comparisons and leave
+  ground-truth-free shrinking evaluation as future work.}
 
 % Our results validate the recent findings 
 
@@ -1617,7 +1636,7 @@ fastest, Hedgehog is next, and Falsify is slowest.
     \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ms-per-edit_ecdf_family-cbc.png}
     \caption{$F_{<:}$, CBC}
   \end{subfigure}
-  \caption{CCP of shrinking time per unit of progress: milliseconds spent
+  \caption[Shrinking time per unit of progress]{CCP of shrinking time per unit of progress: milliseconds spent
     shrinking divided by the tree edit distance reduced (log scale).}
   \label{shrinkeval:fig:ecdf_ms_per_edit}
 \end{figure}
@@ -1738,8 +1757,9 @@ into patterns and applying them to multiple locations in a program.
 Since we published ETNA, a number of studies on PBT have used it for evaluation. ``Fail
 Faster''~\cite{richey2025failfasterstagingfast} has used the OCaml workloads for
 optimizing OCaml PBT libraries, Bennet~\cite{aamer2025bennet} has extended ETNA for C
-for evaluation of random testing for separation logic, ``Testing Theorems''~\cn and
-``Tuning Random Generators''~\cite{tjoa2025tuning} use Rocq workloads,
+for evaluation of random testing for separation logic, ``Testing
+Theorems''~\cite{testingtheorems} and ``Tuning Random
+Generators''~\cite{tjoa2025tuning} use Rocq workloads,
 ``QuickerCheck''~\cite{QuickerCheck} uses the Haskell workloads. In addition to works
 presented in this thesis, I have also worked with Ivan Mladenov on ``QuickerChick'',
 his student research competition submission on optimizing QuickChick.

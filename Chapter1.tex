@@ -109,11 +109,11 @@ hence was promptly discarded, or \failed{}, indicating that the input constitute
 bug, a violation of the property. After reaching a failing input, the second stage of
 the property runner is initiated, the bug is minimized through shrinking with the
 application of delta-debugging~\cite{zeller2002simplifying}. A \shrinker{} produces
-multiple candidate shrunk values, sometimes by shrinking an internal value such as keys in a tree, or removing
-parts of the structure such as removing part of a computation. If a candidate
-reproduces the failure, the shrinking is recursively applied to the smaller candidate
-until there are no more failing candidates, at which point the minimal value is
-\printer{printed}. An abstract form of this process is depicted in
+multiple candidate shrunk values, sometimes by shrinking an internal value such as keys
+in a tree, or removing parts of the structure such as removing part of a computation.
+If a candidate reproduces the failure, the shrinking is recursively applied to the
+smaller candidate until there are no more failing candidates, at which point the
+minimal value is \printer{printed}. An abstract form of this process is depicted in
 Figure~\ref{fig:quickcheck-property-runner-intro}:
 
 \begin{figure}[h]
@@ -146,10 +146,9 @@ structure is shrunk instead of the structure itself. As such, a library using RN
 splitting cannot accommodate integrated shrinking without reengineering of its
 internals.
 
-Chapter~\ref{chap:ppbt} on
-Programmable Property-Based Testing~\cite{keles2026programmablepropertybasedtesting}
-focuses on this
-exact problem and its many variants that cause fragmentation of the PBT landscape.
+Chapter~\ref{chap:ppbt} on Programmable Property-Based
+Testing~\cite{keles2026programmablepropertybasedtesting} focuses on this exact problem
+and its many variants that cause fragmentation of the PBT landscape.
 Table~\ref{tab:pbt-frameworks} presents 50 frameworks in 31 languages, with up to 5
 libraries in OCaml. We trace a precise design decision, the design of the property
 language in QuickCheck, as the predominant source of inflexibility of a PBT framework,
@@ -168,10 +167,10 @@ experimentations, enabling diffusion of newer advances throughout the ecosystem.
 However, fragmentation isn't just in-language frameworks competing with each other,
 it's more so an information dissemination problem. How would frameworks include a novel
 approach without concrete empirical understanding of its effects within their context?
-A brief study of \todo{K} PBT papers taken from the PBT bibliography\cn{} reveals a
-core issue, quantitative evaluation of PBT has been dispersed through bespoke,
-purpose-specific benchmarks implemented for the evaluation sections of those papers, to
-be forgotten once they are accepted.
+A brief look into the PBT papers published in the last decade reveals a core issue,
+quantitative evaluation of PBT has been dispersed through bespoke, purpose-specific
+benchmarks implemented for the evaluation sections of those papers, to be forgotten
+once they are accepted.
 
 In Chapter~\ref{chap:etna}, I introduce ETNA~\cite{ETNA}, the first large-scale
 evaluation platform for PBT. We designed ETNA to be easily extensible in terms of
