@@ -20,8 +20,8 @@ This lack of common comparative analysis surely contributes to a lack of underst
 in the effects of these new techniques and changes; but the problem is persistent
 beyond the literature and into the libraries themselves. All the property-based testing
 libraries I have read in the course of developing this thesis are full of bespoke
-decisions accumulated in the last 25 years. The choice of which sizing function to
-use, the shrinking algorithm, the default settings on budgets and parameters... Many of
+decisions accumulated in the last 25 years. The choice of which sizing function to use,
+the shrinking algorithm, the default settings on budgets and parameters... Many of
 these decisions have never been subject to quantitative judgement beyond the initial
 discussions, never been evaluated at scale, or understood in the broader context of PBT
 usage.
@@ -48,8 +48,8 @@ under-review work for the Haskell Symposium with George and Leo.
 
 \section{ETNA} \label{sec:etna}
 
-ETNA is, as you may have thought of, named after the famous Sicilian volcano~\cn. The
-name follows a convention established by prior work in the fuzz testing community,
+ETNA is, as you may have thought of, named after the famous Sicilian volcano. The name
+follows a convention established by prior work in the fuzz testing community,
 Lava~\cite{Lava} and Magma~\cite{Hazimeh:2020:Magma}, both of which have been
 instrumental to our design, particularly with the ground truth approach of Magma.
 
@@ -69,7 +69,7 @@ checking whether testing is able to detect them.
 
 Mutations used in prior evaluation work fall on a spectrum from manually sourced to
 automatically synthesized~\cite{Hazimeh:2020:Magma,EvaluatingFuzzTesting,
-    FixReverter,TestingNIjfp}. ETNA opts for manual sourcing. This choice makes the
+  FixReverter,TestingNIjfp}. ETNA opts for manual sourcing. This choice makes the
 benchmark harder to populate, since every task requires a meaningful mutant and a
 property that exposes it, but it also lets us maintain a clearer ground truth: each
 mutant should violate some aspect of the property specification. The workloads,
@@ -127,7 +127,7 @@ of trials, or any other runtime injected parameter to the running test. Experime
 created by \emph{etna experiment new}, reproduction and collaboration is as seamless as
 possible, a user can upload the automatically committed repository to a version control
 tool such as GitHub, the collaborator can clone the repository; run \emph{etna
-    experiment register} to start tracking the experiment.
+  experiment register} to start tracking the experiment.
 
 Another importance concept is a \emph{workload}, a workload is a program with a set of
 injected bugs; and properties that define correctness for some behaviors of the
@@ -278,15 +278,15 @@ stacked-bar chart that adds up to the total number of tasks, marking progressive
 larger mean time buckets, as presented in Figure~\ref{fig:etna-presentation}.
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=.75\textwidth]{figures/etna/experiments-legend.png}
-    \\[1.5ex]
-    \includegraphics[width=.75\textwidth]{figures/chartkey.png}
-    \caption[ETNA task-bucket chart presentation]{ETNA task-bucket chart
-        presentation.\\
-        The upper chart shows a hypothetical strategy/workload result split across
-        timing buckets; the lower key explains the bucket shading convention.}
-    \label{fig:etna-presentation}
+  \centering
+  \includegraphics[width=.75\textwidth]{figures/etna/experiments-legend.png}
+  \\[1.5ex]
+  \includegraphics[width=.75\textwidth]{figures/chartkey.png}
+  \caption[ETNA task-bucket chart presentation]{ETNA task-bucket chart
+    presentation.\\
+    The upper chart shows a hypothetical strategy/workload result split across
+    timing buckets; the lower key explains the bucket shading convention.}
+  \label{fig:etna-presentation}
 \end{figure}
 
 We mark a task \emph{unsolved} if any of the 10 trials fail to solve it within the
@@ -313,7 +313,7 @@ explicitly.
 \subsection{Evaluating Random Generation}
 
 In this thesis, I have focused on the parts of the ETNA papers~\cite{etna-icfp23,
-    etna-jfp} that I have personally worked and focused on. Hence, the experiments in this
+  etna-jfp} that I have personally worked and focused on. Hence, the experiments in this
 section omit the Haskell experiments comparing QuickCheck, SmallCheck and LeanCheck as
 well as the analysis on the effect of size and enumeration order. The Rocq experiments
 in \S~\ref{evaluating-generators-rocq} evaluate different generation strategies in
@@ -328,9 +328,9 @@ evaluating generation time across language ecosystems.
 We now turn our attention to the single-framework but multi-strategy landscape in Rocq.
 PBT in Rocq revolves around QuickChick~\cite{LeoThesis2018}, which, in addition to the
 type-based and bespoke strategies, provides two additional options: a {\em
-        specification-driven} strategy that derives correct-by-construction generators from
+    specification-driven} strategy that derives correct-by-construction generators from
 preconditions in the form of inductive relations~\cite{GeneratingGoodGenerators} and a
-    {\em type-driven fuzzer} strategy that combines type-based generation with mutation
+  {\em type-driven fuzzer} strategy that combines type-based generation with mutation
 informed by AFL-style branch coverage to guide the search toward interesting parts of
 the input space~\cite{FuzzChick}.
 
@@ -359,42 +359,42 @@ of~\cite{GeneratingGoodGenerators} do not apply.
 
 \paragraph*{Results}
 \begin{figure}[tb]
-    \centering
-    \begin{subfigure}{\bargraphwidth}
-        \includegraphics[width=\textwidth]{figures/etna/rocq/bst.png}
-        \vspace*{-5ex}
-        \caption{BST}
-        \label{subfig:coq1:bst}
-    \end{subfigure}
-    \begin{subfigure}{\bargraphwidth}
-        \includegraphics[width=\textwidth]{figures/etna/rocq/rbt.png}
-        \vspace*{-5ex}
-        \caption{RBT}
-        \label{subfig:coq1:rbt}
-    \end{subfigure}
+  \centering
+  \begin{subfigure}{\bargraphwidth}
+    \includegraphics[width=\textwidth]{figures/etna/rocq/bst.png}
+    \vspace*{-5ex}
+    \caption{BST}
+    \label{subfig:coq1:bst}
+  \end{subfigure}
+  \begin{subfigure}{\bargraphwidth}
+    \includegraphics[width=\textwidth]{figures/etna/rocq/rbt.png}
+    \vspace*{-5ex}
+    \caption{RBT}
+    \label{subfig:coq1:rbt}
+  \end{subfigure}
 
-    \begin{subfigure}{\bargraphwidth}
-        \includegraphics[width=\textwidth]{figures/etna/rocq/stlc.png}
-        \vspace*{-5ex}
-        \caption{STLC}
-        \label{subfig:coq1:stlc}
-    \end{subfigure}
-    \begin{subfigure}{\bargraphwidth}
-        \includegraphics[width=\textwidth]{figures/etna/rocq/ifc.png}
-        \vspace*{-5ex}
-        \caption{IFC}
-        \label{subfig:coq1:ifc}
-    \end{subfigure}
+  \begin{subfigure}{\bargraphwidth}
+    \includegraphics[width=\textwidth]{figures/etna/rocq/stlc.png}
+    \vspace*{-5ex}
+    \caption{STLC}
+    \label{subfig:coq1:stlc}
+  \end{subfigure}
+  \begin{subfigure}{\bargraphwidth}
+    \includegraphics[width=\textwidth]{figures/etna/rocq/ifc.png}
+    \vspace*{-5ex}
+    \caption{IFC}
+    \label{subfig:coq1:ifc}
+  \end{subfigure}
 
-    \captionsetup{justification=centering}
-    \caption{Effectiveness of Rocq generation strategies on four workloads.\\
-    \explaincolor{chart_blue}{Type-based generator},
-    \explaincolor{chart_orange}{Type-based fuzzer},\\
-    \explaincolor{chart_red}{Specification-based generator ((a) - (c) only)},
-    \explaincolor{chart_green}{Variational fuzzer} ((d) only),\\
-    \explaincolor{chart_black}{Bespoke generator}.
-    }
-    \label{fig:coq1}
+  \captionsetup{justification=centering}
+  \caption{Effectiveness of Rocq generation strategies on four workloads.\\
+  \explaincolor{chart_blue}{Type-based generator},
+  \explaincolor{chart_orange}{Type-based fuzzer},\\
+  \explaincolor{chart_red}{Specification-based generator ((a) - (c) only)},
+  \explaincolor{chart_green}{Variational fuzzer} ((d) only),\\
+  \explaincolor{chart_black}{Bespoke generator}.
+  }
+  \label{fig:coq1}
 \end{figure}
 
 In Figure~\ref{fig:coq1}, we visualized the results of the experiments with a task
@@ -416,7 +416,7 @@ generator solves all but 10 tasks. We see a similar pattern in the STLC workload
 the precondition-driven methods outperforming the type-driven ones.
 
 \paragraph*{Fuzzers exhibit more variance but outperform type-driven methods for sparse
-    preconditions.} For the IFC workload, the only precondition-driven strategy is the
+  preconditions.} For the IFC workload, the only precondition-driven strategy is the
 bespoke generator, which emerges as a clear winner: noninterference is a property with
 a {\em very} sparse precondition, and type-based methods are basically unable to
 generate valid inputs. For this particular workload, we included another fuzzing
@@ -431,17 +431,17 @@ discover parts of the input space that naive type-based generation are simply un
 reach.
 
 \begin{figure}
-    \centering
-    \includegraphics[width=0.5\textwidth]{figures/etna/rocq/ifc-atleastonce.png}
-    \vspace*{-3ex}
-    \captionsetup{justification=centering}
-    \caption{IFC Tasks solved within the timeout in one or more trials.\\
-        Empty = Type-based generator.\\
-        \explaincolor{chart_orange}{Type-based fuzzer},\\
-        \explaincolor{chart_green}{Variational fuzzer},\\
-        \explaincolor{chart_black}{Bespoke generator}.
-    }
-    \label{fig:IFC-fine}
+  \centering
+  \includegraphics[width=0.5\textwidth]{figures/etna/rocq/ifc-atleastonce.png}
+  \vspace*{-3ex}
+  \captionsetup{justification=centering}
+  \caption{IFC Tasks solved within the timeout in one or more trials.\\
+    Empty = Type-based generator.\\
+    \explaincolor{chart_orange}{Type-based fuzzer},\\
+    \explaincolor{chart_green}{Variational fuzzer},\\
+    \explaincolor{chart_black}{Bespoke generator}.
+  }
+  \label{fig:IFC-fine}
 \end{figure}
 
 Yet fuzzers are not reliable in this sense, as Figure~\ref{fig:IFC-fine} shows: if we
@@ -450,7 +450,7 @@ counterparts. This further clarifies the picture painted by the first set of
 comparisons. Fuzzers may get stuck following program paths that will not lead to
 interesting revelations, but sometimes discover paths that a traditional type-based
 generator could never hope to reach. In particular, roughly 30 tasks are solved {\em at
-        least once} through 10 runs (Figure~\ref{fig:IFC-fine}), but less than 10 tasks are
+    least once} through 10 runs (Figure~\ref{fig:IFC-fine}), but less than 10 tasks are
 fully solved (Figure~\ref{subfig:coq1:ifc}).
 
 Another interesting observation is that even though fuzzers typically spend more time
@@ -459,12 +459,12 @@ input takes less time than generating a new one. For IFC, the type-based generat
 takes four times longer per input than the type-based fuzzer.
 
 \paragraph*{Validation and Improvement of
-    Fuzzers}\label{evaluating-generators-rocq-fuzz-improve}
+  Fuzzers}\label{evaluating-generators-rocq-fuzz-improve}
 
 The conclusion of~\cite{FuzzChick} seems to hold~--- that is, FuzzChick shows promise
 compared to type-based approaches, but has a long way to go before catching up with the
 effectiveness of precondition-driven ones. This led us to wonder, {\em could we further
-        improve the performance of FuzzChick using ETNA?}
+    improve the performance of FuzzChick using ETNA?}
 
 We focused on two different aspects of fuzzing: {\em size} and {\em feedback}.
 FuzzChick's generation strategy started small but quickly increased to quite large
@@ -488,28 +488,28 @@ workloads. The tuned version clearly outperforms the original in all cases---and
 what was used in the previous section.
 
 \begin{figure}[htb!]
+  \centering
+  \begin{subfigure}{\bargraphwidth}
     \centering
-    \begin{subfigure}{\bargraphwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/etna/rocq/fuzz-bst.png}
-        \vspace*{-5ex}
-        \caption{BST}
-    \end{subfigure}
-    \begin{subfigure}{\bargraphwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/etna/rocq/fuzz-rbt.png}
-        \vspace*{-5ex}
-        \caption{RBT}
-    \end{subfigure}
-    \begin{subfigure}{\bargraphwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/etna/rocq/fuzz-stlc.png}
-        \vspace*{-5ex}
-        \caption{STLC}
-    \end{subfigure}
+    \includegraphics[width=\textwidth]{figures/etna/rocq/fuzz-bst.png}
+    \vspace*{-5ex}
+    \caption{BST}
+  \end{subfigure}
+  \begin{subfigure}{\bargraphwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/etna/rocq/fuzz-rbt.png}
+    \vspace*{-5ex}
+    \caption{RBT}
+  \end{subfigure}
+  \begin{subfigure}{\bargraphwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/etna/rocq/fuzz-stlc.png}
+    \vspace*{-5ex}
+    \caption{STLC}
+  \end{subfigure}
 
-    \caption{Comparison of the original FuzzChick (top) with the tuned one (bottom).}
-    \label{fig:fuzzercomp}
+  \caption{Comparison of the original FuzzChick (top) with the tuned one (bottom).}
+  \label{fig:fuzzercomp}
 \end{figure}
 
 \paragraph*{Hardening QuickChick's Implementation} In our experimentation with ETNA, we
@@ -523,7 +523,7 @@ eliminator:
 \smallskip
 \noindent
 \begin{minipage}{0.33\textwidth}
-    \begin{code}
+  \begin{code}
 Fixpoint loop fuel ... :=
   match fuel with
   | O => (* base *)
@@ -533,7 +533,7 @@ Fixpoint loop fuel ... :=
 \end{minipage}
 \quad \quad \quad
 \begin{minipage}{0.5\textwidth}
-    \begin{code}
+  \begin{code}
 let rec loop fuel ... = (fun fO fS n ->
   if n = 0 then fO () else fS (n-1))
     (fun () -> (* base *))
@@ -550,10 +550,11 @@ when ETNA used large fuel values, it led to stack overflows!
 
 \subsubsection{OCaml}\label{evaluating-generators-ocaml}
 
-Whereas QuickChick is the de facto property-based testing framework in Rocq, programmers
-in OCaml have a choice of frameworks: QCheck, offering a standard QuickCheck-like
-monadic API for writing generators; Crowbar, offering fuzzing capabilities as a wrapper
-around AFL; and Base\_quickcheck, leveraging the Core standard library replacement.
+Whereas QuickChick is the de facto property-based testing framework in Rocq,
+programmers in OCaml have a choice of frameworks: QCheck, offering a standard
+QuickCheck-like monadic API for writing generators; Crowbar, offering fuzzing
+capabilities as a wrapper around AFL; and Base\_quickcheck, leveraging the Core
+standard library replacement.
 
 For the workloads, we ported the three basic ones from the previous sections---BST, and
 RBT, and STLC---to OCaml. As neither of the three frameworks provides machinery for
@@ -563,32 +564,32 @@ type-based and a bespoke generator to each framework.
 
 \renewcommand{\bargraphwidth}{0.45\textwidth}
 \begin{figure}[H]
+  \centering
+  \begin{subfigure}{\bargraphwidth}
     \centering
-    \begin{subfigure}{\bargraphwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/etna/ocaml/bst.png}
-        \caption{BST}
-    \end{subfigure}
-    \begin{subfigure}{\bargraphwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/etna/ocaml/rbt.png}
-        \caption{RBT}
-    \end{subfigure}
+    \includegraphics[width=\linewidth]{figures/etna/ocaml/bst.png}
+    \caption{BST}
+  \end{subfigure}
+  \begin{subfigure}{\bargraphwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/etna/ocaml/rbt.png}
+    \caption{RBT}
+  \end{subfigure}
 
-    \begin{subfigure}{\bargraphwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/etna/ocaml/stlc.png}
-        \caption{STLC}
-    \end{subfigure}
-    \caption{
-        Effectiveness of OCaml generation strategies on three
-        workloads. The first and second buckets for each framework represent the
-        bespoke and type-based generators respectively.\\
-        \explaincolor{chart_red}{QCheck},
-        \explaincolor{chart_green}{Crowbar (Random)},
-        \explaincolor{gray}{Crowbar (AFL)},
-        \explaincolor{chart_black}{Base\_quickcheck}.}
-    \label{fig:ocamlcomp}
+  \begin{subfigure}{\bargraphwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/etna/ocaml/stlc.png}
+    \caption{STLC}
+  \end{subfigure}
+  \caption{
+    Effectiveness of OCaml generation strategies on three
+    workloads. The first and second buckets for each framework represent the
+    bespoke and type-based generators respectively.\\
+    \explaincolor{chart_red}{QCheck},
+    \explaincolor{chart_green}{Crowbar (Random)},
+    \explaincolor{gray}{Crowbar (AFL)},
+    \explaincolor{chart_black}{Base\_quickcheck}.}
+  \label{fig:ocamlcomp}
 \end{figure}
 
 \paragraph*{Controlling for Size} As the ETNA JFP size experiment showed, the size of
@@ -602,9 +603,9 @@ large (to provoke bugs that rely on collisions), we used the variants of QCheck'
 integer generators that focus on smaller integer ranges. Finally, for Crowbar, the
 default behavior of its \verb|list| generator (which we use as a basic building block
 in multiple strategies) produces very small lists\footnote{Given an input size, it will
-    generate an empty list 50\% of the time, or a cons cell whose tail is recursively
-    generated with the size parameter halved. In practice, that means vanishingly few lists
-    of length more than 5 will be generated even for large input sizes.}. As a result, we
+  generate an empty list 50\% of the time, or a cons cell whose tail is recursively
+  generated with the size parameter halved. In practice, that means vanishingly few lists
+  of length more than 5 will be generated even for large input sizes.}. As a result, we
 re-implemented a list generator using the rest of Crowbar's API to construct longer
 lists.
 
@@ -655,7 +656,7 @@ together).
 
 As a beneficial side effect of decoupling strategies from workloads, the extensibility
 of ETNA is greatly improved. Integrating a new language within ETNA no longer {\em
-        requires} porting all of its workloads in yet another language---although that is still
+    requires} porting all of its workloads in yet another language---although that is still
 an option. Instead, workloads only need to be implemented once, in any language that
 can deserialize inputs to interface with ETNA's API. And strategies written in a
 previously unsupported language need only implement a generator and a serializer to use
@@ -667,59 +668,59 @@ implementation of the workload or the strategy. Depictions of the intra-language
 cross-language workflows of ETNA are presented in Figure~\ref{fig:workflow-comparison}.
 
 \begin{figure}[H]
-    \centering
-    \begin{tikzpicture}[scale=0.85, every node/.style={scale=0.85},
-            genbox/.style={rectangle, draw=chart_blue, fill=chart_blue!10,
-                    minimum width=1.8cm, minimum height=0.8cm, font=\small\sffamily, rounded corners=2pt, thick, align=center},
-            runbox/.style={rectangle, draw=chart_green, fill=chart_green!10,
-                    minimum width=1.8cm, minimum height=0.8cm, font=\small\sffamily, rounded corners=2pt, thick, align=center},
-            serbox/.style={rectangle, draw=chart_orange, fill=chart_orange!10,
-                    minimum width=1.8cm, minimum height=0.8cm, font=\small\sffamily, rounded corners=2pt, thick, align=center},
-            resbox/.style={rectangle, draw=chart_purple, fill=chart_purple!10,
-                    minimum width=1.8cm, minimum height=0.8cm, font=\small\sffamily, rounded corners=2pt, thick, align=center},
-            arrow/.style={->, >=stealth, thick, chart_black},
-            datalabel/.style={font=\scriptsize\sffamily},
-            timelabel/.style={font=\scriptsize\sffamily, chart_red}
-        ]
+  \centering
+  \begin{tikzpicture}[scale=0.85, every node/.style={scale=0.85},
+      genbox/.style={rectangle, draw=chart_blue, fill=chart_blue!10,
+          minimum width=1.8cm, minimum height=0.8cm, font=\small\sffamily, rounded corners=2pt, thick, align=center},
+      runbox/.style={rectangle, draw=chart_green, fill=chart_green!10,
+          minimum width=1.8cm, minimum height=0.8cm, font=\small\sffamily, rounded corners=2pt, thick, align=center},
+      serbox/.style={rectangle, draw=chart_orange, fill=chart_orange!10,
+          minimum width=1.8cm, minimum height=0.8cm, font=\small\sffamily, rounded corners=2pt, thick, align=center},
+      resbox/.style={rectangle, draw=chart_purple, fill=chart_purple!10,
+          minimum width=1.8cm, minimum height=0.8cm, font=\small\sffamily, rounded corners=2pt, thick, align=center},
+      arrow/.style={->, >=stealth, thick, chart_black},
+      datalabel/.style={font=\scriptsize\sffamily},
+      timelabel/.style={font=\scriptsize\sffamily, chart_red}
+    ]
 
-        \node[font=\sffamily\bfseries] at (-4, 1.2) {Intra-Language};
-        \node[genbox] (gen1) at (-5.5, -0.25) {Generator};
-        \node[runbox] (run1) at (-2.5, -0.25) {Runner};
-        \node[resbox] (res1) at (-4, -2) {Result};
+    \node[font=\sffamily\bfseries] at (-4, 1.2) {Intra-Language};
+    \node[genbox] (gen1) at (-5.5, -0.25) {Generator};
+    \node[runbox] (run1) at (-2.5, -0.25) {Runner};
+    \node[resbox] (res1) at (-4, -2) {Result};
 
-        \draw[arrow] (gen1) -- node[above, datalabel] {inputs} (run1);
-        \draw[arrow] (run1) -- (res1);
+    \draw[arrow] (gen1) -- node[above, datalabel] {inputs} (run1);
+    \draw[arrow] (run1) -- (res1);
 
-        \draw[decorate, decoration={brace, amplitude=4pt, raise=2pt}, chart_red, thick]
-        (-6.3, 0.4) -- (-1.7, 0.4) node[midway, above=6pt, timelabel] {combined time};
+    \draw[decorate, decoration={brace, amplitude=4pt, raise=2pt}, chart_red, thick]
+    (-6.3, 0.4) -- (-1.7, 0.4) node[midway, above=6pt, timelabel] {combined time};
 
-        \node[draw=gray!50, dashed, rounded corners=3pt, fit=(gen1)(run1), inner xsep=14pt, inner ysep=6pt] {};
+    \node[draw=gray!50, dashed, rounded corners=3pt, fit=(gen1)(run1), inner xsep=14pt, inner ysep=6pt] {};
 
-        \node[font=\sffamily\bfseries] at (3.75, 1.2) {Cross-Language};
-        \node[genbox] (gen2) at (0, -0.25) {Generator};
-        \node[serbox] (ser2) at (2.5, -0.25) {Serializer};
-        \node[runbox] (read2) at (5, -0.25) {Reader};
-        \node[runbox] (run2) at (7.5, -0.25) {Runner};
-        \node[resbox] (res2) at (5.5, -2) {Result};
+    \node[font=\sffamily\bfseries] at (3.75, 1.2) {Cross-Language};
+    \node[genbox] (gen2) at (0, -0.25) {Generator};
+    \node[serbox] (ser2) at (2.5, -0.25) {Serializer};
+    \node[runbox] (read2) at (5, -0.25) {Reader};
+    \node[runbox] (run2) at (7.5, -0.25) {Runner};
+    \node[resbox] (res2) at (5.5, -2) {Result};
 
-        \draw[arrow] (gen2) -- node[above, datalabel] {inputs} (ser2);
-        \draw[arrow] (ser2) -- node[above, datalabel] {S-expr} (read2);
-        \draw[arrow] (read2) -- node[above, datalabel] {inputs} (run2);
-        \draw[arrow] (run2) -- (res2);
+    \draw[arrow] (gen2) -- node[above, datalabel] {inputs} (ser2);
+    \draw[arrow] (ser2) -- node[above, datalabel] {S-expr} (read2);
+    \draw[arrow] (read2) -- node[above, datalabel] {inputs} (run2);
+    \draw[arrow] (run2) -- (res2);
 
-        \draw[decorate, decoration={brace, amplitude=4pt, raise=2pt}, chart_red, thick]
-        (-0.9, 0.4) -- (0.9, 0.4) node[midway, above=6pt, timelabel] {gen time};
+    \draw[decorate, decoration={brace, amplitude=4pt, raise=2pt}, chart_red, thick]
+    (-0.9, 0.4) -- (0.9, 0.4) node[midway, above=6pt, timelabel] {gen time};
 
-        \draw[decorate, decoration={brace, amplitude=4pt, raise=2pt}, chart_red, thick]
-        (6.7, 0.4) -- (8.3, 0.4) node[midway, above=6pt, timelabel] {exec time};
+    \draw[decorate, decoration={brace, amplitude=4pt, raise=2pt}, chart_red, thick]
+    (6.7, 0.4) -- (8.3, 0.4) node[midway, above=6pt, timelabel] {exec time};
 
-        \draw[gray!50, dashed, thick] (3.75, -2.3) -- (3.75, 0.8);
-        \node[font=\scriptsize\sffamily, gray] at (3, -1) {Lang A};
-        \node[font=\scriptsize\sffamily, gray] at (4.5, -1) {Lang B};
+    \draw[gray!50, dashed, thick] (3.75, -2.3) -- (3.75, 0.8);
+    \node[font=\scriptsize\sffamily, gray] at (3, -1) {Lang A};
+    \node[font=\scriptsize\sffamily, gray] at (4.5, -1) {Lang B};
 
-    \end{tikzpicture}
-    \caption{Intra-language vs cross-language workflows. Left: generator and runner in same language with combined timing. Right: generator serializes inputs; separate reader/runner enables decoupled timing metrics across language boundaries.}
-    \label{fig:workflow-comparison}
+  \end{tikzpicture}
+  \caption{Intra-language vs cross-language workflows. Left: generator and runner in same language with combined timing. Right: generator serializes inputs; separate reader/runner enables decoupled timing metrics across language boundaries.}
+  \label{fig:workflow-comparison}
 \end{figure}
 
 To demonstrate ETNA's new capabilities, we pit bespoke generators written in Haskell,
@@ -727,7 +728,7 @@ Rocq, Ocaml, Racket, and Rust against the three workloads. The results are shown
 Figure~\ref{fig:large-cross}. As we are dealing with tuned bespoke generators, bucket
 charts are not ideal for discerning differences---all generators find basically all
 bugs, quickly. Instead, the top of the figure shows the {\em total generation time to
-        failure} per-framework per-workload.% (bottom of Figure~\ref{fig:large-cross}).
+    failure} per-framework per-workload.% (bottom of Figure~\ref{fig:large-cross}).
 
 Despite all bespoke generators implementing the same strategy in principle, there are
 slight differences in efficiency: the way each framework manipulates the size of
@@ -750,34 +751,34 @@ frameworks available for experimentation.
 \renewcommand{\bargraphwidth}{0.48\textwidth}
 
 \begin{figure}[H]
+  \centering
+  \begin{subfigure}{\bargraphwidth}
     \centering
-    \begin{subfigure}{\bargraphwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/etna/cross-language/bst-bar-time.png}
-        \caption{BST}
-    \end{subfigure}
-    \begin{subfigure}{\bargraphwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/etna/cross-language/rbt-bar-time.png}
-        \caption{RBT}
-    \end{subfigure}
+    \includegraphics[width=\textwidth]{figures/etna/cross-language/bst-bar-time.png}
+    \caption{BST}
+  \end{subfigure}
+  \begin{subfigure}{\bargraphwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/etna/cross-language/rbt-bar-time.png}
+    \caption{RBT}
+  \end{subfigure}
 
-    \begin{subfigure}{\bargraphwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/etna/cross-language/stlc-bar-time.png}
-        \caption{STLC}
-    \end{subfigure}
+  \begin{subfigure}{\bargraphwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/etna/cross-language/stlc-bar-time.png}
+    \caption{STLC}
+  \end{subfigure}
 
-    \captionsetup{justification=centering}
-    \caption{
-        Generation time to failure (in seconds) for bespoke generators written in different languages.\\
-        \explaincolor{chart_black}{Haskell -- QuickCheck},
-        \explaincolor{chart_red}{Rocq -- QuickChick},
-        \explaincolor{chart_orange}{OCaml -- QCheck},\\
-        \explaincolor{chart_blue}{Racket -- Rackcheck},
-        \explaincolor{chart_green}{Rust -- QuickCheck}.
-    }
-    \label{fig:large-cross}
+  \captionsetup{justification=centering}
+  \caption{
+    Generation time to failure (in seconds) for bespoke generators written in different languages.\\
+    \explaincolor{chart_black}{Haskell -- QuickCheck},
+    \explaincolor{chart_red}{Rocq -- QuickChick},
+    \explaincolor{chart_orange}{OCaml -- QCheck},\\
+    \explaincolor{chart_blue}{Racket -- Rackcheck},
+    \explaincolor{chart_green}{Rust -- QuickCheck}.
+  }
+  \label{fig:large-cross}
 \end{figure}
 
 \subsection{Evaluating Shrinking}\label{evaluating-shrinking}
@@ -790,7 +791,7 @@ even generators across languages; with only a brief touch into the other major
 component of a property-based testing runner, \emph{shrinking}. This section details
 our work on comparing the shrinking effectiveness and performance of three different
 frameworks in Haskell: \emph{Structural shrinking} in QuickCheck, \emph{integrated
-    shrinking} in Hedgehog~\cite{Hedgehog} and Falsify~\cite{falsify}.
+  shrinking} in Hedgehog~\cite{Hedgehog} and Falsify~\cite{falsify}.
 
 We can start by remembering a variant of the binary-search tree insertion property from
 the last two chapters:
@@ -823,17 +824,16 @@ could present the user with a simpler counterexample such as
 \code[language=Haskell]{(T (E) -25 0 (E), -25, 1)}, from which the bug is immediately
 apparent.
 
-The solution to this problem is counterexample minimization, also known as {\em
-        shrinking}. QuickCheck's approach to shrinking is a second straightforward
-shrink-and-test loop: users provide a shrinking function---i.e., a function that given
-a counterexample produces a list of smaller variations of it---and the framework
-repeatedly tries all such variations until one of them is found to also be a
-counterexample, repeating this process until a (local) minimum is found. This
-particular approach is called {\em external} shrinking; the shrinker is written
-independently from the generator and focuses on minimizing the generated structure.
-This independence poses a problem that valid counterexamples (produced by hand-crafted
-generators that produce inputs valid-by-construction) are minimized into invalid
-candidates, spending the testing budget in sifting through the invalid cases.
+This problem is solved by counterexample minimization, also known as {\em shrinking}.
+QuickCheck uses a second straightforward shrink-and-test loop: users provide a function
+that maps a counterexample to smaller variations of it, and the framework repeatedly
+tries those variations until one of them is also a counterexample. The process repeats
+until a (local) minimum is found. This particular approach is called {\em external}
+shrinking; the shrinker is written independently from the generator and focuses on
+minimizing the generated structure. This independence poses a problem that valid
+counterexamples (produced by hand-crafted generators that produce inputs
+valid-by-construction) are minimized into invalid candidates, spending the testing
+budget in sifting through the invalid cases.
 
 It would be nice if we could have correct-by-construction shrinkers too, and that is
 precisely the problem solved by \emph{integrated}, or \emph{internal}, shrinking.
@@ -842,7 +842,7 @@ alternative path, where instead of independent shrinkers, the generators themsel
 used in shrinking. That is achieved by shrinking the randomness coming into the
 generators and then replaying them, rather than shrinking the structures produced,
 usually by representing this randomness as a \emph{randomness buffer} or a \emph{choice
-    sequence} to maintain some structural correspondence with those outputs. Variations of
+  sequence} to maintain some structural correspondence with those outputs. Variations of
 this approach are found in other Haskell property-based testing frameworks, most
 prominently Hedgehog~\cite{Hedgehog} and Falsify~\cite{falsify}.
 
@@ -919,12 +919,11 @@ candidates, checks whether they still reproduce the failure, and repeats until n
 smaller failing input is found. The search typically reaches a local minimum rather
 than a guaranteed global minimum, so the structure of the candidate space matters.
 
-Researchers have proposed various implementations of this general pattern, which can be
-grouped under two primary umbrellas: the first is what is called ``external'',
-``type-based'', or ``structural'' shrinking, which involves explicit functions
-operating directly on the structure of the counterexamples. The second is what has been
-historically called ``internal'' or ``integrated'' shrinking, as shrinking behavior is
-integrated into generators.
+Researchers have proposed two broad implementations of this pattern. The first is
+called ``external'', ``type-based'', or ``structural'' shrinking, and it uses explicit
+functions that operate directly on the structure of the counterexamples. The second is
+called ``internal'' or ``integrated'' shrinking, where shrinking behavior is integrated
+into generators.
 %
 This section briefly presents the respective techniques used in the Haskell PBT
 frameworks we evaluate.
@@ -933,7 +932,7 @@ frameworks we evaluate.
 
 In structural shrinking, the user provides a \emph{shrinker}, a pure function
 \code[language=Haskell]{a -> [a]} that maps a value to a list of \emph{candidate
-    smaller values}. When a test fails, the framework searches those candidates for a new
+  smaller values}. When a test fails, the framework searches those candidates for a new
 failing input, repeating until no candidate reduces further. The shrinker operates
 directly on the structure of the value and is entirely independent of the generator.
 Take QuickCheck's implementation as an example, the user-facing API is the
@@ -1097,30 +1096,30 @@ shrinker via measuring the time it takes to shrink. Concretely, we measured the
 following metrics for answering our questions:
 
 \begin{itemize}
-    \item \textbf{Minimal counterexample discovery:} Properties can tested with
-          many different techniques for supplying inputs, from manual user-written inputs to our usual
-          random input generation to symbolic execution to exhaustive enumeration~\cite{RuncimanNL08,Matela2017ToolsFD,CombinatorialEnum}.
-          We leverage an enumerative property-based testing strategy, LeanCheck~\cite{Matela2017ToolsFD},
-          to search for the smallest discovered input that constitutes a bug. We use these
-          LeanCheck results as ground-truth minima for the tasks where exhaustive search finds the bug.
-    \item \textbf{Effectiveness of shrinking strategy:} Regardless of the original input, an effective
-          shrinker should move the reported counterexample closer to a minimal failing input. We use the tree edit distance~\cite{zhang1989simple}
-          computed via zss package in Python~\cite{zssPythonGithub} between the ground truth minimal counterexample and
-          the shrinker output to measure effectiveness.
-    \item \textbf{Performance of shrinking strategy:} We measure shrinking time and time per unit of
-          tree-edit-distance reduction to understand how much time the shrinker spends per unit of progress
-          instead of just looking at the absolute numbers. We measure different shrinker parameter choices in
-          the libraries to understand their effects.
-    \item \textbf{Cost of shrinking strategy:} There is an inherent cost to the shrinking strategies themselves
-          that affects the performance of the bug-finding stage of the testing process. We measure the bug-finding
-          capabilities of different frameworks as well as the overhead of enabling the shrinking.
-    \item \textbf{Stability of shrinking strategies:} It is possible to write different generators for the same
-          input space. We have briefly mentioned how it is possible to write correct-by-construction generators that
-          target the valid subset of the input space instead of generators that samples the entire domain, but we can
-          also have different styles of correct-by-construction generators too, such as API-based generation,
-          which instead of generating the structure itself, generates operations that mutate it. We measure
-          the difference in shrinking performance and effectiveness in the context of different generation strategies
-          in our evaluation.
+  \item \textbf{Minimal counterexample discovery:} Properties can tested with
+        many different techniques for supplying inputs, from manual user-written inputs to our usual
+        random input generation to symbolic execution to exhaustive enumeration~\cite{RuncimanNL08,Matela2017ToolsFD,CombinatorialEnum}.
+        We leverage an enumerative property-based testing strategy, LeanCheck~\cite{Matela2017ToolsFD},
+        to search for the smallest discovered input that constitutes a bug. We use these
+        LeanCheck results as ground-truth minima for the tasks where exhaustive search finds the bug.
+  \item \textbf{Effectiveness of shrinking strategy:} Regardless of the original input, an effective
+        shrinker should move the reported counterexample closer to a minimal failing input. We use the tree edit distance~\cite{zhang1989simple}
+        computed via zss package in Python~\cite{zssPythonGithub} between the ground truth minimal counterexample and
+        the shrinker output to measure effectiveness.
+  \item \textbf{Performance of shrinking strategy:} We measure shrinking time and time per unit of
+        tree-edit-distance reduction to understand how much time the shrinker spends per unit of progress
+        instead of just looking at the absolute numbers. We measure different shrinker parameter choices in
+        the libraries to understand their effects.
+  \item \textbf{Cost of shrinking strategy:} There is an inherent cost to the shrinking strategies themselves
+        that affects the performance of the bug-finding stage of the testing process. We measure the bug-finding
+        capabilities of different frameworks as well as the overhead of enabling the shrinking.
+  \item \textbf{Stability of shrinking strategies:} It is possible to write different generators for the same
+        input space. We have briefly mentioned how it is possible to write correct-by-construction generators that
+        target the valid subset of the input space instead of generators that samples the entire domain, but we can
+        also have different styles of correct-by-construction generators too, such as API-based generation,
+        which instead of generating the structure itself, generates operations that mutate it. We measure
+        the difference in shrinking performance and effectiveness in the context of different generation strategies
+        in our evaluation.
 \end{itemize}
 
 % \paragraph*{Background: ETNA} \label{shrinkeval:sec:background}
@@ -1231,38 +1230,38 @@ generators solve every BST task, while the type-based generators fail several ta
 bug-finding profile, placing all tasks in the fastest bucket.
 
 \begin{figure}[h!]
+  \centering
+  \begin{subfigure}[t]{.33\linewidth}
     \centering
-    \begin{subfigure}[t]{.33\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_bst_family-vanilla.png}
-        \caption{Type-based generation}
-        \label{shrinkeval:fig:bucket_bst_vanilla}
-    \end{subfigure}\hfill
-    \begin{subfigure}[t]{.33\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_bst_family-qbe.png}
-        \caption{API}
-        \label{shrinkeval:fig:bucket_bst_qbe}
-    \end{subfigure}
-    \begin{subfigure}[t]{.33\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_bst_family-cbc.png}
-        \caption{Correct-by-construction}
-        \label{shrinkeval:fig:bucket_bst_cbc}
-    \end{subfigure}
-    \caption{Bug-finding bucket charts on BST \\
-        \explaincolor{chart_quickcheck}{QuickCheck},
-        \explaincolor{chart_hedgehog}{Hedgehog},
-        \explaincolorhatched{chart_hedgehog}{Idiomatic Hedgehog},\\
-        \explaincolor{chart_falsify}{Falsify},
-        \explaincolorhatched{chart_falsify}{Idiomatic Falsify}}
-    \label{shrinkeval:fig:bucket_bst}
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_bst_family-vanilla.png}
+    \caption{Type-based generation}
+    \label{shrinkeval:fig:bucket_bst_vanilla}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{.33\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_bst_family-qbe.png}
+    \caption{API}
+    \label{shrinkeval:fig:bucket_bst_qbe}
+  \end{subfigure}
+  \begin{subfigure}[t]{.33\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_bst_family-cbc.png}
+    \caption{Correct-by-construction}
+    \label{shrinkeval:fig:bucket_bst_cbc}
+  \end{subfigure}
+  \caption{Bug-finding bucket charts on BST \\
+    \explaincolor{chart_quickcheck}{QuickCheck},
+    \explaincolor{chart_hedgehog}{Hedgehog},
+    \explaincolorhatched{chart_hedgehog}{Idiomatic Hedgehog},\\
+    \explaincolor{chart_falsify}{Falsify},
+    \explaincolorhatched{chart_falsify}{Idiomatic Falsify}}
+  \label{shrinkeval:fig:bucket_bst}
 \end{figure}
 
 Across libraries, QuickCheck is significantly faster for bug-finding in both the
-type-based and API-based settings. We model the experiments as a paired
-repeated-measures design following Dem\v{s}ar~\cite{demsar2006statistical}: each task
-is a data set, trial-level measurements are collapsed to per-task medians, and we run a
+type-based and API-based settings. We model the experiments as a paired design with
+repeated measures following Dem\v{s}ar~\cite{demsar2006statistical}: each task is a
+data set, trial-level measurements are collapsed to per-task medians, and we run a
 Friedman test followed by Holm-corrected Wilcoxon signed-rank post-hoc tests. For BST
 bug-finding time, the type-based and API-based comparisons are statistically
 significant ($p < 0.001$): QuickCheck has lower bug-finding times than both Hedgehog
@@ -1270,35 +1269,35 @@ and Falsify, and Falsify also has lower bug-finding times than Hedgehog in the
 type-based setting. In contrast, the correct-by-construction generators are
 statistically indistinguishable for bug-finding time among successfully solved
 tasks.\footnote{To avoid assigning arbitrary penalties, the paired statistical
-    comparisons exclude \texttt{not found} cases and are therefore computed only on tasks
-    with successful failed trials for all compared strategies. This can differ from the
-    visual impression of the bucket charts, where \texttt{not found} is shown explicitly.}
+  comparisons exclude \texttt{not found} cases and are therefore computed only on tasks
+  with successful failed trials for all compared strategies. This can differ from the
+  visual impression of the bucket charts, where \texttt{not found} is shown explicitly.}
 
 \begin{figure}[H]
+  \centering
+  \begin{subfigure}[t]{.30\linewidth}
     \centering
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_rbt_family-vanilla.png}
-        \caption{Type-based generation}
-        \label{shrinkeval:fig:bucket_rbt_vanilla}
-    \end{subfigure}
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_rbt_family-qbe.png}
-        \caption{API}
-        \label{shrinkeval:fig:bucket_rbt_qbe}
-    \end{subfigure}
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_rbt_family-cbc.png}
-        \caption{Correct-by-construction}
-        \label{shrinkeval:fig:bucket_rbt_cbc}
-    \end{subfigure}
-    \caption{Bug-finding bucket charts on RBT \\
-        \explaincolor{chart_quickcheck}{QuickCheck},
-        \explaincolor{chart_hedgehog}{Hedgehog},
-        \explaincolor{chart_falsify}{Falsify}}
-    \label{shrinkeval:fig:bucket_rbt}
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_rbt_family-vanilla.png}
+    \caption{Type-based generation}
+    \label{shrinkeval:fig:bucket_rbt_vanilla}
+  \end{subfigure}
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_rbt_family-qbe.png}
+    \caption{API}
+    \label{shrinkeval:fig:bucket_rbt_qbe}
+  \end{subfigure}
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_rbt_family-cbc.png}
+    \caption{Correct-by-construction}
+    \label{shrinkeval:fig:bucket_rbt_cbc}
+  \end{subfigure}
+  \caption{Bug-finding bucket charts on RBT \\
+    \explaincolor{chart_quickcheck}{QuickCheck},
+    \explaincolor{chart_hedgehog}{Hedgehog},
+    \explaincolor{chart_falsify}{Falsify}}
+  \label{shrinkeval:fig:bucket_rbt}
 \end{figure}
 
 The RBT results in Figure~\ref{shrinkeval:fig:bucket_rbt} show a sharper separation
@@ -1311,64 +1310,63 @@ generation, but still leaves more tasks unfound than API-based, especially for H
 and Falsify.
 
 The paired statistical tests agree with the bucket-chart ordering for bug-finding time.
-The type-based, API-based, and correct-by-construction comparisons are all significant
-($p < 0.001$). QuickCheck is significantly faster than both Hedgehog and Falsify in all
-three generator families. Falsify is also significantly faster than Hedgehog for
-type-based and correct-by-construction generation, while the Hedgehog and Falsify
-comparison for API-based is not significant after Holm correction.
+All three generator-family comparisons are significant ($p < 0.001$). QuickCheck is
+significantly faster than both Hedgehog and Falsify in every generator family. Falsify
+is also significantly faster than Hedgehog for type-based and correct-by-construction
+generation, while the API-based comparison between Hedgehog and Falsify is not
+significant after Holm correction.
 
 \begin{figure}[H]
+  \centering
+  \begin{subfigure}[t]{.40\linewidth}
     \centering
-    \begin{subfigure}[t]{.40\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_stlc_family-vanilla.png}
-        \caption{Type-based generation}
-        \label{shrinkeval:fig:bucket_stlc_vanilla}
-    \end{subfigure}\hfill
-    \begin{subfigure}[t]{.40\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_stlc_family-cbc.png}
-        \caption{Correct-by-construction}
-        \label{shrinkeval:fig:bucket_stlc_cbc}
-    \end{subfigure}
-    \caption{Bug-finding bucket charts on STLC \\
-        \explaincolor{chart_quickcheck}{QuickCheck},
-        \explaincolor{chart_hedgehog}{Hedgehog},
-        \explaincolor{chart_falsify}{Falsify}}
-    \label{shrinkeval:fig:bucket_stlc}
-    \vspace*{-1em}
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_stlc_family-vanilla.png}
+    \caption{Type-based generation}
+    \label{shrinkeval:fig:bucket_stlc_vanilla}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{.40\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_stlc_family-cbc.png}
+    \caption{Correct-by-construction}
+    \label{shrinkeval:fig:bucket_stlc_cbc}
+  \end{subfigure}
+  \caption{Bug-finding bucket charts on STLC \\
+    \explaincolor{chart_quickcheck}{QuickCheck},
+    \explaincolor{chart_hedgehog}{Hedgehog},
+    \explaincolor{chart_falsify}{Falsify}}
+  \label{shrinkeval:fig:bucket_stlc}
+  \vspace*{-1em}
 \end{figure}
 
-The STLC results in Figure~\ref{shrinkeval:fig:bucket_stlc} follow the
-type-based/correct-by-construction pattern in BST/RBT: the bucket charts show slower
-and less complete bug-finding for type-based generation than for
-correct-by-construction generation. For type-based generation, the Friedman test does
-not find a significant difference in bug-finding time, matching the similar bucket
-profiles for QuickCheck, Hedgehog, and Falsify. For correct-by-construction generation,
-the difference is significant ($p < 0.001$): QuickCheck is significantly faster than
-both Hedgehog and Falsify, while Hedgehog and Falsify are statistically
-indistinguishable from each other after Holm correction.
+The STLC results in Figure~\ref{shrinkeval:fig:bucket_stlc} follow the same pattern as
+BST and RBT: the bucket charts show slower and less complete bug-finding for type-based
+generation than for correct-by-construction generation. For type-based generation, the
+Friedman test does not find a significant difference in bug-finding time, matching the
+similar bucket profiles for QuickCheck, Hedgehog, and Falsify. For
+correct-by-construction generation, the difference is significant ($p < 0.001$):
+QuickCheck is significantly faster than both Hedgehog and Falsify, while Hedgehog and
+Falsify are statistically indistinguishable from each other after Holm correction.
 
 \begin{figure}[H]
+  \centering
+  \begin{subfigure}[t]{.40\linewidth}
     \centering
-    \begin{subfigure}[t]{.40\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_fsub_family-vanilla.png}
-        \caption{Type-based generation}
-        \label{shrinkeval:fig:bucket_fsub_vanilla}
-    \end{subfigure}\hfill
-    \begin{subfigure}[t]{.40\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_fsub_family-cbc.png}
-        \caption{Correct-by-construction}
-        \label{shrinkeval:fig:bucket_fsub_cbc}
-    \end{subfigure}
-    \caption{Bug-finding bucket charts on $F_{<:}$ \\
-        \explaincolor{chart_quickcheck}{QuickCheck},
-        \explaincolor{chart_hedgehog}{Hedgehog},
-        \explaincolor{chart_falsify}{Falsify}.}
-    \label{shrinkeval:fig:bucket_fsub}
-    \vspace*{-1em}
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_fsub_family-vanilla.png}
+    \caption{Type-based generation}
+    \label{shrinkeval:fig:bucket_fsub_vanilla}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{.40\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/bucket_fsub_family-cbc.png}
+    \caption{Correct-by-construction}
+    \label{shrinkeval:fig:bucket_fsub_cbc}
+  \end{subfigure}
+  \caption{Bug-finding bucket charts on $F_{<:}$ \\
+    \explaincolor{chart_quickcheck}{QuickCheck},
+    \explaincolor{chart_hedgehog}{Hedgehog},
+    \explaincolor{chart_falsify}{Falsify}.}
+  \label{shrinkeval:fig:bucket_fsub}
+  \vspace*{-1em}
 \end{figure}
 
 The $F_{<:}$ results in Figure~\ref{shrinkeval:fig:bucket_fsub} mirror STLC but with a
@@ -1380,7 +1378,7 @@ placing all tasks in the fastest bucket.
 
 The statistical tests agree with this ordering for bug-finding time. In the type-based
 comparison, the Friedman test rejects the null hypothesis of equal medians ($p <
-    0.001$), QuickCheck is faster than both Hedgehog and Falsify and Falsify faster than
+  0.001$), QuickCheck is faster than both Hedgehog and Falsify and Falsify faster than
 Hedgehog. In the correct-by-construction comparison, QuickCheck is faster than both
 Hedgehog and Falsify, and Falsify is faster than Hedgehog; the results of the
 statistical tests can be found in Appendix~\ref{shrinkeval:app:stats}.
@@ -1394,60 +1392,60 @@ computed via exhaustive search using LeanCheck and the Y axis is the number of t
 for the corresponding workload (top-left is the best, top-right indicates a long tail).
 
 \begin{figure}[h!]
+  \centering
+  \begin{subfigure}[t]{.30\linewidth}
     \centering
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ted-to-gt_ecdf_family-vanilla.png}
-        \caption{BST, type-based}
-    \end{subfigure}
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ted-to-gt_ecdf_family-qbe.png}
-        \caption{BST, API}
-    \end{subfigure}
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ted-to-gt_ecdf_family-cbc.png}
-        \caption{BST, CBC}
-    \end{subfigure}\\[0.6em]
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ted-to-gt_ecdf_family-vanilla.png}
-        \caption{RBT, type-based}
-    \end{subfigure}
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ted-to-gt_ecdf_family-qbe.png}
-        \caption{RBT, API}
-    \end{subfigure}
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ted-to-gt_ecdf_family-cbc.png}
-        \caption{RBT, CBC}
-    \end{subfigure}\\[0.6em]
-    \begin{subfigure}[t]{.40\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_ted-to-gt_ecdf_family-vanilla.png}
-        \caption{STLC, type-based}
-    \end{subfigure}
-    \begin{subfigure}[t]{.40\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_ted-to-gt_ecdf_family-cbc.png}
-        \caption{STLC, CBC}
-    \end{subfigure}\\[0.6em]
-    \begin{subfigure}[t]{.40\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ted-to-gt_ecdf_family-vanilla.png}
-        \caption{$F_{<:}$, type-based}
-    \end{subfigure}
-    \begin{subfigure}[t]{.40\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ted-to-gt_ecdf_family-cbc.png}
-        \caption{$F_{<:}$, CBC}
-    \end{subfigure}
-    \caption{CCP of the post-shrink tree edit distance from each strategy's
-        minimal counterexample to the ground-truth minimum found by LeanCheck.}
-    \label{shrinkeval:fig:ecdf_ted_to_gt}
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ted-to-gt_ecdf_family-vanilla.png}
+    \caption{BST, type-based}
+  \end{subfigure}
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ted-to-gt_ecdf_family-qbe.png}
+    \caption{BST, API}
+  \end{subfigure}
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ted-to-gt_ecdf_family-cbc.png}
+    \caption{BST, CBC}
+  \end{subfigure}\\[0.6em]
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ted-to-gt_ecdf_family-vanilla.png}
+    \caption{RBT, type-based}
+  \end{subfigure}
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ted-to-gt_ecdf_family-qbe.png}
+    \caption{RBT, API}
+  \end{subfigure}
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ted-to-gt_ecdf_family-cbc.png}
+    \caption{RBT, CBC}
+  \end{subfigure}\\[0.6em]
+  \begin{subfigure}[t]{.40\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_ted-to-gt_ecdf_family-vanilla.png}
+    \caption{STLC, type-based}
+  \end{subfigure}
+  \begin{subfigure}[t]{.40\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_ted-to-gt_ecdf_family-cbc.png}
+    \caption{STLC, CBC}
+  \end{subfigure}\\[0.6em]
+  \begin{subfigure}[t]{.40\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ted-to-gt_ecdf_family-vanilla.png}
+    \caption{$F_{<:}$, type-based}
+  \end{subfigure}
+  \begin{subfigure}[t]{.40\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ted-to-gt_ecdf_family-cbc.png}
+    \caption{$F_{<:}$, CBC}
+  \end{subfigure}
+  \caption{CCP of the post-shrink tree edit distance from each strategy's
+    minimal counterexample to the ground-truth minimum found by LeanCheck.}
+  \label{shrinkeval:fig:ecdf_ted_to_gt}
 \end{figure}
 
 The type-based campaigns show relatively little shrink movement across all four
@@ -1460,20 +1458,19 @@ reduces the tree edit distance to the ground-truth minimum by a median of only $
 edits per workload (BST $4$, RBT $3$, STLC $7$, $F_{<:}$ $9$), substantially below the
 API-based ($41$--$42$) and correct-by-construction ($18$--$98$) families.
 
-The correct-by-construction and API-based campaigns are more workload-dependent. On
-correct-by-construction generation for BST and RBT, QuickCheck's structural shrinker
-reports counterexamples closer to the LeanCheck minimum than the integrated shrinkers,
-while the RBT API-based comparison is statistically indistinguishable. On STLC, Falsify
-reports smaller counterexamples than both QuickCheck and Hedgehog. On $F_{<:}$,
-QuickCheck reports the closest counterexamples, followed by Falsify and then Hedgehog.
-These results do not support a blanket claim that either structural or integrated
-shrinking is always more effective; the generator family and workload both matter. Due
-to space constraints, we provide the detailed statistical comparisons in
-Appendix~\ref{shrinkeval:app:stats}, including the full per-family, per-metric Friedman
-and post-hoc Wilcoxon tables.\footnote{For RBT, LeanCheck found ground-truth minima for
-    only 34 tasks in reasonable time. We exclude the remaining 24 tasks from
-    distance-to-ground-truth comparisons and leave ground-truth-free shrinking evaluation
-    as future work.}
+The remaining campaigns are more workload-dependent. For correct-by-construction
+generation on BST and RBT, QuickCheck's structural shrinker reports counterexamples
+closer to the LeanCheck minimum than the integrated shrinkers, while the RBT API-based
+comparison is statistically indistinguishable. On STLC, Falsify reports smaller
+counterexamples than both QuickCheck and Hedgehog. On $F_{<:}$, QuickCheck reports the
+closest counterexamples, followed by Falsify and then Hedgehog. These results do not
+support a blanket claim that either structural or integrated shrinking is always more
+effective; the generator family and workload both matter. Due to space constraints, we
+provide the detailed statistical comparisons in Appendix~\ref{shrinkeval:app:stats},
+including the full per-family, per-metric Friedman and post-hoc Wilcoxon
+tables.\footnote{For RBT, LeanCheck found ground-truth minima for only 34 tasks in
+  reasonable time. We exclude the remaining 24 tasks from distance-to-ground-truth
+  comparisons and leave ground-truth-free shrinking evaluation as future work.}
 
 % Our results validate the recent findings 
 
@@ -1484,59 +1481,59 @@ shrinking result in Figure~\ref{shrinkeval:fig:ecdf_ms_per_edit} to normalize ov
 different counterexamples reported by each library.
 
 \begin{figure}[h!]
+  \centering
+  \begin{subfigure}[t]{.30\linewidth}
     \centering
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_time-shrinking_ecdf_family-vanilla.png}
-        \caption{BST, type-based}
-    \end{subfigure}
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_time-shrinking_ecdf_family-qbe.png}
-        \caption{BST, API}
-    \end{subfigure}
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_time-shrinking_ecdf_family-cbc.png}
-        \caption{BST, CBC}
-    \end{subfigure}\\[0.6em]
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_time-shrinking_ecdf_family-vanilla.png}
-        \caption{RBT, type-based}
-    \end{subfigure}
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_time-shrinking_ecdf_family-qbe.png}
-        \caption{RBT, API}
-    \end{subfigure}
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_time-shrinking_ecdf_family-cbc.png}
-        \caption{RBT, CBC}
-    \end{subfigure}\\[0.6em]
-    \begin{subfigure}[t]{.40\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_time-shrinking_ecdf_family-vanilla.png}
-        \caption{STLC, type-based}
-    \end{subfigure}
-    \begin{subfigure}[t]{.40\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_time-shrinking_ecdf_family-cbc.png}
-        \caption{STLC, CBC}
-    \end{subfigure}\\[0.6em]
-    \begin{subfigure}[t]{.40\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_time-shrinking_ecdf_family-vanilla.png}
-        \caption{$F_{<:}$, type-based}
-    \end{subfigure}
-    \begin{subfigure}[t]{.40\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_time-shrinking_ecdf_family-cbc.png}
-        \caption{$F_{<:}$, CBC}
-    \end{subfigure}
-    \caption{CCP of per-task shrinking wall-clock time (ms, log scale)}
-    \label{shrinkeval:fig:ecdf_time_shrinking}
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_time-shrinking_ecdf_family-vanilla.png}
+    \caption{BST, type-based}
+  \end{subfigure}
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_time-shrinking_ecdf_family-qbe.png}
+    \caption{BST, API}
+  \end{subfigure}
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_time-shrinking_ecdf_family-cbc.png}
+    \caption{BST, CBC}
+  \end{subfigure}\\[0.6em]
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_time-shrinking_ecdf_family-vanilla.png}
+    \caption{RBT, type-based}
+  \end{subfigure}
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_time-shrinking_ecdf_family-qbe.png}
+    \caption{RBT, API}
+  \end{subfigure}
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_time-shrinking_ecdf_family-cbc.png}
+    \caption{RBT, CBC}
+  \end{subfigure}\\[0.6em]
+  \begin{subfigure}[t]{.40\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_time-shrinking_ecdf_family-vanilla.png}
+    \caption{STLC, type-based}
+  \end{subfigure}
+  \begin{subfigure}[t]{.40\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_time-shrinking_ecdf_family-cbc.png}
+    \caption{STLC, CBC}
+  \end{subfigure}\\[0.6em]
+  \begin{subfigure}[t]{.40\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_time-shrinking_ecdf_family-vanilla.png}
+    \caption{$F_{<:}$, type-based}
+  \end{subfigure}
+  \begin{subfigure}[t]{.40\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_time-shrinking_ecdf_family-cbc.png}
+    \caption{$F_{<:}$, CBC}
+  \end{subfigure}
+  \caption{CCP of per-task shrinking wall-clock time (ms, log scale)}
+  \label{shrinkeval:fig:ecdf_time_shrinking}
 \end{figure}
 
 For type-based generators, QuickCheck and Hedgehog have similar shrinking times across
@@ -1562,60 +1559,60 @@ Hedgehog and Falsify. On STLC and $F_{<:}$, the ordering is clearer: QuickCheck 
 fastest, Hedgehog is next, and Falsify is slowest.
 
 \begin{figure}[h!]
+  \centering
+  \begin{subfigure}[t]{.30\linewidth}
     \centering
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ms-per-edit_ecdf_family-vanilla.png}
-        \caption{BST, type-based}
-    \end{subfigure}
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ms-per-edit_ecdf_family-qbe.png}
-        \caption{BST, API}
-    \end{subfigure}
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ms-per-edit_ecdf_family-cbc.png}
-        \caption{BST, CBC}
-    \end{subfigure}\\[0.6em]
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ms-per-edit_ecdf_family-vanilla.png}
-        \caption{RBT, type-based}
-    \end{subfigure}
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ms-per-edit_ecdf_family-qbe.png}
-        \caption{RBT, API}
-    \end{subfigure}
-    \begin{subfigure}[t]{.30\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ms-per-edit_ecdf_family-cbc.png}
-        \caption{RBT, CBC}
-    \end{subfigure}\\[0.6em]
-    \begin{subfigure}[t]{.40\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_ms-per-edit_ecdf_family-vanilla.png}
-        \caption{STLC, type-based}
-    \end{subfigure}
-    \begin{subfigure}[t]{.40\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_ms-per-edit_ecdf_family-cbc.png}
-        \caption{STLC, CBC}
-    \end{subfigure}\\[0.6em]
-    \begin{subfigure}[t]{.40\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ms-per-edit_ecdf_family-vanilla.png}
-        \caption{$F_{<:}$, type-based}
-    \end{subfigure}
-    \begin{subfigure}[t]{.40\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ms-per-edit_ecdf_family-cbc.png}
-        \caption{$F_{<:}$, CBC}
-    \end{subfigure}
-    \caption{CCP of shrinking time per unit of progress: milliseconds spent
-        shrinking divided by the tree edit distance reduced (log scale).}
-    \label{shrinkeval:fig:ecdf_ms_per_edit}
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ms-per-edit_ecdf_family-vanilla.png}
+    \caption{BST, type-based}
+  \end{subfigure}
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ms-per-edit_ecdf_family-qbe.png}
+    \caption{BST, API}
+  \end{subfigure}
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_bst_ms-per-edit_ecdf_family-cbc.png}
+    \caption{BST, CBC}
+  \end{subfigure}\\[0.6em]
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ms-per-edit_ecdf_family-vanilla.png}
+    \caption{RBT, type-based}
+  \end{subfigure}
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ms-per-edit_ecdf_family-qbe.png}
+    \caption{RBT, API}
+  \end{subfigure}
+  \begin{subfigure}[t]{.30\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_rbt_ms-per-edit_ecdf_family-cbc.png}
+    \caption{RBT, CBC}
+  \end{subfigure}\\[0.6em]
+  \begin{subfigure}[t]{.40\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_ms-per-edit_ecdf_family-vanilla.png}
+    \caption{STLC, type-based}
+  \end{subfigure}
+  \begin{subfigure}[t]{.40\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_stlc_ms-per-edit_ecdf_family-cbc.png}
+    \caption{STLC, CBC}
+  \end{subfigure}\\[0.6em]
+  \begin{subfigure}[t]{.40\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ms-per-edit_ecdf_family-vanilla.png}
+    \caption{$F_{<:}$, type-based}
+  \end{subfigure}
+  \begin{subfigure}[t]{.40\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/shrinking-eval/shrink_fsub_ms-per-edit_ecdf_family-cbc.png}
+    \caption{$F_{<:}$, CBC}
+  \end{subfigure}
+  \caption{CCP of shrinking time per unit of progress: milliseconds spent
+    shrinking divided by the tree edit distance reduced (log scale).}
+  \label{shrinkeval:fig:ecdf_ms_per_edit}
 \end{figure}
 
 In an attempt to normalize over shrinking effort, we have also measured time per edit
@@ -1666,13 +1663,6 @@ potentially biased by the domination of the time spent in the PBT library as opp
 executing the tests themselves. As execution times get longer for workloads, the PBT
 library performance is less critical in the overall execution, whereas the quality of
 the algorithms will be more important.
-
-% To provide a clearer picture, more studies
-%  
-% However, it is unclear where the balance lies as well as the
-% representative set of PBT workloads in the wild, studies such as PBT in Practice\cn{} is very critical to understand
-% the implications of research such as ours. Due to currently unclear nature of this balance, we have decided to hold
-% experiments assessing both the performance and effectiveness of shrinking in our study.
 
 An important metric for this discussion is \emph{sample-efficiency}: how many
 candidates a shrinker must test during the shrinking phase, relative to the progress it

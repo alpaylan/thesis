@@ -43,7 +43,7 @@ programs''~\cite{ClaessenH00}. The initial steps of random software testing is
 typically attributed to the CS736 class of University of Wisconsin Madison Computer
 Science Department in which Bart Miller coins the term ``fuzz'' testing, fuzzing UNIX
 utilities with random inputs to produce breakages, triggering faults, finding bugs in
-programs\cn. While the fuzz testing literature evolved with a focus on finding more and
+programs~\cite{Miller1990UnixFuzz}. While the fuzz testing literature evolved with a focus on finding more and
 more faults via smarter, guided, targeted input generation techniques\cn,
 Property-based testing has chosen the specifications as its main focus. The original
 paper introduces a language, as well as an implementation as a library, for expressing
@@ -107,8 +107,8 @@ bugs, \discarded{}, indicating that the input is not a valid input for the prope
 hence was promptly discarded, or \failed{}, indicating that the input constitutes a
 bug, a violation of the property. After reaching a failing input, the second stage of
 the property runner is initiated, the bug is minimized through shrinking with the
-application of delta-debugging\cn. A \shrinker{} produces multiple candidate shrunk
-values, sometimes by shrinking an internal value such as keys in a tree, or removing
+application of delta-debugging~\cite{zeller2002simplifying}. A \shrinker{} produces
+multiple candidate shrunk values, sometimes by shrinking an internal value such as keys in a tree, or removing
 parts of the structure such as removing part of a computation. If a candidate
 reproduces the failure, the shrinking is recursively applied to the smaller candidate
 until there are no more failing candidates, at which point the minimal value is
@@ -130,8 +130,8 @@ APIs for expressing the properties, the generators, the shrinkers as well as the
 underlying source of randomness. While Hypothesis~\cite{Hypothesis}, Zest~\cite{Zest},
 Crowbar~\cite{Crowbar} parse randomness~\cite{goldsteinParsingRandomness2022} into
 structures in their respective programming language, many frameworks use QuickCheck
-style RNG splitting\cn{} that starts from an initial random seed and splits it at every
-decision point.
+style RNG splitting~\cite{ClaessenP13} that starts from an initial random seed and
+splits it at every decision point.
 
 While many of these decisions are defaults that can be overridden as users require
 custom configurations for their domains, many of them \emph{leak} outside the

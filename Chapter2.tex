@@ -101,7 +101,8 @@ flexibility we get from the testing library. The more pressing question is, \emp
 Property-based testing landscape tells us it is not. Looking at
 Table~\ref{tab:pbt-frameworks}, we see significant fragmentation within languages;
 Haskell hosts QuickCheck, SmallCheck~\cite{RuncimanNL08}, Hedgehog~\cite{Hedgehog} as
-well as LeanCheck\cn, and falsify~\cite{falsify} that is not mentioned in the table.
+well as LeanCheck~\cite{leancheck}, and falsify~\cite{falsify} that is not mentioned
+in the table.
 These new frameworks emerge as a response to the limits of flexibility in the existing
 ones\cn. These limitations arise at points that surpass the prescience of the library
 authors in the requirements of the users, because the dominant design paradigm of the
@@ -704,7 +705,7 @@ we create must be ergonomic enough for people to use, otherwise the potential of
 flexibility is never realized. \emph{Mixed embeddings} emerge as optimal points in the
 spectrum where parts of the object language is reified as deeply embedded data
 structures while the rest is kept as shallowly embedded combinators. Perhaps the most
-famous of such embeddings is \emph{Higher-Order Abstract Syntax (HOAS)}\cn, a popular
+famous of such embeddings is \emph{Higher-Order Abstract Syntax (HOAS)}~\cite{PfenningElliott1988HOAS}, a popular
 approach to defining languages where the variable bindings in lambdas reuse host
 language binders instead of redefining substitution at the object level.
 
@@ -902,10 +903,10 @@ ergonomics to our language.
 Concretely, \code{property} is implemented as a recursive \code{syntax-parse} macro
 with three cases: one for \code{forall}, one for \code{implies}, and a base case for
 \code{check}-style leaves. The \code{forall} clause expands into a \code{Forall} node
-and introduces a local identifier transformer for the bound variable using
-\code{make-variable-like-transformer}. Inside the remainder of the property, any use of
-that variable is rewritten to an environment lookup (\code{(dict-ref env 'x)}), rather
-than to a host-language binder.
+and introduces a local identifier transformer for the bound variable using Racket's
+variable-like transformer API. Inside the remainder of the property, any use of that
+variable is rewritten to an environment lookup (\code{(dict-ref env 'x)}), rather than
+to a host-language binder.
 
 To make this rewriting compositional, the macro uses a syntax parameter
 (\code{property-env}) that is rebound at each generated lambda (\code{(lambda (env)
@@ -1203,7 +1204,8 @@ In this section I evaluate our approach and implementation:
         reusable runners and runner components, rather than as changes to the property language
         or framework internals. We carry out three new experiments: In \S~\ref{sec:seedpool} we
         explore how different design choices with respect to the representation and sampling of
-        the seed pool affect testing performance, improving FuzzChick\cn{} in the process; in
+        the seed pool affect testing performance, improving FuzzChick~\cite{FuzzChick}
+        in the process; in
         \S~\ref{sec:shrink-comp}, we compare the default integrated shrinking capabilities of
         RackCheck{} with a simple external shrinker we implemented for a DBAS-style Racket
         library; in \S~\ref{sec:parallel-experiment}, we implement and benchmark a parallel
