@@ -9,12 +9,19 @@ In this chapter, I focus on yet another fragmentation, this time caused by somet
 much more banal, a lack of general purpose evaluation benchmarks for PBT. The
 literature is full of interesting novel techniques for enhancing random generation and
 counterexample minimization, but these techniques are rarely evaluated within a
-coherent context. Many times, the studies have relied on bespoke benchmarks
-(\todo{examples}), if one were to build a web of studies and the benchmarks they used,
-the result is somewhat reminiscent of the infamous public transport coverage of Ankara,
-a small number of hub workloads that many studies reuse, many one-off benchmarks that
-haven't been validated or reused in other studies, and a complete lack of
-standardization.
+coherent context. Many times, the studies have relied on bespoke benchmarks: John
+Hughes's tutorial on how to write properties~\cite{Hughes2019HowTS} focuses on binary
+search trees; Luck~\cite{Luck} is evaluated on red-black trees, simply-typed lambda
+calculus and a stack-based information flow control machine; Smallcheck and lazy
+smallcheck~\cite{RuncimanNL08} are evaluated on red-black trees, huffman encoding, the
+Turner program and a mate-in-N chess problem. Combinatorial PBT~\cite{CombinatorialPBT}
+is evaluated on System F; and coverage-guided PBT work builds around the
+information-flow-control workload developed for noninterference
+testing~\cite{TestingNoninterferenceQuickly,TestingNIjfp,FuzzChick}. If one were to
+build a web of studies and the benchmarks they used, the result is somewhat reminiscent
+of the infamous public transport coverage of Ankara, a small number of hub workloads
+that many studies reuse, many one-off benchmarks that haven't been validated or reused
+in other studies, and a complete lack of standardization.
 
 This lack of common comparative analysis surely contributes to a lack of understanding
 in the effects of these new techniques and changes; but the problem is persistent
@@ -1754,8 +1761,9 @@ when we start evaluating more fuzzing tools.
 
 Another is a breadth-oriented study for horizontally growing ETNA. Large language
 models (LLMs) show promising results for automated bug injection from historical bug
-fixes. Several studies~\cn{} have investigated using LLMs to generate properties or
-propose bugs, but reinjection of historical bugs is left unexplored.
+fixes. Several studies~\cite{vikram2024llmpbt,etemadi2025llmpbtcps,
+  propertygpt2024,jing2026pbtbench} have investigated using LLMs to generate properties
+or propose bugs, but reinjection of historical bugs is left unexplored.
 
 The closest related work in terms of PBT shrinking is the study of the Hypothesis
 reducer~\cite{HypothesisShrinking}. That work evaluates test-case reduction using case

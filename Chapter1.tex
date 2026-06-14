@@ -43,8 +43,9 @@ programs''~\cite{ClaessenH00}. The initial steps of random software testing is
 typically attributed to the CS736 class of University of Wisconsin Madison Computer
 Science Department in which Bart Miller coins the term ``fuzz'' testing, fuzzing UNIX
 utilities with random inputs to produce breakages, triggering faults, finding bugs in
-programs~\cite{Miller1990UnixFuzz}. While the fuzz testing literature evolved with a focus on finding more and
-more faults via smarter, guided, targeted input generation techniques\cn,
+programs~\cite{Miller1990UnixFuzz}. While fuzz testing has evolved toward increasingly
+feedback-guided, target-aware, and domain-specific input generation
+techniques~\cite{fuzzingbook2024,aflplusplus,DBLP:journals/tse/BohmePR19,FairFuzz,DirectedGreybox,FuzzFactory},
 Property-based testing has chosen the specifications as its main focus. The original
 paper introduces a language, as well as an implementation as a library, for expressing
 properties, and writing random data generators; the design of which has been replicated

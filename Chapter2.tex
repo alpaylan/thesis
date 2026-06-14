@@ -10,14 +10,14 @@ exposition of the rough edges of the existing APIs for writing properties, follo
 an identification of a core problem in the design of existing PBT libraries. I will
 present the ramifications of the problem followed by a solution from our paper with the
 same title as the chapter, ``Programmable Property-Based
-Testing''~\cite{keles2026programmablepropertybasedtesting}. This is the
-result of joint work with Justine, who is the main designer and implementer of the
-Racket Programmable PBT library; Ceren, who has worked on the reimplementation of the
-existing ETNA workloads in Rocq and Haskell for evaluating our approach; Harry and Leo,
-who have been integral to understanding the problem at hand, the design of the
-interface as well as exposition of the ideas we presented. I have worked on the core
-design of the DBAS encoding, both libraries in Rocq and Racket as well as all of the
-experimental setup of the paper.
+Testing''~\cite{keles2026programmablepropertybasedtesting}. This is the result of joint
+work with Justine, who is the main designer and implementer of the Racket Programmable
+PBT library; Ceren, who has worked on the reimplementation of the existing ETNA
+workloads in Rocq and Haskell for evaluating our approach; Harry and Leo, who have been
+integral to understanding the problem at hand, the design of the interface as well as
+exposition of the ideas we presented. I have worked on the core design of the DBAS
+encoding, both libraries in Rocq and Racket as well as all of the experimental setup of
+the paper.
 
 \section{How to write properties?}
 
@@ -466,22 +466,25 @@ The changes of generating valid binary trees using this generator is \emph{extre
 There are four solutions to this problem:
 
 \begin{enumerate}
-  \item \textbf{Write correct-by-construction generators:} One can always theoretically always implement a
-        hand-written generator that targets
-        the valid subset of the given datatype. However, this is (1) an error-prone and attention
-        bottlenecked process that requires expert knowledge and time, and (2) the complexity of the generator increases superlinearly
-        against the complexity of the generated structure.\todo{anecdotal}
+  \item \textbf{Write correct-by-construction generators:} One can implement a
+        hand-written generator that targets the valid subset of the datatype. However,
+        this shifts the burden from testing the program to carefully reimplementing much
+        of the datatype's invariant structure inside the generator. As the datatype gains
+        more interacting invariants, the generator must encode more case splits,
+        dependencies, and repair logic, making it easy for the generator itself to become
+        the most complicated part of the test.
   \item \textbf{Derive correct-by-construction generators~\cite{GeneratingGoodGenerators}:} This is what
         QuickChick in Rocq does, generators are derived via inductive Rocq specifications.
         Although this is a very promising and powerful direction, it relies on having inductive
         specification of the structure, which is a generous assumption to make.
-  \item \textbf{Mutate into interesting inputs~\cite{aflplusplus}:} This is coverage-guided fuzzing
-        approach, instead of relying on expert knowledge and effort to craft good generators as
-        in (1) or (2), coverage-guided fuzzing trusts the genetic process into eventually
-        reaching a subset of the input space that has valid binary search trees. This process
-        relies on monotonous improvement via coverage maximization, so it is not really a good
-        fit for small budget campaigns in the order of seconds or minutes without further
-        hybridization\todo{maybe elaborate, this is a bit handwavy}.
+  \item \textbf{Mutate into interesting inputs~\cite{aflplusplus}:} Coverage-guided
+        fuzzing reduces the need for a domain-specific generator by searching from seed
+        inputs toward executions that cover new program behavior. For highly structured
+        inputs, however, many mutations are rejected before reaching the semantic checks
+        that distinguish valid from invalid structures. Without a parser, repair step, or
+        domain-specific feedback signal, short fuzzing campaigns can spend most of their
+        budget rediscovering syntactic or invariant violations rather than exploring the
+        valid state space.
   \item \textbf{Use stateful generation.}
 \end{enumerate}
 
@@ -672,8 +675,8 @@ interpreted settings, it is possible to manipulate the host language terms witho
 explicit staging, however cumbersome. To my knowledge, there is only one tool
 experimenting with the deep approach, TSTL~\cite{holmes2018tstl}. TSTL is ``the
 Template Scripting Testing Language'' that allows for writing templates in an EBNF-like
-syntax that can include arbitrary Python expressions which denotes a generative grammar. Below is a TSTL
-template for testing an AVL tree in Python:
+syntax that can include arbitrary Python expressions which denotes a generative
+grammar. Below is a TSTL template for testing an AVL tree in Python:
 
 \begin{code}[language=TSTL]
 @import avl
@@ -1085,9 +1088,6 @@ Like shallow QuickCheck-style APIs, this representation still lets users write
 generators, mutators, shrinkers, and printers in the host language and still supports
 typeclass-based defaults. The key difference is that users can now pattern match on
 properties and define new interpreters without modifying framework internals.
-
-For instance, we can write the same \generator{} component in \todo{have gen, run, gen
-  and run separately}...
 
 For example, the standard generate-and-check loop can be written as a structural
 interpreter over this property syntax:
@@ -1797,8 +1797,9 @@ These results mark a task as ``solved'' for the purposes of a bucket chart if at
 campaigns to find the bug, the results paint an even more compelling argument: {\em
 only} Heap-based pools consistently find counterexamples---I've omitted the graphs
 because all other options fail to consistently solve a task across runs, indicating a
-very high variance that heap seed pool does not exhibit. As a result, we \todo{updated}
-QuickChick to use the effective configuration as a default going forward.
+very high variance that heap seed pool does not exhibit. As a result, we plan to
+upstream the Heap-based seed pool to QuickChick as the effective configuration as a
+default going forward.
 
 \subsection{Comparison of Integrated Shrinking with External Shrinking}\label{sec:shrink-comp}
 
