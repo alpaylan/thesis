@@ -1876,15 +1876,16 @@ provides the necessary configurability.
 An important recent work on novel property runners is
 QuickerCheck~\cite{ParallelTesting}, where authors implement and evaluate a parallel
 run-time for QuickCheck~\cite{ClaessenH00}, achieving massive performance gains on a
-variety of workloads. The underlying idea the authors propose is rather simple, they
-provide an alternative, parallel property runner {\tt quickCheckPar}, where multiple
-worker threads share a common variable that controls the size of the generated inputs.
-Using this strategy, the authors achieve an almost linear speed-up with respect to the
-number of physical cores used in testing. Unfortunately, due to the rigid structure of
-shallow embedding based PBT libraries, creating such a parallel runner requires
-intensive engineering effort. The commit history of the project shows that the
-implementation of this new runner is an effort spanning 2 years and more than 50
-commits.
+variety of workloads as opposed to prior work leveraging parallelism by producing a
+swarm of testing configurations~\cite{swarm-testing}. The underlying idea the authors
+propose is rather simple, they provide an alternative, parallel property runner {\tt
+    quickCheckPar}, where multiple worker threads share a common variable that controls the
+size of the generated inputs. Using this strategy, the authors achieve an almost linear
+speed-up with respect to the number of physical cores used in testing. Unfortunately,
+due to the rigid structure of shallow embedding based PBT libraries, creating such a
+parallel runner requires intensive engineering effort. The commit history of the
+project shows that the implementation of this new runner is an effort spanning 2 years
+and more than 50 commits.
 
 In contrast, the DBAS-style Racket library let us implement a naive version of the
 QuickerCheck algorithm as a user-space runner, without changing the property
