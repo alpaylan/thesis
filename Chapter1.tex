@@ -18,10 +18,10 @@ Different methods of software testing force the programmer to express the intent
 different forms. In the simplest scenario, the programmers \emph{tinker} with the
 program at hand. They interact with the produced artifact, pressing buttons in a user
 interface, exploring different options in a command-line interface, testing a variety
-of inputs for a function interacting through REPL... Going forward, these interactions
-are typically \emph{codified}, written as concrete steps of testing instructions to be
-run alongside the program development, run as part of an automated test suite of
-hundreds or thousands of such interactions. The simplest form of codification is
+of inputs for a function interacting through REPL... These interactions are then
+\emph{codified}, written as concrete steps of testing instructions to be run alongside
+the program development, run as part of an automated test suite of hundreds or
+thousands of such interactions. The simplest form of codification is
 \emph{example-based testing}, in which the specification relates concrete user written
 input-output pairs together. A sorting function is tested through several assertions
 such as \code{sort([]) == []}, \code{sort([1, 0]) == [0, 1]}, \code{sort(3,2,-1) ==
@@ -134,11 +134,11 @@ structures in their respective programming language, many frameworks use QuickCh
 style RNG splitting~\cite{ClaessenP13} that starts from an initial random seed and
 splits it at every decision point.
 
-While many of these decisions are defaults that can be overridden as users require
-custom configurations for their domains, many of them \emph{leak} outside the
-abstraction and may require significant reengineering of the library internals to
-accommodate alternative behaviors. For instance, the decision to use randomness parsing
-vs. RNG splitting affects one of the columns in the framework table
+Many of these decisions are defaults that can be overridden as users require custom
+configurations for their domains, many of them \emph{leak} outside the abstraction and
+may require significant reengineering of the library internals to accommodate
+alternative behaviors. For instance, the decision to use randomness parsing vs. RNG
+splitting affects one of the columns in the framework table
 (Table~\ref{tab:pbt-frameworks}), \emph{integrated shrinking}. In integrated
 shrinking~\cite{HypothesisShrinking}, in-comparison to the classic structural shrinking
 approach we mentioned, the source of randomness that is parsed to the generated
@@ -151,13 +151,16 @@ Testing~\cite{keles2026programmablepropertybasedtesting} focuses on this exact p
 and its many variants that cause fragmentation of the PBT landscape.
 Table~\ref{tab:pbt-frameworks} presents 50 frameworks in 31 languages, with up to 5
 libraries in OCaml. We trace a precise design decision, the design of the property
-language in QuickCheck, as the predominant source of inflexibility of a PBT framework,
-and the primary cause of ecosystem fragmentation as the initial design, a shallow
-embedded domain-specific language, forces the implementation of the property runner to
-reside in the ``library-space'' as opposed to ``user-space''. We present an alternative
-property-language, a mixed-embedding, that enables flexible user-space property
-runners, allowing us to combine many features and advances dispersed throughout the
-ecosystem under a single library that users can keep on extending.
+language in QuickCheck, as the predominant source of inflexibility of a PBT framework.
+%
+The shallow embedded domain-specific language forces the implementation of the property
+runner to reside in the ``library-space'' as opposed to ``user-space'', leading to
+significant ecosystem fragmentation.
+%
+We present an alternative property-language, a mixed-embedding, that enables flexible
+user-space property runners, allowing us to combine many features and advances
+dispersed throughout the ecosystem under a single library that users can keep on
+extending.
 
 Programmable PBT addresses a huge challenge, the ability to consolidate algorithmic
 advances easily within a single framework instead of significant reengineering of
@@ -180,13 +183,16 @@ ETNA is to consolidate knowledge through a common interface on quantitative eval
 same benchmarks through various languages to compare across-language performance
 trade-offs, sampling based evaluation modes for abstracting away language-specificness
 of the frameworks and further focus on the quality of the generated tests, reproducible
-experiments for easily sharing, verifying and replicating existing results. Similar to
+experiments for easily sharing, verifying and replicating existing results. We have
+used ETNA to carry out experiments evaluating different generators, shrinkers, and
+performance differences across frameworks and languages as we explain in
+\S~\ref{evaluating-generators} and \S~\ref{evaluating-shrinking}. Similar to
 Programmable PBT, ETNA is a step towards accelerating scientific development of PBT.
 
 Much of the contemporary discussion of features, generalization, performance,
 interface, and usage of property-based testing is based on general purpose frameworks
 we have outlined in Table~\ref{tab:pbt-frameworks}. However, the world is full of
-oddities, special-purpose tools, requirements that push outside the boxes we draw.
+oddities, special-purpose tools, and requirements that push outside the boxes we draw.
 General purpose tools grow as they redraw the lines of their approach to accommodate
 for such extensions. In a thesis focusing on consolidation, it is only natural that I
 take the time to focus on what we can not, at least for the moment, consolidate. In

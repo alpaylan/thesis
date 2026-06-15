@@ -32,9 +32,8 @@ QuickCheck in place.
 
 \begin{code}[language=Rocq]
 Definition insert_correct (t: Tree) (k: nat) (k': nat) (v: nat) : option bool :=
-    isBST t
-    -=> find k' (insert k v t) = if k =? k' then Some v
-                                 else find k' t.
+    isBST t -=>
+      find k' (insert k v t) = if k =? k' then Some v else find k' t.
 \end{code}
 
 The property \code{InsertPost} states that for a binary-search tree, inserting an
@@ -81,8 +80,10 @@ turning to \code{forAllShrinkShowMaybe} (this is starting to look awfully like
 Definition prop_insert_correct :=
   forAllShrinkShowMaybe (
     fun _ =>
-      bindGen arbitrary (fun (t: Tree) =>
-        if isBST t then returnGen (Some t) else returnGen None)
+      t <- arbitrary;
+      if isBST t
+        then return (Some t)
+        else return None
   ) shr pri (fun (t: Tree) =>
   forAll (choose -100 100)   (fun (k: nat)  =>
   forAll (choose -100 100)   (fun (k': nat) =>
@@ -99,7 +100,7 @@ flexibility we get from the testing library. The more pressing question is, \emp
 
 \input{tables/pbt-frameworks-full}
 
-Property-based testing landscape tells us it is not. Looking at
+The complete balkanization of the PBT landscape tells us it is not. Looking at
 Table~\ref{tab:pbt-frameworks}, we see significant fragmentation within languages;
 Haskell hosts QuickCheck, SmallCheck~\cite{RuncimanNL08}, Hedgehog~\cite{Hedgehog} as
 well as LeanCheck~\cite{leancheck}, and falsify~\cite{falsify} that is not mentioned in
@@ -194,7 +195,8 @@ and Falsify~\cite{falsifyLeo2023}.
 Traditional and integrated shrinking offer an interesting trade-off. Integrated
 shrinking removes the burden of writing shrinkers (and especially ones that preserve
 any input invariants) altogether, while QuickCheck's traditional approach can often
-lead to substantially smaller inputs. In other words, different situations call for
+lead to substantially smaller inputs, and it can be substantially faster in performance
+(\S~\ref{evaluating-shrinking}). In other words, different situations call for
 different approaches. Unfortunately, baking in the way inputs are minimized to the way
 properties are represented and executed means that to take advantage of a different
 approach users might have to switch frameworks, or even languages entirely.
@@ -350,7 +352,7 @@ quickCheck :: Testable prop => prop -> IO ()
 quickCheck p = quickCheckWith stdArgs p
 \end{code}
 
-Something is \code{Testable} if it can be turned into a \code{Property}:
+\noindent Something is \code{Testable} if it can be turned into a \code{Property}:
 
 \begin{code}[language=Haskell]
 class Testable prop where
@@ -358,7 +360,7 @@ class Testable prop where
   property :: prop -> Property
 \end{code}
 
-\code{Testable} instance is then defined for any simple type that is expected to
+\noindent The \code{Testable} instance is then defined for any simple type that is expected to
 be the result of a property predicate:
 
 \begin{code}[language=Haskell]
@@ -384,7 +386,7 @@ instance Testable Result where
   property = MkProperty . return . MkProp . protectResults . return
 \end{code}
 
-These result types alone would not allow us to turn any function into a
+\noindent These result types alone would not allow us to turn any function into a
 \code{Property}:
 
 \begin{code}[language=Haskell]
@@ -418,7 +420,7 @@ in the types. Let us take binary search trees as our example:
 data Tree a = Leaf | Node (Tree a) a (Tree a)
 \end{code}
 
-The core invariant of the tree (all keys in the left sub-tree are smaller than the
+\noindent The core invariant of the tree (all keys in the left sub-tree are smaller than the
 root, all keys in the right sub-tree are greater than the root) is not expressed in the
 datatype definition. So, the derived generator would have the following form:
 
@@ -430,12 +432,12 @@ instance Arbitrary a => Arbitrary (Tree a) where
       gen n = frequency                                
         [ (1, pure Leaf)
         , (3, Node <$> gen (n `div` 2)                                                                                                                                                                                                                                                                                             
-                    <*> arbitrary
-                    <*> gen (n `div` 2))                                                                                                                                                                                                                                                                                            
+                   <*> arbitrary
+                   <*> gen (n `div` 2))                                                                                                                                                                                                                                                                                            
         ]       
 \end{code}
 
-The changes of generating valid binary trees using this generator is \emph{extremely
+\noindent The changes of generating valid binary trees using this generator is \emph{extremely
   low}. Below is the table to view the situation quantitatively:
 
 \begin{table}[h!]
@@ -463,7 +465,7 @@ The changes of generating valid binary trees using this generator is \emph{extre
   \end{tabular}
 \end{table}
 
-There are four solutions to this problem:
+\noindent There are four solutions to this problem: \todo{Make sure this renders nicely}
 
 \begin{enumerate}
   \item \textbf{Write correct-by-construction generators:} One can implement a
@@ -571,7 +573,8 @@ purposes, we begin by formally describing the core boolean structure:
   \]
 \end{spacing}
 \vspace{0.5\baselineskip}
-That is, properties are either universal quantifiers or an injection of a host
+
+\noindent That is, properties are either universal quantifiers or an injection of a host
 predicate.
 
 The core question of our ICFP paper, ``Programmable Property-Based Testing'', is,
@@ -1321,9 +1324,9 @@ users may invent, can be used to augment the effectiveness of testing.
 
 Property-based testing, for a long time, has relied solely on random generation from
 scratch as opposed to mutating existing inputs as fuzzing tools do. This design has
-been challenged in Targeted PBT~\cite{TargetedPBT} with a mutational approach that
-optimizes explicit user-provided feedback functions, and later by
-FuzzChick~\cite{FuzzChick} and Zest~\cite{Zest}, which rely on branch coverage
+been challenged in Targeted PBT~\cite{TargetedPBT,AutomaticTargetedPBT} with a
+mutational approach that optimizes explicit user-provided feedback functions, and later
+by FuzzChick~\cite{FuzzChick} and Zest~\cite{Zest}, which rely on branch coverage
 information obtained via binary instrumentation, followed by libraries such as
 HypoFuzz~\cite{HypoFuzz} and Bolero~\cite{bolero}.
 

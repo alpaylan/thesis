@@ -14,14 +14,14 @@ Hughes's tutorial on how to write properties~\cite{Hughes2019HowTS} focuses on b
 search trees; Luck~\cite{Luck} is evaluated on red-black trees, simply-typed lambda
 calculus and a stack-based information flow control machine; Smallcheck and lazy
 smallcheck~\cite{RuncimanNL08} are evaluated on red-black trees, huffman encoding, the
-Turner program and a mate-in-N chess problem. Combinatorial PBT~\cite{CombinatorialPBT}
+Turner program and a mate-in-N chess problem; Combinatorial PBT~\cite{CombinatorialPBT}
 is evaluated on System F; and coverage-guided PBT work builds around the
-information-flow-control workload developed for noninterference
-testing~\cite{TestingNoninterferenceQuickly,TestingNIjfp,FuzzChick}. If one were to
-build a web of studies and the benchmarks they used, the result is somewhat reminiscent
-of the infamous public transport coverage of Ankara, a small number of hub workloads
-that many studies reuse, many one-off benchmarks that haven't been validated or reused
-in other studies, and a complete lack of standardization.
+information-flow-control workload developed for testing
+noninterference~\cite{TestingNoninterferenceQuickly,TestingNIjfp,FuzzChick}. If one
+were to build a web of studies and the benchmarks they used, the result is somewhat
+reminiscent of the infamous public transport coverage of Ankara, a small number of hub
+workloads that many studies reuse, many one-off benchmarks that haven't been validated
+or reused in other studies, and a complete lack of standardization.
 
 This lack of common comparative analysis surely contributes to a lack of understanding
 in the effects of these new techniques and changes; but the problem is persistent
@@ -38,7 +38,7 @@ a common quantitative understanding for the field. With Jessica and Harry implem
 the common evaluation framework in Python as well as the Haskell workloads, and I
 working on the implementation of the Rocq pipeline and workloads, we have published
 ``Etna: An Evaluation Platform for Property-Based Testing (Experience
-Report)''~\cite{etna-icfp23} in ICFP23.
+Report)''~\cite{etna-icfp23} in ICFP 2023.
 
 After the initial publication, I have taken the lead role in future development of the
 ETNA platform and horizontally grown it for OCaml with Nikhil Kamath, Racket with Ceren
@@ -46,8 +46,9 @@ Mert and Justine Frank, for Haskell with George Miao, and for Rust by myself. Th
 initial implementation as a library has been replaced with a standalone tool that could
 be easily run cross-platform on many machines, eventually to the point we can start to
 run our experiments as GitHub Actions. Many of these changes have found their ways into
-publications, our JFP extension~\cite{etna-jfp} for the ICFP23 paper has incorporated
-the work by Ceren and Nikhil as well as Tin from UPenn working together with Jessica.
+publications, our JFP extension~\cite{etna-jfp} for the ICFP 2023 paper has
+incorporated the work by Ceren and Nikhil as well as Tin from UPenn working together
+with Jessica.
 
 The rest of this chapter includes excerpts edited from these papers, mainly the 2026
 JFP extension of ETNA, with a major section on evaluation of shrinking from our
@@ -213,9 +214,9 @@ continues to compile normally when no mutant is active.
 
 I have also spent time carrying this mechanism further by enabling multiple forms of
 mutations, and conversions between them. Today ETNA can use diff patches,
-C-Preprocessor macros, match-and-replace mutations, and finally in-AST mutations that
-can reduce the experimentation time by removing the compilation requirement, which is
-currently only implemented for Rust.
+C-Preprocessor macros, match-and-replace mutations, and finally intra-AST mutations
+that can reduce the experimentation time by removing the compilation requirement, which
+is currently only implemented for Rust.
 
 \section{Workloads} \label{etna:workloads}
 
@@ -316,7 +317,7 @@ cases, I either use alternate bucket definitions, such as the \code{any} configu
 or supplement the bucket chart with statistical comparisons. To keep the figures
 self-contained, bucket-chart captions state the aggregation rule they use.
 
-\subsection{Evaluating Random Generation}
+\subsection{Evaluating Random Generation}\label{evaluating-generators}
 
 In this thesis, I have focused on the parts of the ETNA papers~\cite{etna-icfp23,
   etna-jfp} that I have personally worked and focused on. Hence, the experiments in this
