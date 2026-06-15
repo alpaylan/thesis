@@ -8,47 +8,47 @@
 \newcommand{\tool}{\textsc{DIRT}}
 
 \lstdefinelanguage{GA}{
-  mathescape=true,
-  texcl=false,
-  morekeywords=[1]{gen, genOf, pick, assert, assume},
-  morekeywords=[2]{property, expression, row, id, columntype},
-  morekeywords=[3]{SELECT, INSERT, FROM, WHERE, UNION, ALL, DELETE, CREATE, TABLE, INDEX, INTO, VALUES, UPDATE, SET},
-  morekeywords=[4]{AND, NOT, NULL, GLOB, BETWEEN},
-  morecomment=[l]{--},
-  showstringspaces=false,
-  morestring=[b]",
-  morestring=[d]',
-  tabsize=3,
-  extendedchars=false,
-  sensitive=true,
-  breaklines=false,
-  captionpos=b,
-  columns=[l]flexible,
-  identifierstyle={\ttfamily\color{black}},
-  keywordstyle=[1]{\ttfamily\color{dirtdkviolet}},
-  keywordstyle=[2]{\ttfamily\color{dirtdkgreen}},
-  keywordstyle=[3]{\ttfamily\color{dirtltblue}},
-  keywordstyle=[4]{\ttfamily\color{dirtdkred}},
-  stringstyle=\ttfamily,
-  commentstyle={\ttfamily\color{lightgray}},
-  literate=
-    {\\emp}{$\emptyset$}1
-    {\\.}{$\cdot$}1
-    {\\forall}{{\color{dirtdkgreen}{$\forall\;$}}}1
-    {\\exists}{{$\exists\;$}}1
-    {<-}{{$\leftarrow\;$}}1
-    {->}{{$\rightarrow\;$}}1
-    {<->}{{$\leftrightarrow\;$}}1
-    {<==}{{$\leq\;$}}1
-    {\#}{{$^\star$}}1
-    {\\o}{{$\circ\;$}}1
-    {\@}{{$\cdot$}}1
-    {\/\\}{{$\wedge\;$}}1
-    {\\\/}{{$\vee\;$}}1
-    {~}{{$\sim$}}1
-    {\@\@}{{$@$}}1
-    {\\mapsto}{{$\mapsto\;$}}1
-    {\\hline}{{\rule{\linewidth}{0.5pt}}}1
+mathescape=true,
+texcl=false,
+morekeywords=[1]{gen, genOf, pick, assert, assume},
+morekeywords=[2]{property, expression, row, id, columntype},
+morekeywords=[3]{SELECT, INSERT, FROM, WHERE, UNION, ALL, DELETE, CREATE, DROP, TABLE, INDEX, INTO, VALUES, UPDATE, SET},
+morekeywords=[4]{AND, NOT, NULL, GLOB, BETWEEN},
+morecomment=[l]{--},
+showstringspaces=false,
+morestring=[b]",
+morestring=[d]',
+tabsize=3,
+extendedchars=false,
+sensitive=true,
+breaklines=false,
+captionpos=b,
+columns=[l]flexible,
+identifierstyle={\ttfamily\color{black}},
+keywordstyle=[1]{\ttfamily\color{dirtdkviolet}},
+keywordstyle=[2]{\ttfamily\color{dirtdkgreen}},
+keywordstyle=[3]{\ttfamily\color{dirtltblue}},
+keywordstyle=[4]{\ttfamily\color{dirtdkred}},
+stringstyle=\ttfamily,
+commentstyle={\ttfamily\color{lightgray}},
+literate=
+  {\\emp}{$\emptyset$}1
+{\\.}{$\cdot$}1
+{\\forall}{{\color{dirtdkgreen}{$\forall\;$}}}1
+{\\exists}{{$\exists\;$}}1
+{<-}{{$\leftarrow\;$}}1
+{->}{{$\rightarrow\;$}}1
+{<->}{{$\leftrightarrow\;$}}1
+{<==}{{$\leq\;$}}1
+{\#}{{$^\star$}}1
+{\\o}{{$\circ\;$}}1
+{\@}{{$\cdot$}}1
+{\/\\}{{$\wedge\;$}}1
+{\\\/}{{$\vee\;$}}1
+{~}{{$\sim$}}1
+{\@\@}{{$@$}}1
+{\\mapsto}{{$\mapsto\;$}}1
+{\\hline}{{\rule{\linewidth}{0.5pt}}}1
 }[keywords,comments,strings]
 
 \lstnewenvironment{gacode}{\lstset{language=GA,mathescape=true,basicstyle=\ttfamily\small\linespread{1}\selectfont}}{}

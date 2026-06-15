@@ -661,4 +661,33 @@ be fixed.
 \section{Discussion}\label{dirt-lessons}
 
 We can draw a broader set of lessons from the DIRT study for domain-specific
-property-based testing. \todo{KEEP GOING}
+property-based testing. The complexity of the SQL generation, combining the breadth of
+the SQL language constructs with maintaining a separate model, is hard to manage and
+has been prone to bugs in the development phase. For instance, I have realized
+regressions in the generator that caused it to fall into states that it would not have
+found the bugs it previously did. This signals a call for producing tooling that would
+have caught generation regressions and drifts, either by historical bug injection for
+ground truth measurements or continuous monitoring of coverage to detect any sudden
+drops in the program coverage.
+
+We have tested interactive (or human-in-the-loop) shrinking as a complement to
+automated shrinking methods, and our anecdotal results were that it can be a useful
+supporting technique for further minimization of reported counterexamples. This is
+related to the sample-efficiency discussion in the previous chapter
+(\S~\ref{shrinkeval:discussion}), execution of SQL statements against the database can
+be fairly costly, so sample-efficiency of shrinking is more crucial than the ETNA
+workloads. Humans can be surprisingly sample-efficient, which points to the usefulness
+of a perhaps more general application of interactive shrinking, but also signals that
+investments in domain-specific shrinking can greatly affect the quality of the
+resulting counterexamples for domain-specific PBT.
+
+Finally, stateful property-based testing offers a new dimension to the PBT that I
+believe is underexplored, the state! In Query Plan Guidance~\cite{rigger.qpg}, for
+instance, the authors use the staleness of the query plans to determine that the
+current state is exhausted in terms of the opportunities for exploring new behavior and
+generate DML (Data Manipulation Language) and DDL (Data Definition Language) statements
+such as \sql{INSERT}, \sql{DELETE}, \sql{UPDATE}, \sql{CREATE TABLE} or
+%
+\sql{DROP TABLE} instead of DQL (Data Query Language) statements construct via \sql{SELECT}. I find it
+possible that we could apply similar insights into other domains to use domain-specific
+information that we can obtain through its tooling to guide the generation and mutation process.
