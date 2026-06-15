@@ -3,11 +3,11 @@
 
 \chapter{Programmable Property-Based Testing}\label{chap:ppbt}
 
-In the introduction, I introduced a simple API for writing property-based tests. Define
-your predicate, write your generator, put them together into a \code{Property} to be
-tested by the testing framework. In this chapter, I will walk the reader through an
-exposition of the rough edges of the existing APIs for writing properties, followed by
-an identification of a core problem in the design of existing PBT libraries. I will
+In the first chapter, I introduced a simple API for writing property-based tests.
+Define your predicate, write your generator, put them together into a \code{Property}
+to be tested by the testing framework. In this chapter, I will walk the reader through
+an exposition of the rough edges of the existing APIs for writing properties, followed
+by an identification of a core problem in the design of existing PBT libraries. I will
 present the ramifications of the problem followed by a solution from our paper with the
 same title as the chapter, ``Programmable Property-Based
 Testing''~\cite{keles2026programmablepropertybasedtesting}. This is the result of joint
@@ -21,13 +21,13 @@ the paper.
 
 \section{How to write properties?}
 
-The introduction had a deliberately simple property, single input, no preconditions, no
-need for any configuration changes or augmentations. From here on, I will use
-Binary-Search Tree properties taken from How to Specify It!~\cite{Hughes2019HowTS} and
-have been integrated into ETNA~\cite{ETNA} as case studies. I will also start using
-Rocq for the exposition as it is the language I will eventually present the solution
-in. Rocq hosts QuickChick~\cite{Pierce:SF4}, one of the most faithful ports of
-QuickCheck, keeping much of the original machinery, the types and algorithms of
+The property I presented in the introduction was deliberately simple: single input, no
+preconditions, no need for any configuration changes or augmentations. From here on, I
+will use Binary-Search Tree properties taken from How to Specify
+It!~\cite{Hughes2019HowTS} and have been integrated into ETNA~\cite{ETNA} as case
+studies. I will also start using Rocq for the exposition as it is the language of our
+implementation. Rocq hosts QuickChick~\cite{Pierce:SF4}, one of the most faithful ports
+of QuickCheck, keeping much of the original machinery, the types and algorithms of
 QuickCheck in place.
 
 \begin{code}[language=Rocq]
@@ -41,8 +41,9 @@ element should, if the keys are equal (which should happen rarely but sometimes)
 us find the newly inserted element (which checks if any immediate insertion can fail);
 if the keys aren't equal, it shouldn't change the resulting value we get for any of the
 other possible keys. This property fails with a number of different bugs breaking
-insertion in different ways, which we will go into detail in the next chapter. For now,
-we will focus on how to test it rather than what those tests would reveal.
+insertion in different ways, such as inserting multiple copies of the same key with
+different values, essentially invalidating any update operations. For now, we will
+focus on how to test it rather than what those tests would reveal.
 
 Let us initially consider how we would write the property to be tested by QuickChick:
 
@@ -628,7 +629,7 @@ framework-provided $\srun$).
 %
 Implementing such a framework as a developer is also straightforward. A minimal
 implementation of this shallow API in Haskell using splittable
-pseudorandomness~\cite{ClaessenP13} is shown in Fig.~\ref{fig:core-qc-impl}: the type
+pseudorandomness~\cite{ClaessenP13} is shown in Figure~\ref{fig:core-qc-impl}: the type
 of generators for some type \texttt{a} is simply a wrapper around a function from some
 source of randomness to \texttt{a}; properties are generators for \texttt{Result}s (a
 datatype that encodes at least whether testing succeeded); \texttt{forall} takes a
@@ -1243,10 +1244,10 @@ collecting instrumentation feedback in the process.
 
 Using the components outlined above we can implement any variation of the standard
 generational runner, with code that closely follows its depiction.
-Fig.~\ref{fig:simple-generational-testing-loop-rocq} shows the implementation of the
+Figure~\ref{fig:simple-generational-testing-loop-rocq} shows the implementation of the
 basic generate-and-test then shrink-and-test property runner.
-Fig.~\ref{fig:simple-generational-testing-loop-racket} shows the same runner in Racket,
-with minor syntactical adjustments.
+Figure~\ref{fig:simple-generational-testing-loop-racket} shows the same runner in
+Racket, with minor syntactical adjustments.
 
 \begin{figure}
   \begin{code}[language=Rocq,mathescape=true]
@@ -1276,9 +1277,9 @@ Definition runLoop (fuel : nat) (cprop : Prop Emp) :=
 \end{figure}
 
 Each component of the property runner in
-Fig.~\ref{fig:quickcheck-property-runner-intro} has a clear correspondence to the
+Figure~\ref{fig:quickcheck-property-runner-intro} has a clear correspondence to the
 corresponding overlaid sections in
-Fig.~\ref{fig:simple-generational-testing-loop-rocq}. The functions
+Figure~\ref{fig:simple-generational-testing-loop-rocq}. The functions
 \roverlay{generator}{gen}, \roverlay{checker}{run}, \roverlay{shrinker}{shrinker}, and
 \roverlay{printer}{print} are the building blocks of user level property-runners, but
 can also be written by users themselves in a straightforward manner as shown in
@@ -1399,12 +1400,12 @@ parameterized over a custom instrumentation function.
 In classic fuzz testing, this instrumentation function is branch or path coverage, yet
 our Rocq library can accommodate any function that observes information about the state
 of the executed program, as in \citet{FuzzFactory}. This is reflected in the fuzzing
-loop in Fig.~\ref{fig:fuzzloop} where feedback is received from the execution of the
+loop in Figure~\ref{fig:fuzzloop} where feedback is received from the execution of the
 \roverlay{feedback}{\overlay{checker}{\tt instrumentedRun}}. Such feedback can range
 from traditional branch or path coverage (as in coverage-guided fuzzing) to timing or
 memory usage (as in performance fuzzing~\cite{PerfFuzz}).
 
-This way, we view the fuzzing property runner presented in Fig.~\ref{fig:fuzzloop} as
+This way, we view the fuzzing property runner presented in Figure~\ref{fig:fuzzloop} as
 (1) a more generalized version of the classic coverage-guided fuzzing, and (2) a
 property-based testing version of FuzzFactory~\cite{FuzzFactory}, which allowed for
 arbitrary instrumentation functions to guide the search similar to the fuzzing property
@@ -1424,7 +1425,7 @@ generation, developing two property runners leveraging mutation and feedback.
 
 A mutation-based targeted property runner has two important differences from the simple
 generational property runner described in
-Fig.~\ref{fig:simple-generational-testing-loop-rocq}: the feedback and the targeting.
+Figure~\ref{fig:simple-generational-testing-loop-rocq}: the feedback and the targeting.
 It uses a genetic algorithm based on a user provided custom feedback function for
 guiding the search towards interesting inputs, and it employs a user-provided or
 type-derived mutator functions to mutate the input it currently focuses on. The main
@@ -1436,9 +1437,10 @@ inputs) and a utility function (to accommodate different types of feedback). As 
 in the pioneering work of \citet{FuzzFactory}, customizable feedback under user control
 can lead to very effective testing, and DBAS allows even more relevant choices to be
 made without needing to modify the internals of a framework. A pictorial depiction of
-the targeted property runner is illustrated in Fig.~\ref{fig:targeted-property-runner}.
+the targeted property runner is illustrated in
+Figure~\ref{fig:targeted-property-runner}.
 
-In Fig.~\ref{fig:targetloop}, I provide an annotated Rocq implementation of the
+In Figure~\ref{fig:targetloop}, I provide an annotated Rocq implementation of the
 custom-feedback guided (targeted) property runner in Rocq. Similar to the simple
 generational runner or coverage-guided (fuzzing) runner in the previous section, this
 runner reuses the building blocks we have provided for writing novel property runners.
@@ -1493,7 +1495,7 @@ design choices as is the case in shallow embedding based PBT frameworks.
 
 \subsubsection{Parallel Property Runner}
 
-In Fig.~\ref{fig:par-loop-appendix} is a slightly abridged version of our Racket
+In Figure~\ref{fig:par-loop-appendix} is a slightly abridged version of our Racket
 parallel testing runner. Parallelism is done through Racket futures. We use a lock-free
 shared counter and a flag that is set if a counterexample is found, which is necessary
 because Racket futures are not able to be halted arbitrarily. Each worker thread grabs

@@ -139,10 +139,10 @@ $p$ and $q$ that can range over variables from the database, if we evaluate $SEL
 $(p \land q)$ and $SELECT (q \land p)$ in $db$ they should yield equivalent results:
 
 \[
-    \begin{array}{rl}
-        \forall db, p, q. & variables(p) \subseteq db  \land variables(q) \subseteq db \\
-        \Rightarrow       & SELECT (p \land q) \equiv SELECT (q \land p)
-    \end{array}
+  \begin{array}{rl}
+    \forall db, p, q. & variables(p) \subseteq db  \land variables(q) \subseteq db \\
+    \Rightarrow       & SELECT (p \land q) \equiv SELECT (q \land p)
+  \end{array}
 \]
 
 Testing such a property would entail generating an arbitrary database, two expressions
@@ -197,35 +197,35 @@ In this subsection, I present five oracles written as sequences of generation ac
 Three of them are adaptations of SQLancer oracles: Pivoted Query Synthesis (PQS),
 Non-Optimizing Reference Engine Construction (NoREC), and Ternary Logic Partitioning
 (TLP). I first define PQS~\cite{rigger.pqs} as a universally quantified proposition in
-Fig.~\ref{dirt:fig:pqs}, then show its implementation as a generation action in
-Fig.~\ref{dirt:fig:pqs-ga}. PQS states that, given a set of tables in the database,
+Figure~\ref{dirt:fig:pqs}, then show its implementation as a generation action in
+Figure~\ref{dirt:fig:pqs-ga}. PQS states that, given a set of tables in the database,
 \sql{SELECT}ing for a row constructed from the contents of those tables should contain
 that row.
 
 \begin{figure}
-    \[
-        \begin{array}{l}
-            db: Database                                                                \\
-            t_1, t_2...t_n : Table                                                      \\
-            c_1, c_2...c_n : Column                                                     \\
-            p_1, p_2...p_n : Expression                                                 \\
-            r : Row                                                                     \\
-            \forall db, t_1, t_2...t_n, c_1, c_2...c_n, p_1, p_2...p_n, r.              \\
-            t_1, t_2...t_n \in db                                                       \\
-            \land c_1 \in t_1 \land c_2 \in t_2 ... \land c_n \in t_n                   \\
-            \land r.c_1 \in t_1.c_1 \land r.c_2 \in t_2.c_2 ... \land r.c_n \in t_n.c_n \\
-            \land p_1(r) = TRUE \land p_2(r) = TRUE ... \land p_n(r) = TRUE             \\
-            \Rightarrow r \in SELECT * FROM \; t_1.c_1...t_n.c_n \; WHERE \; p_1 ... AND \; p_n
-        \end{array}
-    \]
-    \caption{Pivoted Query Synthesis as a universally quantified property.}
-    \label{dirt:fig:pqs}
+  \[
+    \begin{array}{l}
+      db: Database                                                                \\
+      t_1, t_2...t_n : Table                                                      \\
+      c_1, c_2...c_n : Column                                                     \\
+      p_1, p_2...p_n : Expression                                                 \\
+      r : Row                                                                     \\
+      \forall db, t_1, t_2...t_n, c_1, c_2...c_n, p_1, p_2...p_n, r.              \\
+      t_1, t_2...t_n \in db                                                       \\
+      \land c_1 \in t_1 \land c_2 \in t_2 ... \land c_n \in t_n                   \\
+      \land r.c_1 \in t_1.c_1 \land r.c_2 \in t_2.c_2 ... \land r.c_n \in t_n.c_n \\
+      \land p_1(r) = TRUE \land p_2(r) = TRUE ... \land p_n(r) = TRUE             \\
+      \Rightarrow r \in SELECT * FROM \; t_1.c_1...t_n.c_n \; WHERE \; p_1 ... AND \; p_n
+    \end{array}
+  \]
+  \caption{Pivoted Query Synthesis as a universally quantified property.}
+  \label{dirt:fig:pqs}
 \end{figure}
 
 \begin{figure}
-    \centering
+  \centering
 
-    \begin{gacode}
+  \begin{gacode}
 gen property db:
     (t1, t2) <- (pick db.tables, pick db.tables)
     (c1, c2) <- (pick t1.columns, pick t2.columns)
@@ -241,19 +241,19 @@ gen property db:
     ! RS := SELECT r FROM t1, t2 WHERE p1 AND p2
     ! assert(r in RS)
     \end{gacode}
-    \caption{Pivoted Query Synthesis as a generation action.}
-    \label{dirt:fig:pqs-ga}
+  \caption{Pivoted Query Synthesis as a generation action.}
+  \label{dirt:fig:pqs-ga}
 \end{figure}
 
-Fig.~\ref{dirt:fig:pqs} and Fig.~\ref{dirt:fig:pqs-ga} show two formulations of PQS,
-Fig.~\ref{dirt:fig:pqs} is the propositional formulation with universally quantified
-variables that define \emph{what} PQS is, and Fig.~\ref{dirt:fig:pqs-ga} is a GA
-formulation of PQS with two tables/columns as generation actions that define \emph{how}
-PQS is tested, modeling the implementation of PQS that tests \db{} today. The
-propositional formulation quantifies over a database and a sequence of tables, columns,
-and expressions, under the constraint that the expressions will return \sql{TRUE} when
-tested against a row \sql{r}. The corresponding GA closely follows along, but ensures
-these constraints are satisfied by construction.
+Figure~\ref{dirt:fig:pqs} and Figure~\ref{dirt:fig:pqs-ga} show two formulations of
+PQS, Figure~\ref{dirt:fig:pqs} is the propositional formulation with universally
+quantified variables that define \emph{what} PQS is, and Figure~\ref{dirt:fig:pqs-ga}
+is a GA formulation of PQS with two tables/columns as generation actions that define
+\emph{how} PQS is tested, modeling the implementation of PQS that tests \db{} today.
+The propositional formulation quantifies over a database and a sequence of tables,
+columns, and expressions, under the constraint that the expressions will return
+\sql{TRUE} when tested against a row \sql{r}. The corresponding GA closely follows
+along, but ensures these constraints are satisfied by construction.
 %
 We start by picking tables \sql{t1, t2} from the state \sql{db.tables}, followed by
 picking columns from the respective table. \sql{gen row t} and \sql{gen expression}
@@ -262,9 +262,9 @@ based on the table \sql{t}, and the latter generates an expression that will eva
 to \sql{TRUE} for row \sql{r} of the table \sql{t}.
 
 \begin{figure}
-    \centering
-    \begin{subfigure}{0.90\textwidth}
-        \begin{gacode}
+  \centering
+  \begin{subfigure}{0.90\textwidth}
+    \begin{gacode}
 gen property db:
     t <- pick db.tables
     r <- pick t.rows
@@ -273,11 +273,11 @@ gen property db:
     ! RS2 = SELECT p FROM t
     ! assert(RS1.length() == RS2.count(1))
 \end{gacode}
-        \caption{Non-Optimizing Reference Engine\\Construction (NoREC)}
-        \label{dirt:fig:norec}
-    \end{subfigure}
-    \begin{subfigure}{0.90\textwidth}
-        \begin{gacode}
+    \caption{Non-Optimizing Reference Engine\\Construction (NoREC)}
+    \label{dirt:fig:norec}
+  \end{subfigure}
+  \begin{subfigure}{0.90\textwidth}
+    \begin{gacode}
 gen property db:
     t <- pick db.tables
     p <- gen expression (t)
@@ -288,11 +288,11 @@ gen property db:
     SELECT * FROM t WHERE p AND (p' is NULL)
     ! assert(RS1.length() == RS2.count(1))
 \end{gacode}
-        \caption{Ternary Logic Partitioning (TLP) WHERE Extended}
-        \label{dirt:fig:tlp}
-    \end{subfigure}
-    \begin{subfigure}{0.90\textwidth}
-        \begin{gacode}
+    \caption{Ternary Logic Partitioning (TLP) WHERE Extended}
+    \label{dirt:fig:tlp}
+  \end{subfigure}
+  \begin{subfigure}{0.90\textwidth}
+    \begin{gacode}
 gen property db:
     t <- pick db.tables
     r <- pick t.rows
@@ -301,11 +301,11 @@ gen property db:
     ! RS = SELECT * FROM t WHERE p
     ! assert(r not in RS)
 \end{gacode}
-        \caption{Deleted rows should not be in the table}
-        \label{dirt:fig:deleted_rows}
-    \end{subfigure}
-    \begin{subfigure}{0.90\textwidth}
-        \begin{gacode}
+    \caption{Deleted rows should not be in the table}
+    \label{dirt:fig:deleted_rows}
+  \end{subfigure}
+  \begin{subfigure}{0.90\textwidth}
+    \begin{gacode}
 gen property db:
     s1 <- gen SELECT db.tables
     s2 <- gen SELECT db.tables
@@ -313,24 +313,25 @@ gen property db:
     ! assume(s1.first().length() == s2.first().length())
     ! assert(s1.length() + s2.length() == RS3.length())
 \end{gacode}
-        \caption{UNION ALL preserves cardinality}
-        \label{dirt:fig:union_all}
-    \end{subfigure}
-    \caption{Definitions of Oracles as Generation Actions}
-    \label{dirt:fig:gen-actions}
+    \caption{UNION ALL preserves cardinality}
+    \label{dirt:fig:union_all}
+  \end{subfigure}
+  \caption{Definitions of Oracles as Generation Actions}
+  \label{dirt:fig:gen-actions}
 \end{figure}
 
-In Fig.~\ref{dirt:fig:gen-actions}, I provide definitions of SQLancer oracles as GAs in
-addition to the other oracles we implemented for \tool{}. Fig.~\ref{dirt:fig:norec}
-demonstrates how to write Non-Optimizing Reference Engine Construction Generation
-(NoREC)~\cite{rigger.norec} as a GA. Fig.~\ref{dirt:fig:tlp} presents the GA for
-\texttt{WHERE Extended} case of Ternary Logic Partitioning (TLP)~\cite{rigger.tlp}
-oracle from SQLancer. We can express other properties that are not present in SQLancer,
-including those fundamental to key-value stores such as \emph{Deleted rows should not
-    be in the table} presented in Fig.~\ref{dirt:fig:deleted_rows}.
+In Figure~\ref{dirt:fig:gen-actions}, I provide definitions of SQLancer oracles as GAs
+in addition to the other oracles we implemented for \tool{}.
+Figure~\ref{dirt:fig:norec} demonstrates how to write Non-Optimizing Reference Engine
+Construction Generation (NoREC)~\cite{rigger.norec} as a GA. Figure~\ref{dirt:fig:tlp}
+presents the GA for \texttt{WHERE Extended} case of Ternary Logic Partitioning
+(TLP)~\cite{rigger.tlp} oracle from SQLancer. We can express other properties that are
+not present in SQLancer, including those fundamental to key-value stores such as
+\emph{Deleted rows should not be in the table} presented in
+Figure~\ref{dirt:fig:deleted_rows}.
 %
 Some generated properties require additional validity conditions. For example,
-Fig.~\ref{dirt:fig:union_all} composes two generated \sql{SELECT} queries with
+Figure~\ref{dirt:fig:union_all} composes two generated \sql{SELECT} queries with
 \sql{UNION ALL}; this composition is only valid when both queries return the same
 number of columns, so the generation action includes an explicit \sql{assume}.
 
@@ -351,18 +352,18 @@ properties~\cite{htsi}, this model is not used for differential testing, only fo
 keeping track of the relevant information for correct generation.
 Algorithm~\ref{dirt:alg:gen} sketches our approach.
 \begin{algorithm}
-    \caption{\tool{} Generation Algorithm}\label{dirt:alg:gen}
-    \begin{algorithmic}
-        \State $e \gets \{read: R, write: W, create: C\}$ \Comment{Workload distribution}
-        \State $interactions \gets []$
-        \State $st \gets \{read: 0, write: 0, create: 0, tables: []\}$
-        \While{$N > 0$}
-        \State $i \gets gen \; Interaction (st, e)$
-        \State $i.shadow(state)$ \Comment{Update the shadow state}
-        \State $interactions.push(i)$
-        \State $N \gets N - 1$
-        \EndWhile
-    \end{algorithmic}
+  \caption{\tool{} Generation Algorithm}\label{dirt:alg:gen}
+  \begin{algorithmic}
+    \State $e \gets \{read: R, write: W, create: C\}$ \Comment{Workload distribution}
+    \State $interactions \gets []$
+    \State $st \gets \{read: 0, write: 0, create: 0, tables: []\}$
+    \While{$N > 0$}
+    \State $i \gets gen \; Interaction (st, e)$
+    \State $i.shadow(state)$ \Comment{Update the shadow state}
+    \State $interactions.push(i)$
+    \State $N \gets N - 1$
+    \EndWhile
+  \end{algorithmic}
 \end{algorithm}
 
 Database developers can specify three parameters, $R, W,$ and $C$, describing the
@@ -385,75 +386,75 @@ In order to evaluate the effectiveness of \tool{}, we explored the answers to th
 following questions:
 
 \begin{itemize}
-    \item RQ1: Does \tool{} find bugs in \db{}?
-    \item RQ2: How does \tool{} compare to the state-of-the-art?
+  \item RQ1: Does \tool{} find bugs in \db{}?
+  \item RQ2: How does \tool{} compare to the state-of-the-art?
 \end{itemize}
 
 \subsubsection{RQ1: Does \tool{} find bugs in \db{}?} \label{dirt:subsec:bugs}
 \begin{singlespace}
-    \begin{footnotesize}
-        \begin{table}[h!]
-            \centering
-            \renewcommand{\arraystretch}{0.9}
-            \setlength{\tabcolsep}{3pt}
-            \makebox[\linewidth][c]{%
-                \begin{tabular}{ | p{0.06\textwidth} | p{0.70\textwidth} | p{0.17\textwidth} | p{0.18\textwidth} |}
-                    \hline
-                    \textbf{Bug} & \textbf{Description}                                                       & \textbf{Oracle}  & \textbf{Module} \\
-                    \hline
+  \begin{footnotesize}
+    \begin{table}[h!]
+      \centering
+      \renewcommand{\arraystretch}{0.9}
+      \setlength{\tabcolsep}{3pt}
+      \makebox[\linewidth][c]{%
+        \begin{tabular}{ | p{0.06\textwidth} | p{0.70\textwidth} | p{0.17\textwidth} | p{0.18\textwidth} |}
+          \hline
+          \textbf{Bug} & \textbf{Description}                                                       & \textbf{Oracle}  & \textbf{Module} \\
+          \hline
 
-                    466          & TRUE not accepted as catch-all predicate                                   & No Error         & Query Compiler  \\
-                    \hline
-                    548          & Infinite loop when checkpointing on Linux                                  & No Infinite Loop & I/O Subsystem   \\
-                    \hline
-                    629          & Query Optimizer broke TRUE in predicates                                   & No Panic         & Query Optimizer \\
-                    \hline
-                    662          & SELECT with nested Boolean expressions sometimes gave no results           & PQS              & Query Optimizer \\
-                    \hline
-                    681          & Storage Engine (B-tree) insert caused subtract with overflow               & No Panic         & Storage Engine  \\
-                    \hline
-                    682          & Faulty recursive binop logic caused SELECT to miss rows                    & PQS              & Query Compiler  \\
-                    \hline
-                    924          & Storage Engine (B-tree) balancing caused page corruption when deleting     & No Panic         & Storage Engine  \\
-                    \hline
-                    1040         & LIKE operator did not work for non-text values                             & No Panic         & Query Executor  \\
-                    \hline
-                    1203         & Storage Engine (B-tree) balancing error                                    & No Panic         & Storage Engine  \\
-                    \hline
-                    1629         & Storage Engine (B-tree) cell updates caused infinite loop in UPDATE        & No Infinite Loop & Storage Engine  \\
-                    \hline
-                    1734         & DELETE did not emit conditional jumps if WHERE term was constant           & Delete-Select    & Query Compiler  \\
-                    \hline
-                    1815         & Storage Engine (B-tree) failed to balance when insert caused cell overflow & No Panic         & Storage Engine  \\
-                    \hline
-                    1818         & Always read DB header and schema from file instead of memory page          & No Panic         & Page Manager    \\
-                    \hline
-                    1975         & Storage Engine (B-tree) expected table or index leaf page                  & No Panic         & Storage Engine  \\
-                    \hline
-                    1991         & Use after free when validating B-tree balance                              & No Panic         & Storage Engine  \\
-                    \hline
-                    2024         & SELECT ... LIMIT resulted in different rows from SQLite                    & Differential     & Query Executor  \\
-                    \hline
-                    2026         & UPDATE then SELECT resulted in different rows from SQLite                  & Differential     & Query Executor  \\
-                    \hline
-                    2047         & Overflow cell with divider cell was not found due to faulty validation     & No Panic         & Storage Engine  \\
-                    \hline
-                    2074         & SELECT hung with long text, CacheFull error                                & No Panic         & Page Manager    \\
-                    \hline
-                    2075         & Large table with 128 columns handled incorrectly                           & No Panic         & Page Manager    \\
-                    \hline
-                    2088         & Incorrect record header size calculation                                   & No Panic         & Page Manager    \\
-                    \hline
-                    2106         & Interior node replacement caused self-reference when depth exceeded 2      & No Panic         & Storage Engine  \\
-                    \hline
-                    2116         & Advance after post-delete balancing did not advance B-tree cursor          & No Panic         & Storage Engine  \\
-                    \hline
-                \end{tabular}%
-            }
-            \caption{List of confirmed unique \db{} bugs found and reported by \tool{}}
-            \label{dirt:tab:bugs}
-        \end{table}
-    \end{footnotesize}
+          466          & TRUE not accepted as catch-all predicate                                   & No Error         & Query Compiler  \\
+          \hline
+          548          & Infinite loop when checkpointing on Linux                                  & No Infinite Loop & I/O Subsystem   \\
+          \hline
+          629          & Query Optimizer broke TRUE in predicates                                   & No Panic         & Query Optimizer \\
+          \hline
+          662          & SELECT with nested Boolean expressions sometimes gave no results           & PQS              & Query Optimizer \\
+          \hline
+          681          & Storage Engine (B-tree) insert caused subtract with overflow               & No Panic         & Storage Engine  \\
+          \hline
+          682          & Faulty recursive binop logic caused SELECT to miss rows                    & PQS              & Query Compiler  \\
+          \hline
+          924          & Storage Engine (B-tree) balancing caused page corruption when deleting     & No Panic         & Storage Engine  \\
+          \hline
+          1040         & LIKE operator did not work for non-text values                             & No Panic         & Query Executor  \\
+          \hline
+          1203         & Storage Engine (B-tree) balancing error                                    & No Panic         & Storage Engine  \\
+          \hline
+          1629         & Storage Engine (B-tree) cell updates caused infinite loop in UPDATE        & No Infinite Loop & Storage Engine  \\
+          \hline
+          1734         & DELETE did not emit conditional jumps if WHERE term was constant           & Delete-Select    & Query Compiler  \\
+          \hline
+          1815         & Storage Engine (B-tree) failed to balance when insert caused cell overflow & No Panic         & Storage Engine  \\
+          \hline
+          1818         & Always read DB header and schema from file instead of memory page          & No Panic         & Page Manager    \\
+          \hline
+          1975         & Storage Engine (B-tree) expected table or index leaf page                  & No Panic         & Storage Engine  \\
+          \hline
+          1991         & Use after free when validating B-tree balance                              & No Panic         & Storage Engine  \\
+          \hline
+          2024         & SELECT ... LIMIT resulted in different rows from SQLite                    & Differential     & Query Executor  \\
+          \hline
+          2026         & UPDATE then SELECT resulted in different rows from SQLite                  & Differential     & Query Executor  \\
+          \hline
+          2047         & Overflow cell with divider cell was not found due to faulty validation     & No Panic         & Storage Engine  \\
+          \hline
+          2074         & SELECT hung with long text, CacheFull error                                & No Panic         & Page Manager    \\
+          \hline
+          2075         & Large table with 128 columns handled incorrectly                           & No Panic         & Page Manager    \\
+          \hline
+          2088         & Incorrect record header size calculation                                   & No Panic         & Page Manager    \\
+          \hline
+          2106         & Interior node replacement caused self-reference when depth exceeded 2      & No Panic         & Storage Engine  \\
+          \hline
+          2116         & Advance after post-delete balancing did not advance B-tree cursor          & No Panic         & Storage Engine  \\
+          \hline
+        \end{tabular}%
+      }
+      \caption{List of confirmed unique \db{} bugs found and reported by \tool{}}
+      \label{dirt:tab:bugs}
+    \end{table}
+  \end{footnotesize}
 \end{singlespace}
 
 We have collected 23 confirmed and fixed unique bugs found by \tool{} in \db{} over the
@@ -512,7 +513,7 @@ result of such a situation, where metadata like database size and schema is out-
 at the time of reading, leading to incorrect operations. \tool{} found this bug through
 an assertion failure in the freelist structure in the database header. As a result, the
 developer who reported the original bug wrote the first example of a \emph{regression
-    property}, added a new fault primitive \sql{ReopenDatabase} that closes down existing
+  property}, added a new fault primitive \sql{ReopenDatabase} that closes down existing
 connections with the database and reopens them later, enabling the detection of any
 future bugs that might be a result of an error in the persistent state logic of \db{}.
 
@@ -534,7 +535,7 @@ of each run and separated them into three bins: \emph{True Positives} that would
 been submitted and confirmed as bugs, \emph{False Positives} that are reported as
 failures by the tools but do not constitute bugs as they are unimplemented features,
 and \emph{No Bugs} that did not report a failure, provided in the stacked bar chart in
-Fig.~\ref{dirt:fig:comparison}. SQLancer-SQLite achieves a true positive rate below
+Figure~\ref{dirt:fig:comparison}. SQLancer-SQLite achieves a true positive rate below
 10\% across all 14 commits. SQLancer-\db{} performs better, with a 42\% true positive
 rate, but still yields many more false positives than \tool{} (58\% vs.\ under 1\%).
 \tool{} also finds substantially more actionable bugs: 23 unique bugs, compared with
@@ -544,17 +545,17 @@ it shows that for rapidly evolving databases with many missing features,
 database-integrated testing yields more actionable bugs.
 
 \begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.95\linewidth]{figures/dirt/analysis.pdf}
-    \caption{Comparison of True Positives, False Positives and No Bugs for \tool{}, SQLancer-SQLite, SQLancer-\db{}
-    }
-    \label{dirt:fig:comparison}
+  \centering
+  \includegraphics[width=0.95\linewidth]{figures/dirt/analysis.pdf}
+  \caption{Comparison of True Positives, False Positives and No Bugs for \tool{}, SQLancer-SQLite, SQLancer-\db{}
+  }
+  \label{dirt:fig:comparison}
 \end{figure}
 
 \subsection{Discussion}
 
 \emph{Why not integrate SQLancer into the development process instead of developing
-    a random testing framework from scratch?} As I discussed earlier, SQLancer
+  a random testing framework from scratch?} As I discussed earlier, SQLancer
 is not designed for the constant evolution of the random testing infrastructure
 along with the project. It is a project with its own trajectory, development, new
 algorithms, generators, and oracles.
@@ -567,8 +568,8 @@ in \db{} caused SQLancer to terminate, so it was not possible to minimize the
 counterexamples with SQLancer reducers without further changes.
 
 \emph{Given that SQLancer supports expected errors for reducing false positives,
-    could we use expected errors for known bugs and false positives we found to
-    discover more bugs?} We could use expected errors, and we would have discovered
+  could we use expected errors for known bugs and false positives we found to
+  discover more bugs?} We could use expected errors, and we would have discovered
 more bugs in the process. In terms of any static evaluation target, tweaking
 SQLancer by progressively finding more bugs as found ones are marked as expected,
 it is always possible to make SQLancer find more bugs. The point, however, is
@@ -618,36 +619,36 @@ models as the implementation changes.
 \subsection{Bugs Found by SQLancer} \label{dirt:app:sqlancer-bugs}
 
 \begin{itemize}
-    \item \sql{UPDATE t SET (c0, c0)=(0, 0)}
+  \item \sql{UPDATE t SET (c0, c0)=(0, 0)}
 
-          This expression results in a ``Column specified more than once'' error that was fixed
-          soon after we reported it.
-    \item \sql{SELECT (0x0)}
+        This expression results in a ``Column specified more than once'' error that was fixed
+        soon after we reported it.
+  \item \sql{SELECT (0x0)}
 
-          There was a parsing error for hexadecimals that resulted in an ``invalid float
-          literal'' error that had been fixed before our experiments with SQLancer.
-    \item \sql{SELECT * FROM t WHERE c0 GLOB c0}
+        There was a parsing error for hexadecimals that resulted in an ``invalid float
+        literal'' error that had been fixed before our experiments with SQLancer.
+  \item \sql{SELECT * FROM t WHERE c0 GLOB c0}
 
-          There was a logic bug in the \sql{GLOB} that panicked when the values passed were not
-          \sql{TEXT}. Executing this statement after inserting a \sql{NULL} triggered the bug,
-          which was fixed soon after we reported it.
-    \item \sql{INSERT INTO t VALUES ("a")}
+        There was a logic bug in the \sql{GLOB} that panicked when the values passed were not
+        \sql{TEXT}. Executing this statement after inserting a \sql{NULL} triggered the bug,
+        which was fixed soon after we reported it.
+  \item \sql{INSERT INTO t VALUES ("a")}
 
-          Using double quotes for string literals is discouraged, and SQLite3 even provides a
-          runtime flag for disabling it. We reported this bug as \db{} panicked for the provided
-          statement.
-    \item \sql{INSERT INTO t VALUES ((0 BETWEEN 0 AND 0)), (0)}
+        Using double quotes for string literals is discouraged, and SQLite3 even provides a
+        runtime flag for disabling it. We reported this bug as \db{} panicked for the provided
+        statement.
+  \item \sql{INSERT INTO t VALUES ((0 BETWEEN 0 AND 0)), (0)}
 
-          Constant \sql{BETWEEN} expressions were not rewritten when used within \sql{INSERT},
-          but the query compiler expected them to be rewritten. We reported this bug as \db{}
-          panicked for the provided statement.
-    \item \sql{INSERT INTO t(c2, c0) VALUES (0, 0), (0, 0)}
+        Constant \sql{BETWEEN} expressions were not rewritten when used within \sql{INSERT},
+        but the query compiler expected them to be rewritten. We reported this bug as \db{}
+        panicked for the provided statement.
+  \item \sql{INSERT INTO t(c2, c0) VALUES (0, 0), (0, 0)}
 
-          There was a bug in calculating the column indexes when inserting values to a table in
-          reverse order. SQLancer discovered the bug when the initial table \sql{t} had a
-          \sql{NOT NULL} clause for the column \sql{c0}, which promptly failed after executing
-          the statement. We reported this bug after manually inspecting the result of the
-          failure.
+        There was a bug in calculating the column indexes when inserting values to a table in
+        reverse order. SQLancer discovered the bug when the initial table \sql{t} had a
+        \sql{NOT NULL} clause for the column \sql{c0}, which promptly failed after executing
+        the statement. We reported this bug after manually inspecting the result of the
+        failure.
 \end{itemize}
 
 In all six cases, we saw the benefit of generating the entire possible input space for

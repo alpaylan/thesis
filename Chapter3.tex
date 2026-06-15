@@ -283,7 +283,9 @@ All the experiments, unless explicitly noted, use 10 trials with a 60-second ext
 timeout. A strategy is said to have \emph{solved} a task if it succeeds in solving it
 in all 10 trials under the timeout. We use \emph{task-bucket charts}, a type of
 stacked-bar chart that adds up to the total number of tasks, marking progressively
-larger mean time buckets, as presented in Figure~\ref{fig:etna-presentation}.
+larger mean time buckets as presented in Figure~\ref{fig:etna-presentation} and used in
+the previous experiment presentations in Chapter~\ref{chap:ppbt} such as
+Figure~\ref{fig:shallow_vs_deep_rocq} and Figure~\ref{fig:shallow_vs_deep_racket}.
 
 \begin{figure}[h]
   \centering
@@ -496,7 +498,9 @@ readily gives access to valid inputs (which are prioritized).
 \paragraph*{Results} Figure~\ref{fig:fuzzercomp} demonstrates the bug-finding capabilities
 of the original (top) and tuned (bottom) versions of FuzzChick across the new
 workloads. The tuned version clearly outperforms the original in all cases---and is
-what was used in the previous section.
+what was used in the previous section.\footnote{Note that we continued on this line of
+  work via Programmable PBT, presenting further algorithmic improvements that we could
+  not attempt in this study in \S~\ref{sec:seedpool}.}
 
 \begin{figure}[htb!]
   \centering
