@@ -466,7 +466,7 @@ instance Arbitrary a => Arbitrary (Tree a) where
   \end{tabular}
 \end{table}
 
-\newpage
+% \newpage
 % \todo{Make sure this renders nicely}
 \noindent There are four solutions to this problem:
 
@@ -1251,7 +1251,7 @@ basic generate-and-test then shrink-and-test property runner.
 Figure~\ref{fig:simple-generational-testing-loop-racket} shows the same runner in
 Racket, with minor syntactical adjustments.
 
-\begin{figure}
+\begin{figure}[h!]
   \begin{code}[language=Rocq,mathescape=true]
 Definition runLoop (fuel : nat) (cprop : Prop Emp) :=
   let fix runLoop' (fuel : nat) (cprop : Prop Emp)
@@ -1504,7 +1504,8 @@ because Racket futures are not able to be halted arbitrarily. Each worker thread
 a test number from the counter, and loops until it either finds a counterexample or the
 counter exceeds the test number, with the main thread waiting for results from the
 workers and combining them when they finish.
-\begin{figure}
+
+\begin{figure}[h!]
   \begin{code}[language=Racket]
 (define (parallel-run-loop tests prop [num-workers (processor-count)])
   (define counter (box 0))

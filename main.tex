@@ -157,18 +157,18 @@
 %\include{Foreword} %(if present, lower-case Roman)
 
 \phantomsection %create the correct anchor for the bookmark
-\addcontentsline{toc}{chapter}{Dedication}
+% \addcontentsline{toc}{chapter}{Dedication}
 \input{Dedication} %(if present, lower-case Roman)
 \clearpage
 
 \phantomsection %create the correct anchor for the bookmark
-\addcontentsline{toc}{chapter}{Acknowledgements}
+% \addcontentsline{toc}{chapter}{Acknowledgements}
 \input{Acknowledgements} %(if present, lower-case Roman)
 \clearpage
 \cleardoublepage
 
 \phantomsection %create the correct anchor for the bookmark
-\addcontentsline{toc}{chapter}{Table of Contents}
+% \addcontentsline{toc}{chapter}{Table of Contents}
 \renewcommand{\contentsname}{Table of Contents}
 \renewcommand{\baselinestretch}{1}
 \small\normalsize
@@ -176,19 +176,19 @@
 \newpage
 
 \phantomsection %create the correct anchor for the bookmark
-\addcontentsline{toc}{chapter}{List of Tables}
+% \addcontentsline{toc}{chapter}{List of Tables}
 \renewcommand{\contentsname}{List of Tables}
 \listoftables %(if present, lower-case Roman)
 \newpage
 
 \phantomsection %create the correct anchor for the bookmark
-\addcontentsline{toc}{chapter}{List of Figures}
+% \addcontentsline{toc}{chapter}{List of Figures}
 \renewcommand{\contentsname}{List of Figures}
 \listoffigures %(if present, lower-case Roman)
 
 % LIST OF ABBREVIATIONS
 \phantomsection %create the correct anchor for the bookmark
-\vspace*{1.5in} \addcontentsline{toc}{chapter}{Abbreviations}
+% \vspace*{1.5in} \addcontentsline{toc}{chapter}{Abbreviations}
 \renewcommand{\contentsname}{List of Abbreviations}
 \input{Abbreviations-supertabular}  %If the list is more than one page, use this file
 \clearpage
