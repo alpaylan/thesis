@@ -3,7 +3,7 @@
 
 \chapter{Quantitative Evaluation of Property-Based Testing}\label{chap:etna}
 
-The second chapter of this thesis remarks a fragmentation caused by the design of
+The second chapter of this thesis explores a fragmentation caused by the design of
 property-based testing libraries, leading to diverging features, separated ecosystems.
 In this chapter, I focus on yet another fragmentation, this time caused by something
 much more banal, a lack of general purpose evaluation benchmarks for PBT. The
@@ -34,10 +34,10 @@ discussions, never been evaluated at scale, or understood in the broader context
 usage.
 
 In the beginning of my Ph.D. we set out to remediate this fragmentation and help build
-a common quantitative understanding for the field. With Jessica and Harry implementing
-the common evaluation framework in Python as well as the Haskell workloads, and I
-working on the implementation of the Rocq pipeline and workloads, we have published
-``Etna: An Evaluation Platform for Property-Based Testing (Experience
+a common quantitative understanding for the field. With Jessica Shi and Harry Goldstein
+implementing the common evaluation framework in Python as well as the Haskell
+workloads, and I working on the implementation of the Rocq pipeline and workloads, we
+have published ``Etna: An Evaluation Platform for Property-Based Testing (Experience
 Report)''~\cite{etna-icfp23} in ICFP 2023.
 
 After the initial publication, I have taken the lead role in future development of the
@@ -47,12 +47,12 @@ initial implementation as a library has been replaced with a standalone tool tha
 be easily run cross-platform on many machines, eventually to the point we can start to
 run our experiments as GitHub Actions. Many of these changes have found their ways into
 publications, our JFP extension~\cite{etna-jfp} for the ICFP 2023 paper has
-incorporated the work by Ceren and Nikhil as well as Tin from UPenn working together
-with Jessica.
+incorporated the work by Ceren and Nikhil as well as Tin Nam Liu from UPenn working
+together with Jessica.
 
 The rest of this chapter includes excerpts edited from these papers, mainly the 2026
 JFP extension of ETNA, with a major section on evaluation of shrinking from our
-under-review work for the Haskell Symposium with George and Leo.
+experience report that appeared in Haskell 2026 with George and Leo.
 
 \section{ETNA} \label{sec:etna}
 
