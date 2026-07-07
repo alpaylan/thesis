@@ -3,13 +3,15 @@
 
 \chapter{Programmable Property-Based Testing}\label{chap:ppbt}
 
-In the first chapter, I introduced a simple API for writing property-based tests.
-Define your predicate, write your generator, put them together into a \code{Property}
-to be tested by the testing framework. In this chapter, I will walk the reader through
-an exposition of the rough edges of the existing APIs for writing properties, followed
-by an identification of a core problem in the design of existing PBT libraries. I will
-present the ramifications of the problem followed by a solution from our paper with the
-same title as the chapter, ``Programmable Property-Based
+In the first chapter, I introduced a simple API for writing property-based tests:
+define a predicate, write a generator, and combine them into a \code{Property} to be
+tested by the framework. This chapter shows why that familiar interface is too rigid
+for many extensions that have appeared in the PBT literature. The first part of the
+chapter develops a conceptual framework for property runners, and explains why this
+framework is itself a contribution: it lets us compare runner designs that are usually
+buried inside unrelated libraries. The second part presents a flexible property
+language that makes those runners programmable. This language comes from our paper with
+the same title as the chapter, ``Programmable Property-Based
 Testing''~\cite{keles2026programmablepropertybasedtesting}. This is the result of joint
 work with Justine Frank, who is the main designer and implementer of the Racket
 Programmable PBT library; Ceren Mert, who has worked on the reimplementation of the
@@ -17,7 +19,10 @@ existing ETNA workloads in Rocq and Haskell for evaluating our approach; Harry
 Goldstein and Leo Lampropoulos, who have been integral to understanding the problem at
 hand, the design of the interface as well as exposition of the ideas we presented. I
 have worked on the core design of the DBAS encoding, both libraries in Rocq and Racket
-as well as all of the experimental setup of the paper.
+as well as all of the experimental setup of the paper. ETNA appears in this chapter as
+existing evaluation infrastructure and as a source of case-study workloads.
+Chapter~\ref{chap:etna} presents ETNA itself in detail, including its design goals and
+evaluation methodology.
 
 \section{How to write properties?}
 
@@ -36,7 +41,7 @@ Definition insert_correct (t: Tree) (k: nat) (k': nat) (v: nat) : option bool :=
       find k' (insert k v t) = if k =? k' then Some v else find k' t.
 \end{code}
 
-The property \code{InsertPost} states that for a binary-search tree, inserting an
+The property \code{insert_correct} states that for a binary-search tree, inserting an
 element should, if the keys are equal (which should happen rarely but sometimes), let
 us find the newly inserted element (which checks if any immediate insertion can fail);
 if the keys aren't equal, it shouldn't change the resulting value we get for any of the
@@ -252,7 +257,7 @@ require a new framework.
 \subsection{Custom-Feedback Guided (Targeted) Property Runner}\label{sec:loops:tpr}
 
 There are other forms of feedback than coverage information that can be used to guide
-input generation. The literature is ripe with domain-specific metrics that can be used
+input generation. The literature is rife with domain-specific metrics that can be used
 to produce interesting inputs:
 %
 in SlowFuzz~\cite{SlowFuzz} and PerfFuzz~\cite{PerfFuzz}, the goal of the testing
@@ -1199,8 +1204,8 @@ In this section I evaluate our approach and implementation:
         allows for building new property runners without any dependence or modifications to the
         library internals: we implemented all of the property runners we presented in
         \S~\ref{sec:runners}. Here, I discuss four such runners and their implementations in
-        detail, the standard QuickCheck-inspired property runner (\S~\ref{sec:loops:sgpr}) and
-        the mutation-based coverage-guided runner (\S~\ref{sec:loops:cgpr}). the mutation-based
+        detail: the standard QuickCheck-inspired property runner (\S~\ref{sec:loops:sgpr}), the
+        mutation-based coverage-guided runner (\S~\ref{sec:loops:cgpr}), the mutation-based
         custom feedback-guided runner (\S~\ref{sec:loops:tpr}), and a parallel property runner
         (\S~\ref{sec:loops:ppr}) inspired by QuickerCheck~\cite{QuickerCheck}.
 

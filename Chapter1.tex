@@ -27,17 +27,17 @@ input-output pairs together. A sorting function is tested through several assert
 such as \code{sort([]) == []}, \code{sort([1, 0]) == [0, 1]}, \code{sort(3,2,-1) ==
 [-1, 2, 3]}...
 
-Another form of specification, the one that will be of focus to this whole thesis, is
-\emph{properties}. A property is a universally quantified predicate function. A fact
-about the program under test that must hold for any possible input. The universality of
-properties allows for relieving the user of the responsibility of specifying singular,
-individual behaviors. Once a property is written as specification of a particular
-program behavior, there are different strategies for producing inputs: systematic
-exhaustive search, random sampling, perhaps even user-supplied inputs. The combination
-of these methods are typically gathered under the umbrella of \emph{Property-Based
-    Testing}.
+Another form of specification, the one that will be the focus of this thesis, is
+\emph{properties}. A property is a universally quantified predicate function: a fact
+about the program under test that must hold for any possible input. Since properties
+are universal, they let users specify whole classes of behavior instead of individual
+examples. Once a property is written as a specification of a particular program
+behavior, there are different strategies for producing inputs: systematic exhaustive
+search, random sampling, and perhaps even user-supplied inputs. The combination of
+these methods is typically gathered under the umbrella of \emph{property-based
+    testing}.
 
-Property-Based Testing (PBT) was pioneered by Koen Claessen and John Hughes in their
+Property-based testing (PBT) was pioneered by Koen Claessen and John Hughes in their
 ICFP 2000 paper ``QuickCheck: a lightweight tool for random testing of Haskell
 programs''~\cite{ClaessenH00}. The initial steps of random software testing is
 typically attributed to the CS736 class of University of Wisconsin Madison Computer
@@ -46,10 +46,10 @@ utilities with random inputs to produce breakages, triggering faults, finding bu
 programs~\cite{Miller1990UnixFuzz}. While fuzz testing has evolved toward increasingly
 feedback-guided, target-aware, and domain-specific input generation
 techniques~\cite{fuzzingbook2024,aflplusplus,DBLP:journals/tse/BohmePR19,FairFuzz,DirectedGreybox,FuzzFactory},
-Property-based testing has chosen the specifications as its main focus. The original
-paper introduces a language, as well as an implementation as a library, for expressing
-properties, and writing random data generators; the design of which has been replicated
-in virtually all programming languages in the last 26 years.
+property-based testing has chosen specifications as its main focus. The original paper
+introduces both a language for expressing properties and a library implementation for
+writing random data generators. This design has been replicated in virtually all
+programming languages in the last 26 years.
 Table~\ref{tab:pbt-frameworks} gives a glimpse of the reach in which QuickCheck has
 made into the random testing world, the table presents the community-maintained
 \code{jmid/pbt-frameworks} survey~\cite{jmid-pbt-frameworks}.
@@ -204,3 +204,10 @@ reliability and correctness. However, a major challenge that is yet to be solved
 ability to evolve a property-based testing suite alongside the database, which we
 attempted to solve. The chapter discusses various other domain-specific tools and
 techniques as well as their potential inclusion to general purpose PBT frameworks.
+
+The thesis concludes by returning to the central question running through these
+chapters: how can PBT move from a collection of isolated framework traditions toward a
+shared engineering and research discipline? The answer I develop is necessarily
+partial. Flexible property languages, common evaluation infrastructure, and
+domain-specific testing case studies do not settle every design question, but they make
+those questions explicit and measurable.

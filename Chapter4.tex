@@ -79,7 +79,7 @@ Other oracles include fuzzing against a model or a different implementation (kno
 differential fuzzing~\cite{pbtpractice, apollo}) or checking for excessive execution
 times~\cite{PerfFuzz}.
 
-Property-Based Testing (PBT), on the other hand, primarily focuses on empowering users
+Property-based testing (PBT), on the other hand, primarily focuses on empowering users
 to write their own oracles~\cite{quickcheck, htsi}. PBT frameworks usually offer DSLs
 for expressing oracles in the form of universally quantified executable predicates, as
 well as infrastructure for writing {\em generators} - programs that generate test
@@ -135,14 +135,18 @@ test it. We begin by using a very simple commutativity property to convey the ba
 ideas and notation, then detail the oracles that were actually developed to test \db{},
 and conclude the section with a description of our generation strategy. For
 concreteness, let us consider the following hypothetical equivalence relation
-leveraging the commutativity of $(\land)$: for any database $db$ and any two predicates
-$p$ and $q$ that can range over variables from the database, if we evaluate $SELECT$
-$(p \land q)$ and $SELECT (q \land p)$ in $db$ they should yield equivalent results:
+leveraging the commutativity of $\land$: for any database $\mathit{db}$ and any two
+predicates $p$ and $q$ that can range over variables from the database, if we evaluate
+\(\mathsf{SELECT}(p \land q)\) and \(\mathsf{SELECT}(q \land p)\) in $\mathit{db}$
+they should yield equivalent results:
 
 \[
   \begin{array}{rl}
-    \forall db, p, q. & variables(p) \subseteq db  \land variables(q) \subseteq db \\
-    \Rightarrow       & SELECT (p \land q) \equiv SELECT (q \land p)
+    \forall \mathit{db}, p, q. &
+      \mathsf{variables}(p) \subseteq \mathit{db}
+      \land \mathsf{variables}(q) \subseteq \mathit{db} \\
+    \Rightarrow       &
+      \mathsf{SELECT}(p \land q) \equiv \mathsf{SELECT}(q \land p)
   \end{array}
 \]
 
@@ -150,9 +154,10 @@ Testing such a property would entail generating an arbitrary database, two expre
 $p$ and $q$ that only mention variables from that database, and then evaluating it
 repeatedly. That is, we have precisely described \emph{what} we want to test, the exact
 conditions in which the test is valid, but left the \emph{how} to a database-agnostic
-framework. Instead of quantifying over $db, p, q$ and constraining them with post hoc
-relations, we propose a simple abstraction for describing \emph{how} $db, p, q$ are
-generated with respect to the constraints. We call this abstraction for describing
+framework. Instead of quantifying over $\mathit{db}$, $p$, and $q$ and constraining
+them with post hoc relations, we propose a simple abstraction for describing \emph{how}
+$\mathit{db}$, $p$, and $q$ are generated with respect to the constraints. We call this
+abstraction for describing
 properties \emph{Generation Actions (GA)}.
 
 \begin{gacode}
@@ -206,17 +211,18 @@ that row.
 \begin{figure}[h!]
   \[
     \begin{array}{l}
-      db: Database                                                                \\
-      t_1, t_2...t_n : Table                                                      \\
-      c_1, c_2...c_n : Column                                                     \\
-      p_1, p_2...p_n : Expression                                                 \\
-      r : Row                                                                     \\
-      \forall db, t_1, t_2...t_n, c_1, c_2...c_n, p_1, p_2...p_n, r.              \\
-      t_1, t_2...t_n \in db                                                       \\
-      \land c_1 \in t_1 \land c_2 \in t_2 ... \land c_n \in t_n                   \\
-      \land r.c_1 \in t_1.c_1 \land r.c_2 \in t_2.c_2 ... \land r.c_n \in t_n.c_n \\
-      \land p_1(r) = TRUE \land p_2(r) = TRUE ... \land p_n(r) = TRUE             \\
-      \Rightarrow r \in SELECT * FROM \; t_1.c_1...t_n.c_n \; WHERE \; p_1 ... AND \; p_n
+      \mathit{db}: \mathsf{Database}                                                                \\
+      t_1, t_2,\ldots,t_n : \mathsf{Table}                                                          \\
+      c_1, c_2,\ldots,c_n : \mathsf{Column}                                                         \\
+      p_1, p_2,\ldots,p_n : \mathsf{Expression}                                                     \\
+      r : \mathsf{Row}                                                                               \\
+      \forall \mathit{db}, t_1,\ldots,t_n, c_1,\ldots,c_n, p_1,\ldots,p_n, r.                        \\
+      t_1,\ldots,t_n \in \mathit{db}                                                                 \\
+      \land c_1 \in t_1 \land c_2 \in t_2 \land \cdots \land c_n \in t_n                             \\
+      \land r.c_1 \in t_1.c_1 \land r.c_2 \in t_2.c_2 \land \cdots \land r.c_n \in t_n.c_n           \\
+      \land p_1(r) = \mathsf{TRUE} \land p_2(r) = \mathsf{TRUE} \land \cdots \land p_n(r) = \mathsf{TRUE} \\
+      \Rightarrow r \in
+      \mathsf{SELECT}\; *\; \mathsf{FROM}\; t_1.c_1,\ldots,t_n.c_n\; \mathsf{WHERE}\; p_1 \land \cdots \land p_n
     \end{array}
   \]
   \caption{Pivoted Query Synthesis as a universally quantified property.}
@@ -392,14 +398,14 @@ following questions:
 \end{itemize}
 
 \subsubsection{RQ1: Does \tool{} find bugs in \db{}?} \label{dirt:subsec:bugs}
+\begin{landscape}
 \begin{singlespace}
-  \begin{footnotesize}
-    \begin{table}[h!]
+  \begin{scriptsize}
+    \begin{table}[p]
       \centering
-      \renewcommand{\arraystretch}{1.15}
-      \setlength{\tabcolsep}{3pt}
-      \makebox[\linewidth][c]{%
-        \begin{tabular}{ | p{0.06\textwidth} | p{0.70\textwidth} | p{0.17\textwidth} | p{0.20\textwidth} |}
+      \renewcommand{\arraystretch}{1.05}
+      \setlength{\tabcolsep}{2.5pt}
+        \begin{tabular}{ | p{0.05\linewidth} | p{0.61\linewidth} | p{0.14\linewidth} | p{0.13\linewidth} |}
           \hline
           \textbf{Bug} & \textbf{Description}                                                       & \textbf{Oracle}  & \textbf{Module} \\
           \hline
@@ -451,12 +457,12 @@ following questions:
           2116         & Advance after post-delete balancing did not advance B-tree cursor          & No Panic         & Storage Engine  \\
           \hline
         \end{tabular}%
-      }
       \caption{List of confirmed unique \db{} bugs found and reported by \tool{}}
       \label{dirt:tab:bugs}
     \end{table}
-  \end{footnotesize}
+  \end{scriptsize}
 \end{singlespace}
+\end{landscape}
 
 We have collected 23 confirmed and fixed unique bugs found by \tool{} in \db{} over the
 course its development, evolving in complexity as \db{} grows.
@@ -545,13 +551,20 @@ This does not mean that \tool{} has better generators or oracles than SQLancer. 
 it shows that for rapidly evolving databases with many missing features,
 database-integrated testing yields more actionable bugs.
 
-\begin{figure}[h!]
+\makeatletter
+\begingroup
+\def\LS@rot{%
+  \setbox\@outputbox\vbox{\hbox{\rotatebox{-90}{\box\@outputbox}}}}
+\begin{landscape}
+\begin{figure}[p]
   \centering
-  \includegraphics[width=0.95\linewidth]{figures/dirt/analysis.pdf}
-  \caption{Comparison of True Positives, False Positives and No Bugs for \tool{}, SQLancer-SQLite, SQLancer-\db{}
-  }
+  \includegraphics[width=0.96\linewidth,height=0.82\textheight,keepaspectratio]{figures/dirt/analysis.pdf}
+  \caption[Comparison of outcomes for \tool{} and SQLancer.]{Comparison of true positives, false positives, and no-bug outcomes for \tool{}, SQLancer-SQLite, and SQLancer-\db{}.}
   \label{dirt:fig:comparison}
 \end{figure}
+\end{landscape}
+\endgroup
+\makeatother
 
 \subsection{Discussion}
 
