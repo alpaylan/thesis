@@ -84,6 +84,7 @@ per-machine, so multiple machines would serve inconsistently.
 git latexdiff --main main.tex --latexmk \
     --build-dir build \      # latexmkrc sets $out_dir = 'build'
     --ln-untracked \         # pull in gitignored figure PDFs from the worktree
+    --add-to-config=VERBATIMLINEENV=code \  # custom listings env is verbatim
     --filter "python3 difftool/diff_bookmarks.py main.tex" \  # per-change bookmarks
     --ignore-latex-errors --no-view --quiet \
     -o build/diffs/diff_<old>_<new>.pdf  <old> <new>

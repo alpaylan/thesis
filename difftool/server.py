@@ -323,6 +323,7 @@ def run_diff_build(jid: str) -> None:
         "--latexmk",
         "--build-dir", CONFIG["build_dir"],   # latexmkrc sets $out_dir = 'build'
         "--ln-untracked",                      # pull in gitignored figures (*.pdf)
+        "--add-to-config=VERBATIMLINEENV=code",
         "--filter", f"python3 {BOOKMARK_FILTER} {CONFIG['main']}",
         "--ignore-latex-errors",
         "--no-view",
