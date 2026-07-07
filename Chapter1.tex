@@ -13,17 +13,17 @@ understanding what the program does separately from how it is implemented.
 %% Source for arguments and vocabulary:
 %% https://alperenkeles.com/posts/vocab-for-testing/
 
-Different methods of software testing ask the programmer to express intent in
-different forms. In the simplest scenario, programmers \emph{tinker} with the
-program at hand. They interact with the produced artifact, pressing buttons in a user
-interface, exploring different options in a command-line interface, testing a variety
-of inputs for a function through a REPL, and observing the results. These interactions
-are then \emph{codified}, written as concrete testing instructions to be run alongside
-program development as part of an automated test suite. The simplest form of
-codification is \emph{example-based testing}, in which the specification relates
-concrete user-written input-output pairs. A sorting function is tested through several assertions
-such as \code{sort([]) == []}, \code{sort([1, 0]) == [0, 1]}, \code{sort(3,2,-1) ==
-[-1, 2, 3]}.
+Different methods of software testing ask the programmer to express intent in different
+forms. In the simplest scenario, programmers \emph{tinker} with the program at hand.
+They interact with the produced artifact, pressing buttons in a user interface,
+exploring different options in a command-line interface, testing a variety of inputs
+for a function through a REPL, and observing the results. These interactions are then
+\emph{codified}, written as concrete testing instructions to be run alongside program
+development as part of an automated test suite. The simplest form of codification is
+\emph{example-based testing}, in which the specification relates concrete user-written
+input-output pairs. A sorting function is tested through several assertions such as
+\code{sort([]) == []}, \code{sort([1, 0]) == [0, 1]}, \code{sort(3,2,-1) == [-1, 2,
+3]}.
 
 Another form of specification, the one that will be the focus of this thesis, is
 \emph{properties}. A property is a universally quantified predicate function: a fact
@@ -46,10 +46,9 @@ techniques~\cite{fuzzingbook2024,aflplusplus,DBLP:journals/tse/BohmePR19,FairFuz
 property-based testing has chosen specifications as its main focus. The original paper
 introduces both a language for expressing properties and a library implementation for
 writing random data generators. This design has been replicated in virtually all
-programming languages in the last 26 years.
-Table~\ref{tab:pbt-frameworks} gives a glimpse of QuickCheck's reach in the random
-testing world by presenting the community-maintained
-\code{jmid/pbt-frameworks} survey~\cite{jmid-pbt-frameworks}.
+programming languages in the last 26 years. Table~\ref{tab:pbt-frameworks} gives a
+glimpse of QuickCheck's reach in the random testing world by presenting the
+community-maintained \code{jmid/pbt-frameworks} survey~\cite{jmid-pbt-frameworks}.
 
 The ubiquity of the approach stems from its simplicity. The user starts with a simple
 universal predicate denoting the correctness of their program:
@@ -63,10 +62,10 @@ The \code{sort_correct} predicate denotes the correctness of a sorting function,
 elements of the list must not change, and the output must obey an ordering relation.
 The user then writes a random data generator for the input type. Since
 \code{sort_correct} is defined over arbitrary lists of orderable elements, we need a
-\code{List} generator. For this example, we can instantiate the orderable element type with
-\code{Int}s. QuickCheck provides a library of combinators for writing
-generators such as \code{choose} and \code{listOf}, and the \code{Arbitrary} typeclass
-for denoting generators of certain types.
+\code{List} generator. For this example, we can instantiate the orderable element type
+with \code{Int}s. QuickCheck provides a library of combinators for writing generators
+such as \code{choose} and \code{listOf}, and the \code{Arbitrary} typeclass for
+denoting generators of certain types.
 
 \begin{code}[language=Haskell,emph={arbitrary,choose,listOf},emph={[2]a}]
 instance Arbitrary Int where
@@ -122,28 +121,28 @@ Figure~\ref{fig:quickcheck-property-runner-intro}:
 The implementations presented in the PBT frameworks table
 (Table~\ref{tab:pbt-frameworks}) all implement different versions of this same core
 algorithm, but vary the internal parameters of generators and shrinkers, the APIs for
-expressing properties, and the underlying source of randomness. Hypothesis~\cite{Hypothesis},
-Zest~\cite{Zest}, and Crowbar~\cite{Crowbar} parse randomness~\cite{goldsteinParsingRandomness2022}
-into structures in their respective programming languages. Many other frameworks use
-QuickCheck-style RNG splitting~\cite{ClaessenP13}, starting from an initial random seed
-and splitting it at every decision point.
+expressing properties, and the underlying source of randomness.
+Hypothesis~\cite{Hypothesis}, Zest~\cite{Zest}, and Crowbar~\cite{Crowbar} parse
+randomness~\cite{goldsteinParsingRandomness2022} into structures in their respective
+programming languages. Many other frameworks use QuickCheck-style RNG
+splitting~\cite{ClaessenP13}, starting from an initial random seed and splitting it at
+every decision point.
 
 Many of these decisions are defaults that can be overridden when users need custom
 configurations for their domains. Others \emph{leak} outside the abstraction and may
 require significant reengineering of library internals to accommodate alternative
 behaviors. For instance, the decision to use randomness parsing versus RNG splitting
-affects one of the columns in the framework table
-(Table~\ref{tab:pbt-frameworks}), \emph{integrated shrinking}. In integrated
-shrinking~\cite{HypothesisShrinking}, in contrast to the classic structural shrinking
-approach we mentioned, the source of randomness that is parsed to the generated
-structure is shrunk instead of the structure itself. As such, a library using RNG
-splitting cannot accommodate integrated shrinking without reengineering of its
-internals.
+affects one of the columns in the framework table (Table~\ref{tab:pbt-frameworks}),
+\emph{integrated shrinking}. In integrated shrinking~\cite{HypothesisShrinking}, in
+contrast to the classic structural shrinking approach we mentioned, the source of
+randomness that is parsed to the generated structure is shrunk instead of the structure
+itself. As such, a library using RNG splitting cannot accommodate integrated shrinking
+without reengineering of its internals.
 
-This thesis argues that effective PBT frameworks require consolidation along two
-axes: programmable interfaces that make techniques easier to express, combine,
-and adopt; and shared evaluation infrastructure that grounds design choices in
-bug-finding capability and quantitative measurement.
+This thesis argues that effective PBT frameworks require consolidation along two axes:
+programmable interfaces that make techniques easier to express, combine, and adopt; and
+shared evaluation infrastructure that grounds design choices in bug-finding capability
+and quantitative measurement.
 
 Chapter~\ref{chap:ppbt} on Programmable Property-Based
 Testing~\cite{keles2026programmablepropertybasedtesting} focuses on this exact problem
@@ -177,30 +176,30 @@ evaluation platform for PBT. We designed ETNA to be easily extensible in terms o
 adding new testing strategies for evaluation, new workloads as novel benchmarks, and
 new languages with entirely separate ecosystems from the existing ones. The purpose of
 ETNA is to consolidate knowledge through a common interface for quantitative
-evaluation: shared benchmarks across languages for comparing cross-language
-performance trade-offs, sampling-based evaluation modes that abstract away framework
-specifics and focus on generated-test quality, and reproducible experiments for
-sharing, verifying, and replicating existing results. We have
-used ETNA to carry out experiments evaluating different generators, shrinkers, and
-performance differences across frameworks and languages as we explain in
-\S~\ref{evaluating-generators} and \S~\ref{evaluating-shrinking}. Similar to
-Programmable PBT, ETNA is a step towards accelerating scientific development of PBT.
+evaluation: shared benchmarks across languages for comparing cross-language performance
+trade-offs, sampling-based evaluation modes that abstract away framework specifics and
+focus on generated-test quality, and reproducible experiments for sharing, verifying,
+and replicating existing results. We have used ETNA to carry out experiments evaluating
+different generators, shrinkers, and performance differences across frameworks and
+languages as we explain in \S~\ref{evaluating-generators} and
+\S~\ref{evaluating-shrinking}. Similar to Programmable PBT, ETNA is a step towards
+accelerating scientific development of PBT.
 
 Much of the contemporary discussion of features, generalization, performance,
 interface, and usage of property-based testing is based on general purpose frameworks
 we have outlined in Table~\ref{tab:pbt-frameworks}. However, the world is full of
 oddities, special-purpose tools, and requirements that push outside the boxes we draw.
 General purpose tools grow as they redraw the lines of their approach to accommodate
-such extensions. In a thesis focusing on consolidation, it is important to examine
-what we cannot, at least for the moment, consolidate. In
-Chapter~\ref{chap:dirt}, I present and discuss a domain-specific property-based testing
-paradigm for databases, ``DIRT: Database-Integrated Random
-Testing''~\cite{dirt-dbtest26}. Modern databases have enjoyed the results of fuzzing,
-at times with property-based testing flavored approaches, in strengthening their
-reliability and correctness. However, a major challenge that is yet to be solved is the
-ability to evolve a property-based testing suite alongside the database, which we
-attempted to solve. The chapter discusses various other domain-specific tools and
-techniques as well as their potential inclusion to general purpose PBT frameworks.
+such extensions. In a thesis focusing on consolidation, it is important to examine what
+we cannot, at least for the moment, consolidate. In Chapter~\ref{chap:dirt}, I present
+and discuss a domain-specific property-based testing paradigm for databases, ``DIRT:
+Database-Integrated Random Testing''~\cite{dirt-dbtest26}. Modern databases have
+enjoyed the results of fuzzing, at times with property-based testing flavored
+approaches, in strengthening their reliability and correctness. However, a major
+challenge that is yet to be solved is the ability to evolve a property-based testing
+suite alongside the database, which we attempted to solve. The chapter discusses
+various other domain-specific tools and techniques as well as their potential inclusion
+to general purpose PBT frameworks.
 
 The thesis concludes by returning to the central question running through these
 chapters: how can PBT move from a collection of isolated framework traditions toward a
