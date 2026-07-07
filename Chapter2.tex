@@ -28,12 +28,12 @@ evaluation methodology.
 
 The property I presented in the introduction was deliberately simple: single input, no
 preconditions, no need for any configuration changes or augmentations. From here on, I
-will use Binary-Search Tree properties taken from How to Specify
-It!~\cite{Hughes2019HowTS} and have been integrated into ETNA~\cite{ETNA} as case
-studies. I will also start using Rocq for the exposition as it is the language of our
+will use binary-search tree properties from How to Specify
+It!~\cite{Hughes2019HowTS}, which have been integrated into ETNA~\cite{ETNA} as case
+studies. I will also use Rocq for the exposition because it is the language of our
 implementation. Rocq hosts QuickChick~\cite{Pierce:SF4}, one of the most faithful ports
-of QuickCheck, keeping much of the original machinery, the types and algorithms of
-QuickCheck in place.
+of QuickCheck, preserving much of QuickCheck's original machinery, types, and
+algorithms.
 
 \begin{code}[language=Rocq]
 Definition insert_correct (t: Tree) (k: nat) (k': nat) (v: nat) : option bool :=
@@ -44,8 +44,8 @@ Definition insert_correct (t: Tree) (k: nat) (k': nat) (v: nat) : option bool :=
 The property \code{insert_correct} states that for a binary-search tree, inserting an
 element should, if the keys are equal (which should happen rarely but sometimes), let
 us find the newly inserted element (which checks if any immediate insertion can fail);
-if the keys aren't equal, it shouldn't change the resulting value we get for any of the
-other possible keys. This property fails with a number of different bugs breaking
+if the keys are not equal, insertion should not change the value associated with any
+other key. This property fails with a number of different bugs breaking
 insertion in different ways, such as inserting multiple copies of the same key with
 different values, essentially invalidating any update operations. For now, we will
 focus on how to test it rather than what those tests would reveal.
@@ -58,14 +58,14 @@ Definition prop_insert_correct :=
   forAll arbitrary (fun (k: nat)  =>
   forAll arbitrary (fun (k': nat) =>
   forAll arbitrary (fun (v: nat)  =>
-  prop_InsertPost t k k' v)))).
+  insert_correct t k k' v)))).
 \end{code}
 
-There's a small caveat to the using \code{Arbitrary} typeclass, which is that each type
-can have at most one typeclass instance, so we cannot really specialize for a specific
-scenario. We can switch \code{arbitrary} in the property definition with specialized
-generators, we can even define the \shrinker{shrinkers} and \printer{printers}
-ourselves if we would like using \code{forAllShrinkShow}:
+There is a small caveat to using the \code{Arbitrary} typeclass: each type can have at
+most one typeclass instance, so we cannot specialize it for every testing scenario. We
+can replace \code{arbitrary} in the property definition with specialized generators,
+and can even define the \shrinker{shrinkers} and \printer{printers} ourselves using
+\code{forAllShrinkShow}:
 
 \begin{code}[language=Rocq]
 Definition prop_insert_correct :=
@@ -73,13 +73,13 @@ Definition prop_insert_correct :=
   forAll (choose -100 100)     (fun (k: nat)  =>
   forAll (choose -100 100)     (fun (k': nat) =>
   forAll (choose -100 100)     (fun (v: nat)  =>
-  prop_InsertPost t k k' v)))).
+  insert_correct t k k' v)))).
 \end{code}
 
-Well, that seems fine, but ideally we would not even generate the \code{k}, \code{k'},
-and \code{v} if the tree \code{t} doesn't pass the precondition \code{isBST}, however
-right now we generate everything before starting to check. We could solve this by
-turning to \code{forAllShrinkShowMaybe} (this is starting to look awfully like
+This is better, but ideally we would not generate the \code{k}, \code{k'}, and
+\code{v} if the tree \code{t} does not pass the precondition \code{isBST}. The current
+version still generates everything before starting to check. We could solve this by
+turning to \code{forAllShrinkShowMaybe} (which is starting to look like
 \code{AbstractPropertyFactory} at this point):
 
 \begin{code}[language=Rocq]
@@ -98,42 +98,41 @@ Definition prop_insert_correct :=
                              else find k' t)))).
 \end{code}
 
-There are a couple more changes we can do, such as adding callbacks to \code{collect}
-statistics from the tests, and we can configure some other aspects of the testing by
-the configuration options QuickChick gives us, but otherwise, this is all the
-flexibility we get from the testing library. The more pressing question is, \emph{is
-  this enough flexibility?}
+We can make a few more changes, such as adding callbacks to \code{collect} statistics
+from the tests, and QuickChick exposes configuration options for some other aspects of
+testing. Beyond those options, however, this is the flexibility the library provides.
+The more pressing question is, \emph{is this enough flexibility?}
 
 \input{tables/pbt-frameworks-full}
 
-The complete balkanization of the PBT landscape tells us it is not. Looking at
-Table~\ref{tab:pbt-frameworks}, we see significant fragmentation within languages;
+The fragmentation of the PBT landscape suggests that it is not. Looking at
+Table~\ref{tab:pbt-frameworks}, we see significant fragmentation within languages:
 Haskell hosts QuickCheck, SmallCheck~\cite{RuncimanNL08}, Hedgehog~\cite{Hedgehog} as
 well as LeanCheck~\cite{leancheck}, and falsify~\cite{falsify} that is not mentioned in
 the table. These new frameworks emerge as a response to the limits of flexibility in
-the existing ones. These limitations arise at points that surpass the prescience of the
-library authors in the requirements of the users, because the dominant design paradigm
-of the property languages for PBT libraries fundamentally \emph{fixes} the underlying
-property runner, albeit with a wide range of configurations for the user. All possible
+the existing ones. These limitations arise when user requirements go beyond the design
+space anticipated by library authors. The dominant design paradigm of PBT property
+languages fundamentally \emph{fixes} the underlying property runner, albeit with a wide
+range of configurations for the user. All possible
 behaviors and configuration options must be programmed into the library internals with
 no ability to change or extend them in the user space. In the next section, I will
-introduce a variety of property runners from the literature that diverges from the
+introduce a variety of property runners from the literature that diverge from the
 original property runner of QuickCheck illustrated in
-Figure~\ref{fig:quickcheck-property-runner-intro} that demonstrates the motivation for
-a programmable PBT framework.
+Figure~\ref{fig:quickcheck-property-runner-intro}. These runners demonstrate the
+motivation for a programmable PBT framework.
 
 \section{Property Runners in Literature}\label{sec:runners}
 
-Property-based testing literature is filled with changes to the underlying property
-runners in an attempt to increase the performance of the tools. In this section, I
-explore a wide variety of property runners from the literature, highlighting their
-similarities and differences. I depict the runners using abstract representations of
-the dataflow between different \emph{components} of the runners, such as
+The property-based testing literature contains many proposed changes to the underlying
+property runner, often motivated by performance or input-quality concerns. In this
+section, I survey a wide variety of property runners, highlighting their similarities
+and differences. I depict the runners using abstract representations of the dataflow
+between different \emph{components}, such as
 \generator{generators}, \shrinker{shrinkers}, or \printer{printers}.
 %
-Crucially, existing implementations of the runners I discuss are distinct, spread
-across different libraries in different languages. This section presents our attempt at
-putting them within a single conceptual framework.
+Crucially, existing implementations of the runners I discuss are spread across
+different libraries and languages. This section presents our attempt to put them within
+a single conceptual framework.
 
 \input{figures/interaction/tikz-loops}
 
@@ -226,12 +225,11 @@ instrumented, allowing the runner to keep track of the branches that were covere
 during execution. This information is used for guiding the testing process, which
 brings us to the second major difference, \mutator{mutations}. Historically,
 property-based testing has overwhelmingly focused on generating data from scratch
-instead of the AFL style byte mutations; with an accompanying focus of writing
-correct-by-construction generators instead of mutators that slowly find their way into
-valid inputs. However, such guidance requires a biasing that naive generation from
-scratch cannot accommodate, which the coverage-guided fuzzing solves by choosing the
-inputs to mutate based on their contributions to the overall coverage with a genetic
-algorithm for maximizing the overall coverage.
+instead of AFL-style byte mutations. This emphasis favors correct-by-construction
+generators over mutators that gradually search their way toward valid inputs. However,
+coverage guidance requires a bias that naive generation from scratch cannot easily
+provide. Coverage-guided fuzzing supplies that bias by choosing inputs to mutate based
+on their contributions to overall coverage.
 
 The runner keeps track of a \emph{seed pool}: a corpus of inputs that led execution
 down interesting, previously unseen paths. Inputs are then selected from this pool,
@@ -313,9 +311,9 @@ and does not rely on mutation.
 \subsection{Parallel Property Runner}\label{sec:loops:ppr}
 
 The other runners explored so far have focused on obtaining a better distribution of
-inputs by guiding the generator towards interesting parts of the search space, in
-contrast, QuickerCheck~\cite{ParallelTesting} improved upon the standard loop by
-exploiting parallelism: letting users run more tests during the same time span.
+inputs by guiding the generator towards interesting parts of the search space. By
+contrast, QuickerCheck~\cite{ParallelTesting} improves the standard loop by exploiting
+parallelism: letting users run more tests during the same time span.
 %
 In prior work, parallelization is made possible by building a
 ``swarm''~\cite{swarm-testing} of testing campaigns, each member focusing on a
@@ -342,15 +340,15 @@ responsibility sharing across threads without contention.
 
 The shift from pure random generation in the Simple Generational Property Runner
 (\S~\ref{sec:loops:sgpr}) to the guided mutational generation in Fuzzing
-(\S~\ref{sec:loops:cgpr}) and Targeted (\S~\ref{sec:loops:tpr}) indicate a subtle
+(\S~\ref{sec:loops:cgpr}) and Targeted (\S~\ref{sec:loops:tpr}) indicates a subtle
 social change in the usage of PBT. This change is best understood in the context of
 automation in PBT libraries.
 %
-In the introduction, I have shown the \code{Arbitrary} typeclass along with the
+In the introduction, I showed the \code{Arbitrary} typeclass along with the
 definition of \code{prop_sort_correct} using the \code{forAll} combinator QuickCheck
-provides. In practice, QuickCheck is designed to ensure that the users \emph{do not
-  have to} write any of those components by hand. This is possible via the
-\code{Testable} typeclass. The top level \code{quickCheck} function we had seen is
+provides. In practice, QuickCheck is designed so users \emph{do not have to} write any
+of those components by hand. This is possible via the
+\code{Testable} typeclass. The top-level \code{quickCheck} function we saw is
 defined as:
 
 \begin{code}[language=Haskell]
@@ -409,18 +407,17 @@ instance (Arbitrary a, Show a, Testable prop) => Testable (a -> prop) where
       (uncurry f)
 \end{code}
 
-The automatic currying allows this typeclass instance to recursively handle functions
+Automatic currying allows this typeclass instance to recursively handle functions
 of any arity as long as the input type can be randomly generated (implements
 \code{Arbitrary}) and can be printed (implements \code{Show}). The automation goes
-further by allowing the users to automatically derive random generators for any Haskell
-type~\cite{genericRandom}; I will not go into the nitty-gritty details of generator
-derivation, but the essential intuition is that every variant of a sum type leads to a
-random choice, and every element of a product type is independently generated and
-composed into the result.
+further by allowing users to automatically derive random generators for any Haskell
+type~\cite{genericRandom}. The essential intuition is that every variant of a sum type
+leads to a random choice, and every element of a product type is independently
+generated and composed into the result.
 
 However, this type-based random generator derivation is hopeless in the face of complex
 data structures that possess features and invariants that we cannot, or do not, engrain
-in the types. Let us take binary search trees as our example:
+in the types. Binary search trees provide a simple example:
 
 \begin{code}[language=Haskell]
 data Tree a = Leaf | Node (Tree a) a (Tree a)
@@ -443,7 +440,7 @@ instance Arbitrary a => Arbitrary (Tree a) where
         ]       
 \end{code}
 
-\noindent The changes of generating valid binary trees using this generator is \emph{extremely
+\noindent The chances of generating valid binary trees using this generator are \emph{extremely
   low}. Below is the table to view the situation quantitatively:
 
 \begin{table}[h!]
@@ -484,9 +481,9 @@ instance Arbitrary a => Arbitrary (Tree a) where
         dependencies, and repair logic, making it easy for the generator itself to become
         the most complicated part of the test.
   \item \textbf{Derive correct-by-construction generators~\cite{GeneratingGoodGenerators}:} This is what
-        QuickChick in Rocq does, generators are derived via inductive Rocq specifications.
-        Although this is a very promising and powerful direction, it relies on having inductive
-        specification of the structure, which is a generous assumption to make.
+        QuickChick in Rocq does: generators are derived via inductive Rocq specifications.
+        Although this is a promising and powerful direction, it relies on having an inductive
+        specification of the structure, which is a generous assumption.
   \item \textbf{Mutate into interesting inputs~\cite{aflplusplus}:} Coverage-guided
         fuzzing reduces the need for a domain-specific generator by searching from seed
         inputs toward executions that cover new program behavior. For highly structured
@@ -498,18 +495,18 @@ instance Arbitrary a => Arbitrary (Tree a) where
   \item \textbf{Use stateful generation.}
 \end{enumerate}
 
-In stateful generation, instead of generating the structure itself we generate
+In stateful generation, instead of generating the structure itself, we generate
 \emph{actions} or \emph{operations} against the structure to gradually change its
 state. For instance, instead of creating a binary search tree from scratch, we can
 start with a \code{Leaf} and repeatedly call \code{insert} with random key-value pairs.
-A more canonical example is using databases, the complexity of which makes from scratch
-generation an obviously impossible route. Instead, we define the database operators,
-the \code{CREATE TABLE}, \code{DROP TABLE} \code{INSERT}, \code{UPDATE}, \code{DELETE}
-to populate the database. Historically, stateful testing has been implemented as a
-separate feature, however conceptually, turning our generators to be \code{gen a ::
-  State -> Rng -> a} instead of \code{gen a :: Rng -> a} allows us to implement a
-stateful property runner with them. In Figure~\ref{fig:stateful-property-runner}, I
-present the stateful runner similar to the previous runners in this section. The key
+A more canonical example is databases, whose complexity makes generation from scratch
+impractical. Instead, we define database operators such as \code{CREATE TABLE},
+\code{DROP TABLE}, \code{INSERT}, \code{UPDATE}, and \code{DELETE} to populate the
+database. Historically, stateful testing has been implemented as a separate feature.
+Conceptually, however, changing generators from \code{gen a :: Rng -> a} to
+\code{gen a :: State -> Rng -> a} is enough to express a stateful property runner. In
+Figure~\ref{fig:stateful-property-runner}, I present the stateful runner in the same
+style as the previous runners in this section. The key
 difference is the introduction of a shared \code{State} that the generator consults
 when producing each action, and that the checker advances after executing an action
 against the system under test. Unlike the simple generational runner where each input
@@ -677,16 +674,16 @@ internals of the framework.
 
 \subsection{A Deep Property Language}
 
-If we were to imagine shallowness-deepness as a spectrum, the polar opposite of the
-shallow embedding paradigm would be a deep embedding where terms of the host language
-are expressible in the object language, so we can manipulate them however required. In
-a compiled setting, the boundary between the host and the object is very strict,
-leaving only the option of staged compilation for such an implementation. In
-interpreted settings, it is possible to manipulate the host language terms without
-explicit staging, however cumbersome. To my knowledge, there is only one tool
+If we imagine shallowness and deepness as a spectrum, the opposite end from the
+shallow embedding paradigm is a deep embedding in which terms of the host language are
+expressible in the object language, allowing them to be manipulated directly. In a
+compiled setting, the boundary between the host and object languages is strict, leaving
+staged compilation as the main implementation route. In interpreted settings, it is
+possible, though cumbersome, to manipulate host-language terms without explicit
+staging. To my knowledge, there is only one tool
 experimenting with the deep approach, TSTL~\cite{holmes2018tstl}. TSTL is ``the
 Template Scripting Testing Language'' that allows for writing templates in an EBNF-like
-syntax that can include arbitrary Python expressions which denotes a generative
+syntax that can include arbitrary Python expressions denoting a generative
 grammar. Below is a TSTL template for testing an AVL tree in Python:
 
 \begin{code}[language=TSTL]
@@ -703,8 +700,8 @@ property: <avl>.check_balanced()
 \end{code}
 
 The advantage of such an embedding is that any consumer of this template can
-theoretically write another interpretation for the same property, its flexibility is
-unparalleled. However, it also means that the users of the testing framework have to
+theoretically write another interpretation for the same property; its flexibility is
+substantial. However, it also means that the users of the testing framework have to
 learn \emph{yet another} language in which to write their specifications and
 generators, foregoing all of the convenience that host-language binders provide.
 Unsurprisingly, almost no frameworks have taken this route: it is hard enough to
@@ -846,14 +843,14 @@ $\mcheck$) and return annotation-specific terms (e.g. a generator or a shrinker)
 
 \section{A Dynamically-Typed Property Language}\label{sec:racket}
 
-There are multiple mechanisms for implementing a DBAS embedding. In this section, we go
-through an implementation of DBAS in Racket. Dynamically-typed runtimes for programming
-languages allow for creating \emph{arbitrary} data structures that we cannot express
-within static type checking boundaries. Sometimes our type system isn't expressive
-enough to model the underlying object, other times the objects we create are just not
-well-typed. The tension of a dynamically-typed setting is that the programmer is tasked
-with bookkeeping the well-typedness of the program as opposed to mathematical
-guarantees we get from static type checking.
+There are multiple mechanisms for implementing a DBAS embedding. In this section, I
+describe an implementation of DBAS in Racket. Dynamically typed runtimes allow
+programmers to create data structures that are difficult or impossible to express
+within static type-checking boundaries. Sometimes the type system is not expressive
+enough to model the underlying object; other times, the objects being created are
+intentionally not well typed. The trade-off is that a dynamically typed setting makes
+the programmer responsible for maintaining well-typedness, rather than relying on
+static guarantees.
 
 Specifically, the \code{env} in the definition of the inductive \code{Prop} which has
 the type \code{[Type]}, a list of types, is tricky to implement and manage in static
@@ -862,8 +859,8 @@ introduced in the upper layers, and therefore has access to them. In a
 dynamically-typed setting, we can solve this by simply hijacking the variable bindings
 of the host language.
 
-We define a property as follows, almost verbatim equivalent to the existing
-combinator-based PBT library in Racket, RackCheck~\cite{rackcheck}, in its final form:
+In its final form, a property looks almost identical to a property written in
+RackCheck~\cite{rackcheck}, the existing combinator-based PBT library for Racket:
 
 \begin{code}[language=Racket]
 (define eval-opt
@@ -872,10 +869,10 @@ combinator-based PBT library in Racket, RackCheck~\cite{rackcheck}, in its final
     (equal? (eval e) (eval (optimize e)))))
 \end{code}
 
-If we were to use RackCheck's property language, the \code{property} would evaluate the
-\code{forall}, produce the variable \code{e}, evaluate the following predicate with
-\code{e} in the context. We instead use the Racket macro system for turning any
-generated variable into an environment access.
+In RackCheck's property language, \code{property} would evaluate the \code{forall},
+produce the variable \code{e}, and then evaluate the following predicate with \code{e}
+in scope. We instead use the Racket macro system to turn each generated variable into
+an environment access.
 
 \begin{code}[language=Racket]
 (equal? (eval e) (eval (optimize e)))
@@ -887,10 +884,9 @@ is transformed into
 (equal? (eval (get-env "e")) (eval (optimize (get-env "e"))))
 \end{code}
 
-The evaluator gets access to the environment, of which it enriches with the
-\code{augments} on the universally quantified varible introductions (\code{forall}).
-Let me now go through the details of the implementation. The public interface is as
-simple as follows:
+The evaluator receives the environment and enriches it using the \code{augments} on
+universally quantified variable introductions (\code{forall}). The public interface is
+simple:
 
 \begin{code}[language=Racket]
 (struct Forall (var augments body))
@@ -912,7 +908,7 @@ annotation-specific values. Without syntax support, this can be quite verbose:
                      (equal? (eval e) (eval (optimize e))))))))
 \end{code}
 
-The ergonomics here, compared to the flat property definition at the beginning, is
+The ergonomics here, compared to the flat property definition at the beginning, are
 drastically different. The nestedness of the constructors aside, we must explicitly
 bind the expression \code{e} to the environment reference (via \code{(dict-ref env
   'e)}) and enclose every expression with a lambda that has access to the environment. We
@@ -935,13 +931,12 @@ To make this rewriting compositional, the macro uses a syntax parameter
 \paragraph*{Writing Property Runners}
 
 The premise of our new property language is that it gives rise to flexible PBT
-libraries that allow for writing user-space property runners based on the conceptual
-architectures we introduced in \S~\ref{sec:runners}. In theory, of course, because the
-property is stored as a data structure that can be inspected and manipulated, one
-should be able to act as one wishes; in reality, however, we want to give the users of
-the library abstractions that will be convenient for them. Our abstraction layer over
-properties is \emph{components}. Remember the simple generational property runner from
-the introduction:
+libraries that support user-space property runners based on the conceptual
+architectures introduced in \S~\ref{sec:runners}. Because a property is stored as an
+inspectable data structure, users can in principle define many different
+interpretations. In practice, however, the library should expose convenient
+abstractions for doing so. Our abstraction layer over properties is \emph{components}.
+Recall the simple generational property runner from the introduction:
 
 \begin{figure}[h]
   \centering
@@ -951,10 +946,10 @@ the introduction:
 
 The loop relies on four components, a \generator{}, a \checker{}, a \shrinker{}, and a
 \printer{}. If we can construct all of these components out of a given property object,
-we can then use them to build the property runner. And that is exactly what we will do
-now. The \generator{} starts with an empty map of inputs, filling it as it interprets
-the property, and returns the environment enriched with the randomly generated inputs
-at the end. Each \generator{gen} arrow in the diagram depicts a call to the generator.
+we can then use them to build the property runner. The \generator{} starts with an
+empty map of inputs, fills it as it interprets the property, and returns the
+environment enriched with the randomly generated inputs at the end. Each
+\generator{gen} arrow in the diagram depicts a call to the generator.
 
 \begin{code}[language=Racket]
 (define (generator p size)
@@ -977,8 +972,8 @@ at the end. Each \generator{gen} arrow in the diagram depicts a call to the gene
       [(Check _) env])))
 \end{code}
 
-The \checker{} takes in the property alongside an environment of generated variables,
-and produces a result. The \code{check e} arrows in the diagram indicates a call to the
+The \checker{} takes the property and an environment of generated variables, and
+produces a result. The \code{check e} arrows in the diagram indicate calls to the
 checker.
 
 \begin{code}[language=Racket]
@@ -996,14 +991,13 @@ checker.
      (if (prop env) 'pass 'fail)]))
 \end{code}
 
-The shrinker is a bit more involved, because in reality the \shrinker{} doesn't produce
-one shrunk value, it produces a list of possibly smaller values; for a list, a shrinker
-might remove an element from the beginning or the end of the list; for a tree, a
-shrinker might remove left or right subtree. Instead of going through these
-possibilities one by one, \shrinker{shrink} call produces a list of possible
-minimizations, goes through the list, \checker{checking} each possibility, and if one
-of the possibilities succeed in reproducing the failure, applying the shrinking process
-recursively further down the tree.
+The shrinker is more involved because the \shrinker{} does not produce a single shrunk
+value; it produces a list of candidate smaller values. For a list, a shrinker might
+remove an element from the beginning or end. For a tree, it might remove the left or
+right subtree. Instead of spelling out these possibilities one by one, a
+\shrinker{shrink} call produces a list of possible minimizations. The shrink loop then
+goes through the list, \checker{checking} each possibility, and when one candidate
+reproduces the failure, recursively applies the shrinking process to that candidate.
 
 \begin{code}[language=Racket]
 (define (shrink-loop prop env)
@@ -1030,10 +1024,10 @@ recursively further down the tree.
     [(Check _) env]))
 \end{code}
 
-A rather convenient feature of dynamically-typed settings is the uniformity of values,
-we can pass in any values we are interested in anywhere in the program; so in the case
-of the Racket implementation, we do not even need a separate \printer{} component. We
-can now build user-space property runners with these components:
+A convenient feature of dynamically typed settings is the uniformity of values: we can
+pass any values we are interested in throughout the program. In the Racket
+implementation, this means we do not need a separate \printer{} component. We can now
+build user-space property runners with these components:
 
 \begin{code}[language=Racket,escapeinside={(*@}{@*)}]
 (define (simple-generational-property-runner tests p)
@@ -1047,17 +1041,15 @@ can now build user-space property runners with these components:
             [(discard) (loop (add1 n) passed (add1 discards))])))))
 \end{code}
 
-With that, we can move onto the road less travelled; I will now go through our
-implementation of DBAS in Rocq, a dependently-typed data structure that can hold
-properties, give rise to the same expressivity in a static-type-checked, type-safe
-setting.
+We can now turn to our implementation of DBAS in Rocq: a dependently typed data
+structure that holds properties and provides the same expressivity in a statically
+checked, type-safe setting.
 
 \section{A Dependently Typed Property Language}\label{sec:rocq}
 
-We do, as we did in Racket, stand on the shoulders of previous work by relying on the
-generation infrastructure of QuickChick~\cite{LeoThesis2018} in Rocq. This allows us to
-trivially turn any existing QuickChick property-based test into programmable form with
-minimal effort.
+As in the Racket implementation, we rely on existing infrastructure: QuickChick's
+generation machinery in Rocq~\cite{LeoThesis2018}. This lets us turn existing
+QuickChick property-based tests into programmable form with minimal effort.
 
 In our implementation, we explicitly encode contexts in our properties, capturing every
 input that \emph{will have been generated} by that point. We use a standard inductive
@@ -1200,9 +1192,9 @@ In this section I evaluate our approach and implementation:
 
 \begin{enumerate}
 
-  \item The first set of experiments demonstrate the expressiveness of DBAS, showing that it
-        allows for building new property runners without any dependence or modifications to the
-        library internals: we implemented all of the property runners we presented in
+  \item The first set of experiments demonstrates the expressiveness of DBAS, showing that it
+        supports new property runners without requiring modifications to the
+        library internals: we implemented all of the property runners presented in
         \S~\ref{sec:runners}. Here, I discuss four such runners and their implementations in
         detail: the standard QuickCheck-inspired property runner (\S~\ref{sec:loops:sgpr}), the
         mutation-based coverage-guided runner (\S~\ref{sec:loops:cgpr}), the mutation-based
@@ -1218,24 +1210,24 @@ In this section I evaluate our approach and implementation:
 
   \item Finally, the added expressivity allows these experiments to be expressed as changes to
         reusable runners and runner components, rather than as changes to the property language
-        or framework internals. We carry out three new experiments: In \S~\ref{sec:seedpool} we
+        or framework internals. We carry out three new experiments: in \S~\ref{sec:seedpool} we
         explore how different design choices with respect to the representation and sampling of
         the seed pool affect testing performance, improving FuzzChick~\cite{FuzzChick} in the
         process; in \S~\ref{sec:shrink-comp}, we compare the default integrated shrinking
         capabilities of RackCheck{} with a simple external shrinker we implemented for a
         DBAS-style Racket library; in \S~\ref{sec:parallel-experiment}, we implement and
-        benchmark a parallel property-runner inspired by a recent work on parallelizing
+        benchmark a parallel property runner inspired by recent work on parallelizing
         QuickCheck~\cite{ParallelTesting}.
 \end{enumerate}
 
 \subsection{Property Runners with DBAS} \label{sec:property-runners}
 
 We demonstrate the expressiveness of DBAS by implementing all property runners from
-\S~\ref{sec:runners}. In the last two sections we saw how to implement a simple
+\S~\ref{sec:runners}. In the previous two sections we saw how to implement a simple
 \texttt{genAndRun} loop in both Rocq and Racket. Leveraging the ability to pattern
 match on properties and recurse down their structure, we can similarly develop building
 blocks that will help implement all property runners. In particular, for this section,
-we'll use a $\overlayfull{generator}{generator}$, which produces random inputs for a
+we use a $\overlayfull{generator}{generator}$, which produces random inputs for a
 property; a $\overlayfull{mutator}{mutator}$, which given inputs to a property mutates
 some or all of them; a $\overlayfull{checker}{runner}$, which given inputs to a
 property executes it; a $\overlayfull{shrinker}{shrinker}$, which given a way to
@@ -1288,12 +1280,12 @@ Figure~\ref{fig:quickcheck-property-runner-intro} has a clear correspondence to 
 corresponding overlaid sections in
 Figure~\ref{fig:simple-generational-testing-loop-rocq}. The functions
 \roverlay{generator}{gen}, \roverlay{checker}{run}, \roverlay{shrinker}{shrinker}, and
-\roverlay{printer}{print} are the building blocks of user level property-runners, but
-can also be written by users themselves in a straightforward manner as shown in
+\roverlay{printer}{print} are the building blocks of user-level property runners, but
+can also be written directly by users, as shown in
 Sections~\ref{sec:rocq} and~\ref{sec:racket}. We use them here to present runners at a
 higher level of abstraction as enabled by DBAS, focusing on how these components
-interact with each other in order to showcase users how to implement new runners
-corresponding to their needs.
+interact with each other in order to show how users can implement new runners that fit
+their needs.
 
 The runner itself consists of two tight loops, the first one running
 \roverlay{generator}{gen}, \roverlay{checker}{run}, \roverlay{generator}{gen},
@@ -1330,7 +1322,7 @@ users may invent, can be used to augment the effectiveness of testing.
 
 \subsubsection{Mutation-Based Property Runners}
 
-Property-based testing, for a long time, has relied solely on random generation from
+Property-based testing has long relied on random generation from
 scratch as opposed to mutating existing inputs as fuzzing tools do. This design has
 been challenged in Targeted PBT~\cite{TargetedPBT,AutomaticTargetedPBT} with a
 mutational approach that optimizes explicit user-provided feedback functions, and later
@@ -1341,7 +1333,7 @@ HypoFuzz~\cite{HypoFuzz} and Bolero~\cite{bolero}.
 An important design decision we must make when implementing a DBAS property encoding in
 a statically typed language, such as our Rocq encoding, is which associated functions
 are part of the property encoding. These recent advances in mutational PBT have led us
-to make mutation a first class citizen of our library, and we have implemented a
+to make mutation a first-class citizen of our library, and we have implemented a
 generic seed pool interface that mutation-based property runners can leverage. The seed
 pool interface abstracts away search strategy (how to select which input to mutate) and
 power schedule (how long to fuzz it for) concerns. I will revisit this abstraction in
@@ -1395,7 +1387,7 @@ Definition fuzzLoop (fuel : nat) (cprop : Prop Emp) {Pool}
   fuzzLoop' fuel 0 0 seeds.
 \end{code}
 
-The coverage-guided fuzzing property runner introduces some complexity on top of the
+The coverage-guided fuzzing property runner introduces some complexity beyond the
 simple QuickCheck-style generational runner. This complexity is mainly related to the
 orchestration logic that manages the seed pool, which is parametric over the
 \textcolor{seedpool}{\tt SeedPool} interface. At each iteration of the loop, the seed
@@ -1412,7 +1404,7 @@ loop in Figure~\ref{fig:fuzzloop} where feedback is received from the execution 
 from traditional branch or path coverage (as in coverage-guided fuzzing) to timing or
 memory usage (as in performance fuzzing~\cite{PerfFuzz}).
 
-This way, we view the fuzzing property runner presented in Figure~\ref{fig:fuzzloop} as
+Thus, we view the fuzzing property runner presented in Figure~\ref{fig:fuzzloop} as
 (1) a more generalized version of the classic coverage-guided fuzzing, and (2) a
 property-based testing version of FuzzFactory~\cite{FuzzFactory}, which allowed for
 arbitrary instrumentation functions to guide the search similar to the fuzzing property
@@ -1420,10 +1412,10 @@ runner I present here. \label{fig:fuzzloop}
 
 \subsubsection{Custom Feedback-Guided (Targeted) Property Runner}\label{sec:loops:targeted}
 
-In recent years, PBT tools and mutation based fuzzers have begun to find common ground.
-On one hand, fuzzing tools have been trying to move towards more and more structured
-generation of inputs as well as incorporate and encode more complex properties than
-simply ``the program doesn't
+In recent years, PBT tools and mutation-based fuzzers have begun to find common ground.
+On one hand, fuzzing tools have been moving towards more structured input generation
+and more complex properties than
+simply ``the program does not
 crash''~\cite{DBLP:journals/pacmpl/ParkWZS21,DBLP:conf/sigsoft/Sun0JWP023,DBLP:conf/icse/PadhyeLSPT19}.
 On the other hand, we have seen a rise in the popularity of property-based testing
 tools that are able to guide the generation of inputs using feedback~\cite{TargetedPBT,
@@ -1435,7 +1427,7 @@ generational property runner described in
 Figure~\ref{fig:simple-generational-testing-loop-rocq}: the feedback and the targeting.
 It uses a genetic algorithm based on a user provided custom feedback function for
 guiding the search towards interesting inputs, and it employs a user-provided or
-type-derived mutator functions to mutate the input it currently focuses on. The main
+type-derived mutator function to mutate the input it currently focuses on. The main
 benefit of such a runner is that it means developers can potentially avoid writing
 complex generators for complex types and preconditions.
 
@@ -1502,8 +1494,8 @@ design choices as is the case in shallow embedding based PBT frameworks.
 
 \subsubsection{Parallel Property Runner}
 
-In Figure~\ref{fig:par-loop-appendix} is a slightly abridged version of our Racket
-parallel testing runner. Parallelism is done through Racket futures. We use a lock-free
+Figure~\ref{fig:par-loop-appendix} shows a slightly abridged version of our Racket
+parallel testing runner. Parallelism is implemented through Racket futures. We use a lock-free
 shared counter and a flag that is set if a counterexample is found, which is necessary
 because Racket futures are not able to be halted arbitrarily. Each worker thread grabs
 a test number from the counter, and loops until it either finds a counterexample or the
@@ -1583,7 +1575,7 @@ We benchmark our implementations of this loop for both Rocq and Racket against t
 existing loops of the QuickChick\cite{Pierce:SF4} and RackCheck\cite{rackcheck}
 libraries in 3 ETNA workloads: binary search trees (BST), red-black trees (RBT), and
 the simply-typed lambda calculus (STLC). Our results show that libraries implemented
-via DBAS, using the runner we showed earlier in this section, is on par with both
+via DBAS, using the runner shown earlier in this section, are on par with both
 QuickChick and RackCheck.
 
 The Rocq bucket-chart results show that using DBAS does not incur a performance penalty
@@ -1628,9 +1620,9 @@ tasks.
 \subsubsection{Comparison of Deep and Shallow Embeddings in Racket}\label{sec:shallow_vs_deep-racket}
 
 In the Racket experiments, we focused on comparing the DBAS-style Racket library with
-the shallow embedding implemented by RackCheck. We have conducted our experiments on
-the same BST, RBT, and STLC workloads by porting the existing workloads in Haskell to
-Racket. In the process of porting these workloads, we have also discovered and reported
+the shallow embedding implemented by RackCheck. We conducted our experiments on the
+same BST, RBT, and STLC workloads by porting the existing Haskell workloads to Racket.
+In the process of porting these workloads, we also discovered and reported
 \href{https://web.archive.org/web/20260510181513/https://github.com/Bogdanp/rackcheck/issues/14}{a
   bug in the RackCheck core}, which the authors have fixed in the latest version of the
 library.
@@ -1639,11 +1631,11 @@ Our Racket results for deep versus shallow embeddings show that, once again, we 
 notable differences in performance between the two versions. However, during the course
 of these experiments we found that the default configuration of RackCheck in terms of
 size of generated terms led to considerable performance degradation in the RBT case
-study. As size is configurable in most PBT APIs, we have changed the RackCheck size
-function to be logarithmic with respect to number of tests, as our property-runner
+study. Since size is configurable in most PBT APIs, we changed the RackCheck size
+function to be logarithmic with respect to number of tests, as our property runner
 does. Still, this further reinforces our point on programmability: if sizes and similar
 aspects of generation are configurable (and severely impact testing performance), why
-shouldn’t the runners themselves be configurable?
+should the runners themselves not be configurable?
 
 \begin{figure}[h!]
   \centering
@@ -1675,33 +1667,31 @@ shouldn’t the runners themselves be configurable?
 
 \subsection{DBAS-powered Experiments}
 
-In this section, I go through three case studies that the expressiveness of DBAS
-enabled us to carry out.
+In this section, I present three case studies enabled by the expressiveness of DBAS.
 
 \subsubsection{An Exploration of Seed Pool Design Choices}\label{sec:seedpool}
 
 First, we turn to feedback-guided property runners and their programmability. Fuzzing
 research often explores different strategies and power schedules~\cite{aflplusplus,
   10.1145/3551349.3559550,DBLP:conf/sigsoft/BohmeMC20, DBLP:journals/tse/BohmePR19}, with
-researchers coming up with better and better designs. On the other hand, property-based
+researchers proposing increasingly refined designs. On the other hand, property-based
 testing frameworks that support feedback-guided generation of inputs such as FuzzChick
-or Hypothesis, pride themselves in the power of testing arbitrary user-defined
-specifications, but do not provide an option to configure such crucial parameters of
-their feedback-guided property runners. I illustrated such a feedback-guided runner
-earlier in this section, that abstracts away such concerns into a small API, which we
-implemented in Rocq.
+or Hypothesis emphasize the ability to test arbitrary user-defined specifications, but
+do not provide options for configuring such crucial parameters of their feedback-guided
+property runners. The feedback-guided runner shown earlier in this section abstracts
+these concerns into a small API, which we implemented in Rocq.
 
-The configurability enabled by DBAS allows the users to rely on a set of
-community-accepted defaults chosen by framework developers, but also to explore if
-different choices from the literature or novel ones they devised fit their testing
+The configurability enabled by DBAS allows users to rely on a set of
+community-accepted defaults chosen by framework developers, while also exploring
+whether choices from the literature, or novel choices of their own, fit their testing
 needs better. In this case study, we explored six different data structure
 representations to hold interesting seeds, as well as four different power schedules,
 leading to a total of 21 different configurations. We picked these configurations to
 explore different parts of the design space, such as the queuing strategy, the
 size/cardinality of the pool, whether the pool is monotonic, and how many times a given
-seed is reused. We have conducted our experiments on the IFC workload in ETNA, and we
-have used a type-based generator alongside a type-based mutator to conduct our
-experiments. While this experiment reveals a clear winner for this case study, the
+seed is reused. We conducted our experiments on the IFC workload in ETNA, using a
+type-based generator alongside a type-based mutator. While this experiment reveals a
+clear winner for this case study, the
 primary goal is not the exploration itself, but rather to demonstrate that such an
 exploration can be expressed by varying reusable runner components without modifying
 the property language or framework internals.
@@ -1808,31 +1798,31 @@ that were not solved within 60 seconds.
 These results mark a task as ``solved'' for the purposes of a bucket chart if at least
 1 out of 5 fuzzing campaigns finds a bug. If we switched to requiring {\em all} fuzzing
 campaigns to find the bug, the results paint an even more compelling argument: {\em
-only} Heap-based pools consistently find counterexamples---I've omitted the graphs
-because all other options fail to consistently solve a task across runs, indicating a
+only} Heap-based pools consistently find counterexamples. I omit the graphs because all
+other options fail to consistently solve a task across runs, indicating a
 very high variance that heap seed pool does not exhibit. As a result, we plan to
 upstream the Heap-based seed pool to QuickChick as the effective configuration as a
 default going forward.
 
 \subsection{Comparison of Integrated Shrinking with External Shrinking}\label{sec:shrink-comp}
 
-Test case reduction, or counterexample minimization, or shrinking, is a fundamental
-aspect of random testing~\cite{zeller2002simplifying}, however it garners much less
-attention than its random generation counterpart. A major splitting point in PBT
+Test case reduction, counterexample minimization, or shrinking is a fundamental
+aspect of random testing~\cite{zeller2002simplifying}; however, it receives much less
+attention than random generation. A major split in PBT
 frameworks has been their approach to shrinking, with the original QuickCheck using
 delta-debugging style structural shrinking where the generated counterexample structure
 is shrunk by removing its substructures to produce smaller versions with an
 accompanying reproducer that tests if the smaller versions keep triggering the bug; and
 Hypothesis~\cite{HypothesisShrinking} in Python, falsify~\cite{falsifyLeo2023} in
-Haskell, and RackCheck~\cite{rackcheck} in Racket use an alternative route, instead of
-shrinking the generated structure, they shrink the source of randomness that led to the
-generation. This method, called integrated or internal shrinking, removes the
+Haskell, and RackCheck~\cite{rackcheck} in Racket taking an alternative route. Instead
+of shrinking the generated structure, these frameworks shrink the source of randomness
+that led to generation. This method, called integrated or internal shrinking, removes the
 requirement of a separate shrinking function and preserves the generation invariants in
 the generator while making no guarantees on the similarity of the shapes obtained in
 the shrinking phase.
 
-The argument, as is the central point of the study, is that such splitting points
-should not be decisions at the level of the library, but rather decisions to be made in
+The central point of the study is that such splitting points should not be fixed at
+the level of the library, but should instead be decisions made in
 relevant contexts by the users of the library. In an ideal scenario, a user should be
 able to switch between using an integrated shrinker versus an external one, and vice
 versa; and perhaps even use or build a new approach that might not be available when
@@ -1859,10 +1849,10 @@ case, it does. Its notion of size is based on the structure of the generator rat
 than on the input itself, so ``smaller randomness'' may not actually lead to smaller
 input values.
 
-The point of this experiment is not to demonize internal shrinking---for many testing
+The point of this experiment is not to dismiss internal shrinking---for many testing
 situations, it is perfectly sufficient and much more user-friendly than a bespoke
-shrinker. However, in pathological cases, programmers need an escape hatch, and DBAS
-provides the necessary configurability.
+shrinker. However, in pathological cases, users need an escape hatch, and DBAS provides
+the necessary configurability.
 
 \begin{figure}[h!]
   \centering
@@ -1885,9 +1875,9 @@ An important recent work on novel property runners is
 QuickerCheck~\cite{ParallelTesting}, where authors implement and evaluate a parallel
 run-time for QuickCheck~\cite{ClaessenH00}, achieving massive performance gains on a
 variety of workloads as opposed to prior work leveraging parallelism by producing a
-swarm of testing configurations~\cite{swarm-testing}. The underlying idea the authors
-propose is rather simple, they provide an alternative, parallel property runner {\tt
-    quickCheckPar}, where multiple worker threads share a common variable that controls the
+swarm of testing configurations~\cite{swarm-testing}. The underlying idea is simple:
+the authors provide an alternative, parallel property runner {\tt
+    quickCheckPar}, in which multiple worker threads share a common variable that controls the
 size of the generated inputs. Using this strategy, the authors achieve an almost linear
 speed-up with respect to the number of physical cores used in testing. Unfortunately,
 due to the rigid structure of shallow embedding based PBT libraries, creating such a
@@ -1895,7 +1885,7 @@ parallel runner requires intensive engineering effort. The commit history of the
 project shows that the implementation of this new runner is an effort spanning 2 years
 and more than 50 commits.
 
-In contrast, the DBAS-style Racket library let us implement a naive version of the
+In contrast, the DBAS-style Racket library lets us implement a naive version of the
 QuickerCheck algorithm as a user-space runner, without changing the property
 representation or the core framework. Our implementation uses worker threads with 2
 shared atomic variables, one keeping the current number of tests across threads, and
@@ -1920,8 +1910,8 @@ trade-off between parallel overhead on tiny tasks and speedup on longer-running 
 
 Throughout the chapter, I have thoroughly discussed various property-based testing
 frameworks, their property languages, and the property runners that they come bundled
-with. Here, I briefly summarize related work in PBT and we also discuss related work in
-deeply embedded domain-specific languages.
+with. Here, I briefly summarize related work in PBT and in deeply embedded
+domain-specific languages.
 
 \paragraph{Property-Based Testing Frameworks}
 
@@ -1944,7 +1934,7 @@ This follows a more general trend of using free structures to increase expressiv
 usability in the programming languages community. For example,
 itrees~\cite{DBLP:journals/pacmpl/XiaZHHMPZ20} introduced a general-purpose Rocq
 structure which is essentially a coinductive variant of free monads, which allows them
-to represent and reason about interactive recursive programs. In follow up work,
+to represent and reason about interactive recursive programs. In follow-up work,
 \citet{DBLP:journals/pacmpl/LiW22} explored how other free structures (such as
 applicative functors) can be used as an alternative to free-monad-based embeddings.
 
@@ -1973,7 +1963,7 @@ that changes the underlying representation of properties using deferred binding
 abstract syntax (DBAS), a mixed embedding we introduce. Programmable PBT is a new
 approach to encoding properties for PBT that enables more flexible and programmable
 testing. The key advance made by DBAS is to reify properties as a free data structure;
-allowing them to be written in a clear and readable way, separate from the property
+this allows them to be written in a clear and readable way, separate from the property
 runner that tests them. These more deeply embedded properties can then be inspected and
 interpreted by user-defined property runners. With the help of DBAS, developers in
 Rocq, Racket, and hopefully soon other programming languages, can tailor, experiment,
