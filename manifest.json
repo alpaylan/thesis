@@ -1,0 +1,95 @@
+{
+  "generated": "2026-07-08T22:50:32+00:00",
+  "repo": "thesis",
+  "repo_full": "alpaylan/thesis",
+  "main": "main.tex",
+  "diffs": [
+    {
+      "id": "d901de3..2ede95a",
+      "kind": "diff",
+      "status": "done",
+      "pdf": "diff_d901de3__2ede95a.pdf",
+      "old": "d901de3",
+      "new": "2ede95a",
+      "old_subject": "fix",
+      "new_subject": "fix rendering of fuzzing diagram",
+      "old_date": "2026-07-08 15:33",
+      "new_date": "2026-07-08 15:49",
+      "elapsed": 37.3,
+      "changes": [],
+      "added": "2026-07-08T22:50:32+00:00",
+      "index_version": 2
+    },
+    {
+      "id": "2ede95a..5762a44",
+      "kind": "diff",
+      "status": "done",
+      "pdf": "diff_2ede95a__5762a44.pdf",
+      "old": "2ede95a",
+      "new": "5762a44",
+      "old_subject": "fix rendering of fuzzing diagram",
+      "new_subject": "make tgpagella default",
+      "old_date": "2026-07-08 15:49",
+      "new_date": "2026-07-08 16:21",
+      "elapsed": 37.9,
+      "changes": [
+        {
+          "n": 1,
+          "type": "both",
+          "abspage": 137,
+          "page": "123"
+        }
+      ],
+      "added": "2026-07-08T22:49:54+00:00",
+      "index_version": 2
+    },
+    {
+      "id": "5762a44..fbe9d58",
+      "kind": "diff",
+      "status": "done",
+      "pdf": "diff_5762a44__fbe9d58.pdf",
+      "old": "5762a44",
+      "new": "fbe9d58",
+      "old_subject": "make tgpagella default",
+      "new_subject": "fix",
+      "old_date": "2026-07-08 16:21",
+      "new_date": "2026-07-08 16:23",
+      "elapsed": 37.3,
+      "changes": [],
+      "added": "2026-07-08T22:49:16+00:00",
+      "index_version": 2
+    },
+    {
+      "id": "fbe9d58..fe1d8c9",
+      "kind": "diff",
+      "status": "done",
+      "pdf": "diff_fbe9d58__fe1d8c9.pdf",
+      "old": "fbe9d58",
+      "new": "fe1d8c9",
+      "old_subject": "fix",
+      "new_subject": "Add latex-diff-viewer: PR diff + on-demand issue viewer",
+      "old_date": "2026-07-08 16:23",
+      "new_date": "2026-07-08 22:25",
+      "elapsed": 37.6,
+      "changes": [],
+      "added": "2026-07-08T22:48:39+00:00",
+      "index_version": 2
+    },
+    {
+      "id": "fe1d8c9..f666113",
+      "kind": "diff",
+      "status": "done",
+      "pdf": "diff_fe1d8c9__f666113.pdf",
+      "old": "fe1d8c9",
+      "new": "f666113",
+      "old_subject": "Add latex-diff-viewer: PR diff + on-demand issue viewer",
+      "new_subject": "latex-diff: unify into one workflow (PR + push-seed + on-demand issue)",
+      "old_date": "2026-07-08 22:25",
+      "new_date": "2026-07-08 22:43",
+      "elapsed": 37.5,
+      "changes": [],
+      "added": "2026-07-08T22:48:01+00:00",
+      "index_version": 2
+    }
+  ]
+}
