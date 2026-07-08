@@ -1,9 +1,32 @@
 {
-  "generated": "2026-07-08T22:57:37+00:00",
+  "generated": "2026-07-08T22:59:46+00:00",
   "repo": "thesis",
   "repo_full": "alpaylan/thesis",
   "main": "main.tex",
   "diffs": [
+    {
+      "id": "b5a5fd6..6ee33f7",
+      "kind": "diff",
+      "status": "done",
+      "pdf": "diff_b5a5fd6__6ee33f7.pdf",
+      "old": "b5a5fd6",
+      "new": "6ee33f7",
+      "old_subject": "latex-diff: PR job publishes to the store viewer (pr-diff.yml)",
+      "new_subject": "test: adjust abstract wording (re-trigger pr-diff viewer flow)",
+      "old_date": "2026-07-08 22:55",
+      "new_date": "2026-07-08 22:55",
+      "elapsed": 36.8,
+      "changes": [
+        {
+          "n": 1,
+          "type": "both",
+          "abspage": 1,
+          "page": "1"
+        }
+      ],
+      "added": "2026-07-08T22:59:46+00:00",
+      "index_version": 2
+    },
     {
       "id": "f666113..b5a5fd6",
       "kind": "diff",
