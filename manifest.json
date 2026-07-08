@@ -1,9 +1,25 @@
 {
-  "generated": "2026-07-08T22:50:32+00:00",
+  "generated": "2026-07-08T22:57:37+00:00",
   "repo": "thesis",
   "repo_full": "alpaylan/thesis",
   "main": "main.tex",
   "diffs": [
+    {
+      "id": "f666113..b5a5fd6",
+      "kind": "diff",
+      "status": "done",
+      "pdf": "diff_f666113__b5a5fd6.pdf",
+      "old": "f666113",
+      "new": "b5a5fd6",
+      "old_subject": "latex-diff: unify into one workflow (PR + push-seed + on-demand issue)",
+      "new_subject": "latex-diff: PR job publishes to the store viewer (pr-diff.yml)",
+      "old_date": "2026-07-08 22:43",
+      "new_date": "2026-07-08 22:55",
+      "elapsed": 38.6,
+      "changes": [],
+      "added": "2026-07-08T22:57:37+00:00",
+      "index_version": 2
+    },
     {
       "id": "d901de3..2ede95a",
       "kind": "diff",
