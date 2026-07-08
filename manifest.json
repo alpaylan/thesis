@@ -1,9 +1,704 @@
 {
-  "generated": "2026-07-08T22:59:46+00:00",
+  "generated": "2026-07-08T23:03:55+00:00",
   "repo": "thesis",
   "repo_full": "alpaylan/thesis",
   "main": "main.tex",
   "diffs": [
+    {
+      "id": "fe1d8c9..0bf7c38",
+      "kind": "diff",
+      "status": "done",
+      "pdf": "diff_fe1d8c9__0bf7c38.pdf",
+      "old": "fe1d8c9",
+      "new": "0bf7c38",
+      "old_subject": "Add latex-diff-viewer: PR diff + on-demand issue viewer",
+      "new_subject": "mutation",
+      "old_date": "2026-07-08 22:25",
+      "new_date": "2026-06-09 17:37",
+      "elapsed": 43.2,
+      "changes": [
+        {
+          "n": 1,
+          "type": "both",
+          "abspage": 1,
+          "page": "1"
+        },
+        {
+          "n": 2,
+          "type": "both",
+          "abspage": 3,
+          "page": "3"
+        },
+        {
+          "n": 3,
+          "type": "both",
+          "abspage": 5,
+          "page": "ii"
+        },
+        {
+          "n": 4,
+          "type": "add",
+          "abspage": 6,
+          "page": "iii"
+        },
+        {
+          "n": 5,
+          "type": "del",
+          "abspage": 7,
+          "page": "iv"
+        },
+        {
+          "n": 6,
+          "type": "both",
+          "abspage": 8,
+          "page": "v"
+        },
+        {
+          "n": 7,
+          "type": "del",
+          "abspage": 14,
+          "page": "xi"
+        },
+        {
+          "n": 8,
+          "type": "both",
+          "abspage": 15,
+          "page": "1"
+        },
+        {
+          "n": 9,
+          "type": "both",
+          "abspage": 16,
+          "page": "2"
+        },
+        {
+          "n": 10,
+          "type": "both",
+          "abspage": 17,
+          "page": "3"
+        },
+        {
+          "n": 11,
+          "type": "both",
+          "abspage": 18,
+          "page": "4"
+        },
+        {
+          "n": 12,
+          "type": "both",
+          "abspage": 19,
+          "page": "5"
+        },
+        {
+          "n": 13,
+          "type": "both",
+          "abspage": 20,
+          "page": "6"
+        },
+        {
+          "n": 14,
+          "type": "both",
+          "abspage": 21,
+          "page": "7"
+        },
+        {
+          "n": 15,
+          "type": "both",
+          "abspage": 23,
+          "page": "9"
+        },
+        {
+          "n": 16,
+          "type": "both",
+          "abspage": 24,
+          "page": "10"
+        },
+        {
+          "n": 17,
+          "type": "both",
+          "abspage": 25,
+          "page": "11"
+        },
+        {
+          "n": 18,
+          "type": "both",
+          "abspage": 26,
+          "page": "12"
+        },
+        {
+          "n": 19,
+          "type": "both",
+          "abspage": 28,
+          "page": "14"
+        },
+        {
+          "n": 20,
+          "type": "del",
+          "abspage": 30,
+          "page": "16"
+        },
+        {
+          "n": 21,
+          "type": "both",
+          "abspage": 31,
+          "page": "17"
+        },
+        {
+          "n": 22,
+          "type": "both",
+          "abspage": 32,
+          "page": "18"
+        },
+        {
+          "n": 23,
+          "type": "both",
+          "abspage": 33,
+          "page": "19"
+        },
+        {
+          "n": 24,
+          "type": "both",
+          "abspage": 35,
+          "page": "21"
+        },
+        {
+          "n": 25,
+          "type": "del",
+          "abspage": 36,
+          "page": "22"
+        },
+        {
+          "n": 26,
+          "type": "both",
+          "abspage": 37,
+          "page": "23"
+        },
+        {
+          "n": 27,
+          "type": "both",
+          "abspage": 38,
+          "page": "24"
+        },
+        {
+          "n": 28,
+          "type": "both",
+          "abspage": 39,
+          "page": "25"
+        },
+        {
+          "n": 29,
+          "type": "both",
+          "abspage": 40,
+          "page": "26"
+        },
+        {
+          "n": 30,
+          "type": "both",
+          "abspage": 41,
+          "page": "27"
+        },
+        {
+          "n": 31,
+          "type": "both",
+          "abspage": 43,
+          "page": "29"
+        },
+        {
+          "n": 32,
+          "type": "both",
+          "abspage": 44,
+          "page": "30"
+        },
+        {
+          "n": 33,
+          "type": "both",
+          "abspage": 45,
+          "page": "31"
+        },
+        {
+          "n": 34,
+          "type": "both",
+          "abspage": 48,
+          "page": "34"
+        },
+        {
+          "n": 35,
+          "type": "both",
+          "abspage": 49,
+          "page": "35"
+        },
+        {
+          "n": 36,
+          "type": "both",
+          "abspage": 50,
+          "page": "36"
+        },
+        {
+          "n": 37,
+          "type": "both",
+          "abspage": 51,
+          "page": "37"
+        },
+        {
+          "n": 38,
+          "type": "both",
+          "abspage": 52,
+          "page": "38"
+        },
+        {
+          "n": 39,
+          "type": "both",
+          "abspage": 53,
+          "page": "39"
+        },
+        {
+          "n": 40,
+          "type": "both",
+          "abspage": 54,
+          "page": "40"
+        },
+        {
+          "n": 41,
+          "type": "add",
+          "abspage": 55,
+          "page": "41"
+        },
+        {
+          "n": 42,
+          "type": "both",
+          "abspage": 58,
+          "page": "44"
+        },
+        {
+          "n": 43,
+          "type": "both",
+          "abspage": 59,
+          "page": "45"
+        },
+        {
+          "n": 44,
+          "type": "both",
+          "abspage": 62,
+          "page": "48"
+        },
+        {
+          "n": 45,
+          "type": "both",
+          "abspage": 63,
+          "page": "49"
+        },
+        {
+          "n": 46,
+          "type": "both",
+          "abspage": 64,
+          "page": "50"
+        },
+        {
+          "n": 47,
+          "type": "both",
+          "abspage": 65,
+          "page": "51"
+        },
+        {
+          "n": 48,
+          "type": "both",
+          "abspage": 66,
+          "page": "52"
+        },
+        {
+          "n": 49,
+          "type": "both",
+          "abspage": 67,
+          "page": "53"
+        },
+        {
+          "n": 50,
+          "type": "both",
+          "abspage": 69,
+          "page": "55"
+        },
+        {
+          "n": 51,
+          "type": "both",
+          "abspage": 70,
+          "page": "56"
+        },
+        {
+          "n": 52,
+          "type": "both",
+          "abspage": 71,
+          "page": "57"
+        },
+        {
+          "n": 53,
+          "type": "both",
+          "abspage": 73,
+          "page": "59"
+        },
+        {
+          "n": 54,
+          "type": "both",
+          "abspage": 74,
+          "page": "60"
+        },
+        {
+          "n": 55,
+          "type": "both",
+          "abspage": 75,
+          "page": "61"
+        },
+        {
+          "n": 56,
+          "type": "both",
+          "abspage": 76,
+          "page": "62"
+        },
+        {
+          "n": 57,
+          "type": "both",
+          "abspage": 77,
+          "page": "63"
+        },
+        {
+          "n": 58,
+          "type": "both",
+          "abspage": 78,
+          "page": "64"
+        },
+        {
+          "n": 59,
+          "type": "both",
+          "abspage": 79,
+          "page": "65"
+        },
+        {
+          "n": 60,
+          "type": "both",
+          "abspage": 80,
+          "page": "66"
+        },
+        {
+          "n": 61,
+          "type": "both",
+          "abspage": 82,
+          "page": "68"
+        },
+        {
+          "n": 62,
+          "type": "both",
+          "abspage": 83,
+          "page": "69"
+        },
+        {
+          "n": 63,
+          "type": "add",
+          "abspage": 84,
+          "page": "70"
+        },
+        {
+          "n": 64,
+          "type": "both",
+          "abspage": 86,
+          "page": "72"
+        },
+        {
+          "n": 65,
+          "type": "both",
+          "abspage": 87,
+          "page": "73"
+        },
+        {
+          "n": 66,
+          "type": "both",
+          "abspage": 88,
+          "page": "74"
+        },
+        {
+          "n": 67,
+          "type": "del",
+          "abspage": 89,
+          "page": "75"
+        },
+        {
+          "n": 68,
+          "type": "del",
+          "abspage": 90,
+          "page": "76"
+        },
+        {
+          "n": 69,
+          "type": "del",
+          "abspage": 91,
+          "page": "77"
+        },
+        {
+          "n": 70,
+          "type": "del",
+          "abspage": 92,
+          "page": "78"
+        },
+        {
+          "n": 71,
+          "type": "del",
+          "abspage": 93,
+          "page": "79"
+        },
+        {
+          "n": 72,
+          "type": "del",
+          "abspage": 94,
+          "page": "80"
+        },
+        {
+          "n": 73,
+          "type": "del",
+          "abspage": 95,
+          "page": "81"
+        },
+        {
+          "n": 74,
+          "type": "del",
+          "abspage": 96,
+          "page": "82"
+        },
+        {
+          "n": 75,
+          "type": "del",
+          "abspage": 97,
+          "page": "83"
+        },
+        {
+          "n": 76,
+          "type": "del",
+          "abspage": 98,
+          "page": "84"
+        },
+        {
+          "n": 77,
+          "type": "del",
+          "abspage": 99,
+          "page": "85"
+        },
+        {
+          "n": 78,
+          "type": "del",
+          "abspage": 100,
+          "page": "86"
+        },
+        {
+          "n": 79,
+          "type": "del",
+          "abspage": 101,
+          "page": "87"
+        },
+        {
+          "n": 80,
+          "type": "del",
+          "abspage": 102,
+          "page": "88"
+        },
+        {
+          "n": 81,
+          "type": "del",
+          "abspage": 103,
+          "page": "89"
+        },
+        {
+          "n": 82,
+          "type": "del",
+          "abspage": 104,
+          "page": "90"
+        },
+        {
+          "n": 83,
+          "type": "del",
+          "abspage": 105,
+          "page": "91"
+        },
+        {
+          "n": 84,
+          "type": "del",
+          "abspage": 106,
+          "page": "92"
+        },
+        {
+          "n": 85,
+          "type": "del",
+          "abspage": 107,
+          "page": "93"
+        },
+        {
+          "n": 86,
+          "type": "del",
+          "abspage": 108,
+          "page": "94"
+        },
+        {
+          "n": 87,
+          "type": "del",
+          "abspage": 109,
+          "page": "95"
+        },
+        {
+          "n": 88,
+          "type": "del",
+          "abspage": 110,
+          "page": "96"
+        },
+        {
+          "n": 89,
+          "type": "del",
+          "abspage": 111,
+          "page": "97"
+        },
+        {
+          "n": 90,
+          "type": "del",
+          "abspage": 112,
+          "page": "98"
+        },
+        {
+          "n": 91,
+          "type": "del",
+          "abspage": 113,
+          "page": "99"
+        },
+        {
+          "n": 92,
+          "type": "both",
+          "abspage": 114,
+          "page": "100"
+        },
+        {
+          "n": 93,
+          "type": "del",
+          "abspage": 115,
+          "page": "101"
+        },
+        {
+          "n": 94,
+          "type": "del",
+          "abspage": 116,
+          "page": "102"
+        },
+        {
+          "n": 95,
+          "type": "del",
+          "abspage": 117,
+          "page": "103"
+        },
+        {
+          "n": 96,
+          "type": "del",
+          "abspage": 118,
+          "page": "104"
+        },
+        {
+          "n": 97,
+          "type": "both",
+          "abspage": 120,
+          "page": "106"
+        },
+        {
+          "n": 98,
+          "type": "both",
+          "abspage": 122,
+          "page": "108"
+        },
+        {
+          "n": 99,
+          "type": "both",
+          "abspage": 124,
+          "page": "110"
+        },
+        {
+          "n": 100,
+          "type": "both",
+          "abspage": 126,
+          "page": "112"
+        },
+        {
+          "n": 101,
+          "type": "both",
+          "abspage": 127,
+          "page": "113"
+        },
+        {
+          "n": 102,
+          "type": "both",
+          "abspage": 133,
+          "page": "119"
+        },
+        {
+          "n": 103,
+          "type": "both",
+          "abspage": 134,
+          "page": "120"
+        },
+        {
+          "n": 104,
+          "type": "both",
+          "abspage": 137,
+          "page": "123"
+        },
+        {
+          "n": 105,
+          "type": "both",
+          "abspage": 138,
+          "page": "124"
+        },
+        {
+          "n": 106,
+          "type": "both",
+          "abspage": 139,
+          "page": "125"
+        },
+        {
+          "n": 107,
+          "type": "both",
+          "abspage": 140,
+          "page": "126"
+        },
+        {
+          "n": 108,
+          "type": "del",
+          "abspage": 141,
+          "page": "127"
+        },
+        {
+          "n": 109,
+          "type": "del",
+          "abspage": 142,
+          "page": "128"
+        },
+        {
+          "n": 110,
+          "type": "del",
+          "abspage": 144,
+          "page": "130"
+        },
+        {
+          "n": 111,
+          "type": "del",
+          "abspage": 145,
+          "page": "131"
+        },
+        {
+          "n": 112,
+          "type": "del",
+          "abspage": 146,
+          "page": "132"
+        },
+        {
+          "n": 113,
+          "type": "del",
+          "abspage": 147,
+          "page": "133"
+        }
+      ],
+      "added": "2026-07-08T23:03:55+00:00",
+      "index_version": 2
+    },
     {
       "id": "b5a5fd6..6ee33f7",
       "kind": "diff",
