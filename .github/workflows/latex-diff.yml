@@ -1,0 +1,35 @@
+name: LaTeX diff
+
+# Standalone latex-diff-viewer (https://github.com/alpaylan/latex-diff-viewer).
+# On a PR: build the base..head latexdiff, post a comment, upload the PDFs.
+# Manual: Actions -> LaTeX diff -> Run workflow (optionally type two commits).
+# Config lives in difftool.toml at the repo root.
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      base:
+        description: "Base ref (blank = the head commit's parent)"
+        required: false
+        default: ""
+      head:
+        description: "Compare ref (blank = latest commit)"
+        required: false
+        default: ""
+
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: alpaylan/latex-diff-viewer@v1
+        with:
+          config: difftool.toml
+          base: ${{ inputs.base }}
+          head: ${{ inputs.head }}

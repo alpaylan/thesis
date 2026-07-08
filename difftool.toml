@@ -1,0 +1,18 @@
+# latex-diff-viewer configuration for this thesis.
+# https://github.com/alpaylan/latex-diff-viewer
+#
+# Every key is optional; the values below are what this thesis needs on top of
+# the tool's defaults (main.tex / build/ / `latexmk -pdf`).
+
+main       = "main.tex"
+build_dir  = "build"
+output_pdf = "build/main.pdf"
+
+# Plain (no-diff) full build — same engine as build.sh, straight into build/main.pdf.
+build_command = "latexmk -pdf -f -interaction=nonstopmode main.tex"
+
+# The custom `code` listings environment is verbatim; tell latexdiff not to touch it.
+latexdiff_options = ["--add-to-config=VERBATIMLINEENV=code"]
+
+# Figure PDFs are gitignored but present locally; mirror them into diff/full checkouts.
+untracked_assets = ["figures/**/*.pdf"]
