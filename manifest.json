@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-08T23:03:55+00:00",
+  "generated": "2026-07-08T19:32:43-04:00",
   "repo": "thesis",
   "repo_full": "alpaylan/thesis",
   "main": "main.tex",
@@ -755,29 +755,6 @@
       "index_version": 2
     },
     {
-      "id": "2ede95a..5762a44",
-      "kind": "diff",
-      "status": "done",
-      "pdf": "diff_2ede95a__5762a44.pdf",
-      "old": "2ede95a",
-      "new": "5762a44",
-      "old_subject": "fix rendering of fuzzing diagram",
-      "new_subject": "make tgpagella default",
-      "old_date": "2026-07-08 15:49",
-      "new_date": "2026-07-08 16:21",
-      "elapsed": 37.9,
-      "changes": [
-        {
-          "n": 1,
-          "type": "both",
-          "abspage": 137,
-          "page": "123"
-        }
-      ],
-      "added": "2026-07-08T22:49:54+00:00",
-      "index_version": 2
-    },
-    {
       "id": "5762a44..fbe9d58",
       "kind": "diff",
       "status": "done",
@@ -824,6 +801,43 @@
       "changes": [],
       "added": "2026-07-08T22:48:01+00:00",
       "index_version": 2
+    },
+    {
+      "id": "2ede95a..5762a44",
+      "kind": "diff",
+      "status": "done",
+      "pdf": "diff_2ede95a__5762a44.pdf",
+      "old": "2ede95a",
+      "new": "5762a44",
+      "old_subject": "fix rendering of fuzzing diagram",
+      "new_subject": "make tgpagella default",
+      "old_date": "2026-07-08 11:49",
+      "new_date": "2026-07-08 12:21",
+      "elapsed": 27.5,
+      "changes": [
+        {
+          "n": 1,
+          "type": "both",
+          "abspage": 146,
+          "page": "132"
+        }
+      ],
+      "added": "2026-07-08T19:32:17-04:00",
+      "index_version": 3
+    },
+    {
+      "id": "full:b5a5fd6",
+      "kind": "full",
+      "status": "done",
+      "pdf": "full_b5a5fd6.pdf",
+      "commit": "b5a5fd6",
+      "subject": "latex-diff: PR job publishes to the store viewer (pr-diff.yml)",
+      "date": "2026-07-08 18:55",
+      "elapsed": 26.5,
+      "changes": [],
+      "added": "2026-07-08T19:32:43-04:00",
+      "index_version": 3,
+      "current": true
     }
   ]
 }
