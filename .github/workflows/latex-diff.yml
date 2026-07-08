@@ -1,12 +1,20 @@
 name: LaTeX diff
 
 # Standalone latex-diff-viewer (https://github.com/alpaylan/latex-diff-viewer).
-# On a PR: build the base..head latexdiff, post a comment, upload the PDFs.
-# Manual: Actions -> LaTeX diff -> Run workflow (optionally type two commits).
-# Config lives in difftool.toml at the repo root.
+# One file, one viewer (the `latexdiff-store` branch, served by GitHub Pages):
+#   * PR            -> build base..head diff, comment + upload PDFs.
+#   * push to main  -> seed recent commits' diffs into the store.
+#   * issue titled "latexdiff <base>..<head>" -> on-demand diff into the store.
+#   * manual (Run workflow) -> diff two commits you type.
+# After the first run creates it, set Settings -> Pages -> Deploy from a branch
+# -> latexdiff-store / (root). Config lives in difftool.toml.
 
 on:
   pull_request:
+  push:
+    branches: [main]
+  issues:
+    types: [opened, edited]
   workflow_dispatch:
     inputs:
       base:
@@ -19,7 +27,9 @@ on:
         default: ""
 
 jobs:
+  # PR / manual: comment + artifact.
   diff:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -33,3 +43,25 @@ jobs:
           config: difftool.toml
           base: ${{ inputs.base }}
           head: ${{ inputs.head }}
+
+  # push to main: keep recent-history diffs in the store viewer.
+  seed:
+    if: github.event_name == 'push'
+    uses: alpaylan/latex-diff-viewer/.github/workflows/store-seed.yml@v1
+    permissions:
+      contents: write
+    with:
+      config: difftool.toml
+      recent: 5
+
+  # issue "latexdiff <base>..<head>": on-demand diff into the same store.
+  ondemand:
+    if: github.event_name == 'issues' && contains(github.event.issue.title, '..')
+    uses: alpaylan/latex-diff-viewer/.github/workflows/issue-diff.yml@v1
+    permissions:
+      contents: write
+      issues: write
+    with:
+      title: ${{ github.event.issue.title }}
+      issue_number: ${{ github.event.issue.number }}
+      config: difftool.toml
