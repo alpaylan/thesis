@@ -398,14 +398,14 @@ following questions:
 \end{itemize}
 
 \subsubsection{RQ1: Does \tool{} find bugs in \db{}?} \label{dirt:subsec:bugs}
-\begin{landscape}
 \begin{singlespace}
-  \begin{scriptsize}
-    \begin{table}[p]
+  \begin{footnotesize}
+    \begin{table}[h!]
       \centering
-      \renewcommand{\arraystretch}{1.05}
-      \setlength{\tabcolsep}{2.5pt}
-        \begin{tabular}{ | p{0.05\linewidth} | p{0.61\linewidth} | p{0.14\linewidth} | p{0.13\linewidth} |}
+      \renewcommand{\arraystretch}{1.15}
+      \setlength{\tabcolsep}{3pt}
+      \makebox[\linewidth][c]{%
+        \begin{tabular}{ | p{0.06\textwidth} | p{0.70\textwidth} | p{0.17\textwidth} | p{0.20\textwidth} |}
           \hline
           \textbf{Bug} & \textbf{Description}                                                       & \textbf{Oracle}  & \textbf{Module} \\
           \hline
@@ -457,12 +457,12 @@ following questions:
           2116         & Advance after post-delete balancing did not advance B-tree cursor          & No Panic         & Storage Engine  \\
           \hline
         \end{tabular}%
+      }
       \caption{List of confirmed unique \db{} bugs found and reported by \tool{}}
       \label{dirt:tab:bugs}
     \end{table}
-  \end{scriptsize}
+  \end{footnotesize}
 \end{singlespace}
-\end{landscape}
 
 We have collected 23 confirmed and fixed unique bugs found by \tool{} in \db{} over the
 course its development, evolving in complexity as \db{} grows.
@@ -551,20 +551,12 @@ This does not mean that \tool{} has better generators or oracles than SQLancer. 
 it shows that for rapidly evolving databases with many missing features,
 database-integrated testing yields more actionable bugs.
 
-\makeatletter
-\begingroup
-\def\LS@rot{%
-  \setbox\@outputbox\vbox{\hbox{\rotatebox{-90}{\box\@outputbox}}}}
-\begin{landscape}
-\begin{figure}[p]
+\begin{figure}[h!]
   \centering
-  \includegraphics[width=0.96\linewidth,height=0.82\textheight,keepaspectratio]{figures/dirt/analysis.pdf}
+  \includegraphics[width=0.95\linewidth]{figures/dirt/analysis.pdf}
   \caption[Comparison of outcomes for \tool{} and SQLancer.]{Comparison of true positives, false positives, and no-bug outcomes for \tool{}, SQLancer-SQLite, and SQLancer-\db{}.}
   \label{dirt:fig:comparison}
 \end{figure}
-\end{landscape}
-\endgroup
-\makeatother
 
 \subsection{Discussion}
 
