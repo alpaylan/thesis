@@ -12,10 +12,11 @@
   % Checker
   \node[checker box, right=1.5cm of seedpool] (C1) {C};
 
-
   % Instrumentation container
   \node[feedback box, fit=(C1), inner sep=1pt] (F) {};
 
+  % Redraw checker above the instrumentation container
+  \node[checker box] at (C1) {C};
 
   % Arrows in fuzzing loop
   \draw[loop arrow] ([yshift=3pt]seedpool.east) to[] node[arrow label, above] {\texttt{check e}} ([yshift=3pt]C1.west);
