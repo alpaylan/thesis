@@ -54,7 +54,7 @@ def main() -> int:
     if len(sys.argv) < 2:
         return 0
     path = sys.argv[1]
-    with open(path, encoding="utf-8") as fh:
+    with open(path, encoding="utf-8", errors="surrogateescape") as fh:
         text = fh.read()
 
     if "difchgmark" in text:           # already injected
@@ -65,7 +65,7 @@ def main() -> int:
         return 0
     text = text[:idx] + INJECT + "\n" + text[idx:]
 
-    with open(path, "w", encoding="utf-8") as fh:
+    with open(path, "w", encoding="utf-8", errors="surrogateescape") as fh:
         fh.write(text)
     return 0
 

@@ -134,8 +134,8 @@ def git(*args: str, timeout: int = 120) -> str:
     env = dict(os.environ)
     env["GIT_TERMINAL_PROMPT"] = "0"   # never block on a credential prompt
     return subprocess.check_output(
-        ["git", *args], cwd=REPO_ROOT, text=True, stderr=subprocess.STDOUT,
-        env=env, timeout=timeout)
+        ["git", *args], cwd=REPO_ROOT, text=True, encoding="utf-8",
+        errors="replace", stderr=subprocess.STDOUT, env=env, timeout=timeout)
 
 
 CHGMETA_RE = re.compile(r"\\difchgmeta\{(\d+)\}\{(add|del)\}\{(\d+)\}\{([^}]*)\}")
@@ -243,7 +243,8 @@ def _run_streamed(cmd: list[str], cwd: str, jid: str,
     """Run cmd, stream its output into the job log, kill it if it hangs."""
     env = dict(os.environ)
     env["GIT_TERMINAL_PROMPT"] = "0"
-    proc = subprocess.Popen(cmd, cwd=cwd, text=True, env=env,
+    proc = subprocess.Popen(cmd, cwd=cwd, text=True, encoding="utf-8",
+                            errors="replace", env=env,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     timed_out = {"v": False}
 
@@ -369,7 +370,8 @@ def run_full_build(jid: str) -> None:
             shutil.copy2(built, out_pdf)
     finally:
         subprocess.run(["git", "worktree", "remove", "--force", wt],
-                       cwd=REPO_ROOT, capture_output=True, text=True)
+                       cwd=REPO_ROOT, capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
         shutil.rmtree(wt, ignore_errors=True)
     _finish(jid, out_pdf, rc, log_lines, round(time.time() - start, 1), "latexmk")
 
