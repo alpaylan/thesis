@@ -1,35 +1,48 @@
 name: LaTeX diff
 
 # Standalone latex-diff-viewer (https://github.com/alpaylan/latex-diff-viewer).
-# On a PR: build the base..head latexdiff, post a comment, upload the PDFs.
-# Manual: Actions -> LaTeX diff -> Run workflow (optionally type two commits).
-# Config lives in difftool.toml at the repo root.
+# One viewer (the `latexdiff-store` branch, served by GitHub Pages):
+#   * PR            -> build base..head, publish to the store, comment a "View" link.
+#   * push to main  -> seed recent commits' diffs into the store.
+#   * issue titled "latexdiff <base>..<head>" -> on-demand diff into the store.
+# Viewer: https://alpaylan.github.io/thesis/   Config: difftool.toml
 
 on:
   pull_request:
-  workflow_dispatch:
-    inputs:
-      base:
-        description: "Base ref (blank = the head commit's parent)"
-        required: false
-        default: ""
-      head:
-        description: "Compare ref (blank = latest commit)"
-        required: false
-        default: ""
+  push:
+    branches: [main]
+  issues:
+    types: [opened, edited]
 
 jobs:
+  # PR: build base..head, publish to the store viewer, comment a "View the diff" link.
   diff:
-    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    uses: alpaylan/latex-diff-viewer/.github/workflows/pr-diff.yml@v1
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: alpaylan/latex-diff-viewer@v1
-        with:
-          config: difftool.toml
-          base: ${{ inputs.base }}
-          head: ${{ inputs.head }}
+    with:
+      config: difftool.toml
+
+  # push to main: keep recent-history diffs in the viewer.
+  seed:
+    if: github.event_name == 'push'
+    uses: alpaylan/latex-diff-viewer/.github/workflows/store-seed.yml@v1
+    permissions:
+      contents: write
+    with:
+      config: difftool.toml
+      recent: 5
+
+  # issue "latexdiff <base>..<head>": on-demand diff into the same store.
+  ondemand:
+    if: github.event_name == 'issues' && contains(github.event.issue.title, '..')
+    uses: alpaylan/latex-diff-viewer/.github/workflows/issue-diff.yml@v1
+    permissions:
+      contents: write
+      issues: write
+    with:
+      title: ${{ github.event.issue.title }}
+      issue_number: ${{ github.event.issue.number }}
+      config: difftool.toml
